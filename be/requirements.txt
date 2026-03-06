@@ -1,0 +1,18 @@
+# WAS
+fastapi
+uvicorn
+
+# ENV
+python-dotenv
+
+# DB, DTO Schema
+sqlalchemy>=2.0.0
+aiosqlite
+pydantic
+
+# Password Hashing
+bcrypt<4.0
+passlib[bcrypt]==1.7.4
+
+# JWT Authorization
+PyJWT

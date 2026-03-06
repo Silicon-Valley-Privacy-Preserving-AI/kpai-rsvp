@@ -1,0 +1,11 @@
+services:
+  fastapi:
+    container_name: kpai-be
+    build: .
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env

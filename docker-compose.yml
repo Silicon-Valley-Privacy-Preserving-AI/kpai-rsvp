@@ -1,0 +1,41 @@
+services:
+  be:
+    container_name: kpai-be
+    build: ./be
+    restart: unless-stopped
+    volumes:
+      - ./be/data:/app/data
+    env_file:
+      - ./be/.env
+    networks:
+      - kpai-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/system/healthcheck')",
+        ]
+      interval: 300s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
+
+  fe:
+    container_name: kpai-fe
+    build: ./fe
+    restart: always
+    env_file:
+      - ./fe/.env
+    ports:
+      - "3001:80"
+    depends_on:
+      be:
+        condition: service_started
+    networks:
+      - kpai-network
+
+networks:
+  kpai-network:
+    driver: bridge
