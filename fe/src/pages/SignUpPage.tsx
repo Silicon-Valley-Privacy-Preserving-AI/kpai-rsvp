@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 
@@ -14,6 +15,7 @@ type SignUpRequest = {
 };
 
 export default function SignUpPage() {
+  const navigate = useNavigate();
   const [form, setForm] = useState<SignUpRequest>({
     username: "",
     email: "",
@@ -27,8 +29,18 @@ export default function SignUpPage() {
       const { data } = await axiosInstance.post(api.v1.users, payload);
       return data;
     },
-    onSuccess: () => {
-      alert("회원가입 성공");
+    onSuccess: async (_data, variables) => {
+      try {
+        const { data: loginData } = await axiosInstance.post(api.v1.auth.login, {
+          email: variables.email,
+          password: variables.password,
+        });
+        sessionStorage.setItem("accessToken", loginData.access_token);
+        navigate("/");
+      } catch {
+        alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+        navigate("/sign-in");
+      }
     },
     onError: (error: any) => {
       alert(error?.response?.data?.detail ?? "회원가입 실패");

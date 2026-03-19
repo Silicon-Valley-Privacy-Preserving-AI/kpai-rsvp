@@ -3,7 +3,8 @@ import { route } from "./route";
 import MainPage from "../pages/MainPage";
 import SignInPage from "../pages/SignInPage";
 import SignUpPage from "../pages/SignUpPage";
-import SeminarPage from "../pages/SeminarPage";
+import SeminarListPage from "../pages/SeminarListPage";
+import SeminarDetailPage from "../pages/SeminarDetailPage";
 import CheckInPage from "../pages/CheckInPage";
 
 export default function Router() {
@@ -12,7 +13,8 @@ export default function Router() {
       <Route path={route.main} element={<MainPage />} />
       <Route path={route.signup} element={<SignUpPage />} />
       <Route path={route.signin} element={<SignInPage />} />
-      <Route path={route.seminar} element={<SeminarPage />} />
+      <Route path={route.seminar} element={<SeminarListPage />} />
+      <Route path={route.seminarDetail} element={<SeminarDetailPage />} />
       <Route path={route.checkIn} element={<CheckInPage />} />
     </Routes>
   );

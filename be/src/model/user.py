@@ -28,3 +28,8 @@ class User(Base):
         backref="user",
         cascade="all, delete-orphan"
     )
+    seminar_waitlists = relationship(
+        "SeminarWaitlist",
+        backref="user",
+        cascade="all, delete-orphan"
+    )

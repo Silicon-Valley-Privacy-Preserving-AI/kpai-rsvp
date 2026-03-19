@@ -3,5 +3,6 @@ export const route = {
   signin: "/signin",
   signup: "/signup",
   seminar: "/seminar",
-  checkIn: "/check-in/:seminarId",
+  seminarDetail: "/seminar/:id",
+  checkIn: "/check-in",
 };

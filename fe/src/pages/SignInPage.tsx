@@ -6,7 +6,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function SignInPage() {
   const [form, setForm] = useState({
-    user: "",
     email: "",
     password: "",
   });
@@ -19,7 +18,6 @@ export default function SignInPage() {
 
   const mutation = useMutation({
     mutationFn: async (payload: {
-      user: string;
       email: string;
       password: string;
     }) => {
@@ -58,15 +56,6 @@ export default function SignInPage() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <input
-          name="user"
-          placeholder="user"
-          value={form.user}
-          onChange={handleChange}
-        />
-      </div>
-
       <div>
         <input
           name="email"
