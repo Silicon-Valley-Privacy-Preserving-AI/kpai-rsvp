@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 from src.model import User, SeminarRSVP, SeminarWaitlist, CheckInToken
 from src.model.seminar import Seminar
 from src.util.datetime_util import _ensure_utc
-from src.util.email_util import send_membership_email, send_reminder_email
+from src.util.email_util import send_membership_email, send_reminder_email, send_waitlist_promotion_email
 from src.schema.seminar import (
     SeminarCreateRequest,
     SeminarModifyRequest,
@@ -207,6 +207,7 @@ class SeminarService:
         await self.db.flush()
 
         # FIFO: promote first person on waitlist
+        promoted_user_id: int | None = None
         if seminar.waitlist_enabled:
             next_result = await self.db.execute(
                 select(SeminarWaitlist)
@@ -216,11 +217,29 @@ class SeminarService:
             )
             next_entry = next_result.scalar_one_or_none()
             if next_entry:
+                promoted_user_id = next_entry.user_id
                 new_rsvp = SeminarRSVP(user_id=next_entry.user_id, seminar_id=seminar.id)
                 self.db.add(new_rsvp)
                 await self.db.delete(next_entry)
 
         await self.db.commit()
+
+        if promoted_user_id is not None:
+            user_result = await self.db.execute(
+                select(User).where(User.id == promoted_user_id)
+            )
+            promoted_user = user_result.scalar_one_or_none()
+            if promoted_user:
+                await send_waitlist_promotion_email(
+                    to_email=promoted_user.email,
+                    username=promoted_user.username,
+                    title=seminar.title,
+                    start_time=seminar.start_time,
+                    end_time=seminar.end_time,
+                    location=seminar.location,
+                    host=seminar.host,
+                )
+
         return {"message": "RSVP cancelled"}
 
     async def cancel_waitlist(self, seminar: Seminar, user: User):
