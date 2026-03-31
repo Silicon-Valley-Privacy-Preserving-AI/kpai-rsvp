@@ -194,6 +194,23 @@ async def modify_user_checkin(
     return await seminar_service.modify_user_checkin(seminar, user_id, body.checked_in)
 
 
+# ── Reminder email ────────────────────────────────────────────────────────────
+
+@router.post(
+    "/{seminar_id}/reminder",
+    summary="(Staff) Send reminder emails to all RSVP'd attendees",
+)
+async def send_reminder(
+    seminar_id: int,
+    staff_user: User = Depends(get_current_staff),
+    seminar_service: SeminarService = Depends(get_seminar_service),
+):
+    seminar = await seminar_service.get_seminar_by_id(seminar_id)
+    if seminar is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Seminar not found")
+    return await seminar_service.send_reminder_emails(seminar)
+
+
 # ── Legacy direct check-in (kept for compatibility) ───────────────────────────
 
 @router.post("/{seminar_id}/check-in", summary="Check in for seminar (direct, legacy)")

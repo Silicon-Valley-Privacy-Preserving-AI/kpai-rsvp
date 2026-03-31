@@ -186,6 +186,16 @@ export default function SeminarDetailPage() {
 
   const [importResult, setImportResult] = useState<Record<string, any> | null>(null);
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const [reminderResult, setReminderResult] = useState<{ sent: number; errors: number; total_rsvp: number } | null>(null);
+
+  const reminderMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axiosInstance.post(api.v1.seminarReminder(seminarId));
+      return res.data;
+    },
+    onSuccess: (data) => setReminderResult(data),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "리마인더 발송 실패"),
+  });
 
   const importCsvMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -454,6 +464,48 @@ export default function SeminarDetailPage() {
         <p>
           <a href="/signin">로그인</a>하면 RSVP 할 수 있습니다.
         </p>
+      )}
+
+      {/* ── Staff: Reminder email ── */}
+      {isStaff && (
+        <section style={{ marginTop: "1rem" }}>
+          <h3>리마인더 이메일</h3>
+          <p style={{ fontSize: "0.85rem", color: "#555", margin: "0 0 10px" }}>
+            RSVP 등록된 모든 참석자에게 세미나 안내 이메일을 발송합니다.
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              onClick={() => {
+                if (confirm(`RSVP 참석자 ${seminar.current_rsvp_count}명에게 리마인더를 발송하시겠습니까?`)) {
+                  setReminderResult(null);
+                  reminderMutation.mutate();
+                }
+              }}
+              disabled={reminderMutation.isPending || seminar.current_rsvp_count === 0}
+            >
+              {reminderMutation.isPending ? "발송 중..." : "📧 리마인더 발송"}
+            </button>
+            {seminar.current_rsvp_count === 0 && (
+              <span style={{ fontSize: "0.85rem", color: "#aaa" }}>RSVP 참석자 없음</span>
+            )}
+          </div>
+          {reminderResult && (
+            <div
+              style={{
+                marginTop: 10,
+                padding: "10px 14px",
+                background: reminderResult.errors > 0 ? "#fff3f3" : "#f0fff4",
+                border: `1px solid ${reminderResult.errors > 0 ? "#ffb3b3" : "#b2f5d0"}`,
+                borderRadius: 6,
+                fontSize: "0.85rem",
+              }}
+            >
+              ✅ 발송 완료 — 성공 <strong>{reminderResult.sent}</strong>건 /
+              실패 <strong>{reminderResult.errors}</strong>건 /
+              총 RSVP <strong>{reminderResult.total_rsvp}</strong>명
+            </div>
+          )}
+        </section>
       )}
 
       {/* ── Staff: Check-in token management ── */}

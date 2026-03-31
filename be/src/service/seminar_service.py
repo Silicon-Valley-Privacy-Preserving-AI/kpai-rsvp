@@ -9,7 +9,7 @@ from sqlalchemy.orm import selectinload
 from src.model import User, SeminarRSVP, SeminarWaitlist, CheckInToken
 from src.model.seminar import Seminar
 from src.util.datetime_util import _ensure_utc
-from src.util.email_util import send_membership_email
+from src.util.email_util import send_membership_email, send_reminder_email
 from src.schema.seminar import (
     SeminarCreateRequest,
     SeminarModifyRequest,
@@ -353,6 +353,38 @@ class SeminarService:
                 await self._maybe_send_membership_email(target_user)
 
         return {"message": "Check-in status updated"}
+
+    # ── Reminder email ────────────────────────────────────────────────────────
+
+    async def send_reminder_emails(self, seminar: Seminar) -> dict:
+        """Send a reminder email to all RSVP'd users of the given seminar."""
+        rsvp_result = await self.db.execute(
+            select(SeminarRSVP, User)
+            .join(User, SeminarRSVP.user_id == User.id)
+            .where(SeminarRSVP.seminar_id == seminar.id)
+        )
+        rows = rsvp_result.all()
+
+        sent = 0
+        errors = 0
+        for rsvp, user in rows:
+            try:
+                await send_reminder_email(
+                    to_email=user.email,
+                    username=user.username,
+                    title=seminar.title,
+                    description=seminar.description,
+                    start_time=seminar.start_time,
+                    end_time=seminar.end_time,
+                    location=seminar.location,
+                    host=seminar.host,
+                    cover_image=seminar.cover_image,
+                )
+                sent += 1
+            except Exception:
+                errors += 1
+
+        return {"sent": sent, "errors": errors, "total_rsvp": len(rows)}
 
     # ── Legacy direct check-in (kept for compatibility) ───────────────────────
 

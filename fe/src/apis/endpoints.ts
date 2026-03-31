@@ -17,6 +17,7 @@ export const api = {
       `/api/v1/seminars/${seminarId}/users/${userId}/checkin`,
 
     importCsv: (seminarId: number) => `/api/v1/import/${seminarId}`,
+    seminarReminder: (seminarId: number) => `/api/v1/seminars/${seminarId}/reminder`,
 
     // Legacy direct check-in
     seminarCheckIn: (seminarId: number) => `/api/v1/seminars/${seminarId}/check-in`,
