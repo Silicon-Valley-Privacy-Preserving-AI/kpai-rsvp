@@ -6,6 +6,7 @@ import SignUpPage from "../pages/SignUpPage";
 import SeminarListPage from "../pages/SeminarListPage";
 import SeminarDetailPage from "../pages/SeminarDetailPage";
 import CheckInPage from "../pages/CheckInPage";
+import AdminPage from "../pages/AdminPage";
 
 export default function Router() {
   return (
@@ -16,6 +17,7 @@ export default function Router() {
       <Route path={route.seminar} element={<SeminarListPage />} />
       <Route path={route.seminarDetail} element={<SeminarDetailPage />} />
       <Route path={route.checkIn} element={<CheckInPage />} />
+      <Route path={route.admin} element={<AdminPage />} />
     </Routes>
   );
 }

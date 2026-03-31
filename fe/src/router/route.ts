@@ -5,4 +5,5 @@ export const route = {
   seminar: "/seminar",
   seminarDetail: "/seminar/:id",
   checkIn: "/check-in",
+  admin: "/admin",
 };

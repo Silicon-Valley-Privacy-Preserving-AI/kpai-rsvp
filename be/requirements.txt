@@ -1,6 +1,7 @@
 # WAS
 fastapi
 uvicorn
+python-multipart
 
 # ENV
 python-dotenv

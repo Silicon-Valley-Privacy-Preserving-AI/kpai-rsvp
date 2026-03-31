@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field
 from src.model.user import UserRole
 
@@ -21,3 +22,22 @@ class UserResponse(BaseModel):
     username: str
     email: str
     role: str
+    is_temporary: bool = False
+
+
+class SetPasswordRequest(BaseModel):
+    email: str = Field(..., description="Email of the temporary account")
+    new_password: str = Field(..., min_length=4, description="New password to set")
+
+
+class UserAdminResponse(BaseModel):
+    id: int
+    created_at: datetime
+    email: str
+    username: str
+    role: str
+    is_temporary: bool
+    full_member_email_sent: bool
+
+    class Config:
+        from_attributes = True

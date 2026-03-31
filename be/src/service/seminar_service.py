@@ -9,6 +9,7 @@ from sqlalchemy.orm import selectinload
 from src.model import User, SeminarRSVP, SeminarWaitlist, CheckInToken
 from src.model.seminar import Seminar
 from src.util.datetime_util import _ensure_utc
+from src.util.email_util import send_membership_email
 from src.schema.seminar import (
     SeminarCreateRequest,
     SeminarModifyRequest,
@@ -19,6 +20,21 @@ from src.schema.seminar import (
 class SeminarService:
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    async def _maybe_send_membership_email(self, user: User) -> None:
+        """Send membership email if user just reached 2+ check-ins and hasn't been notified."""
+        if user.full_member_email_sent:
+            return
+        count_result = await self.db.execute(
+            select(func.count(SeminarRSVP.id)).where(
+                SeminarRSVP.user_id == user.id,
+                SeminarRSVP.checked_in.is_(True),
+            )
+        )
+        if count_result.scalar_one() >= 2:
+            await send_membership_email(user.email, user.username)
+            user.full_member_email_sent = True
+            await self.db.commit()
 
     # ── Seminar CRUD ──────────────────────────────────────────────────────────
 
@@ -306,6 +322,9 @@ class SeminarService:
         rsvp.checked_in = True
         rsvp.checked_in_at = datetime.now(UTC)
         await self.db.commit()
+
+        await self._maybe_send_membership_email(user)
+
         return {"message": "Check-in successful", "seminar_id": token.seminar_id}
 
     # ── Staff: modify individual user check-in ────────────────────────────────
@@ -324,6 +343,15 @@ class SeminarService:
         rsvp.checked_in = checked_in
         rsvp.checked_in_at = datetime.now(UTC) if checked_in else None
         await self.db.commit()
+
+        if checked_in:
+            target_result = await self.db.execute(
+                select(User).where(User.id == target_user_id)
+            )
+            target_user = target_result.scalar_one_or_none()
+            if target_user:
+                await self._maybe_send_membership_email(target_user)
+
         return {"message": "Check-in status updated"}
 
     # ── Legacy direct check-in (kept for compatibility) ───────────────────────

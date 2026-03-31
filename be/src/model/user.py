@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.config.database import Base
-from sqlalchemy import func, DateTime
+from sqlalchemy import func, DateTime, Boolean
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from sqlalchemy import Enum as SQLEnum
 
 class UserRole(str, Enum):
@@ -16,7 +17,9 @@ class User(Base):
 
     email: Mapped[str] = mapped_column(unique=True, index=True)
     username: Mapped[str] = mapped_column()
-    password: Mapped[str] = mapped_column()
+    password: Mapped[Optional[str]] = mapped_column(nullable=True)  # None for temporary users
+    is_temporary: Mapped[bool] = mapped_column(Boolean, default=False)
+    full_member_email_sent: Mapped[bool] = mapped_column(Boolean, default=False)
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole, name="user_role_enum"),
         default=UserRole.MEMBER,

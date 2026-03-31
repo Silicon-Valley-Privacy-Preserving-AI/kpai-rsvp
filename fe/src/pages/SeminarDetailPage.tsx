@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
@@ -182,6 +182,26 @@ export default function SeminarDetailPage() {
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }),
     onError: (e: any) => alert(e.response?.data?.detail ?? "체크인 수정 실패"),
+  });
+
+  const [importResult, setImportResult] = useState<Record<string, any> | null>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
+
+  const importCsvMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await axiosInstance.post(api.v1.importCsv(seminarId), formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data;
+    },
+    onSuccess: (data) => {
+      setImportResult(data);
+      queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] });
+      if (csvInputRef.current) csvInputRef.current.value = "";
+    },
+    onError: (e: any) => alert(e.response?.data?.detail ?? "CSV 임포트 실패"),
   });
 
   // ── Derived state ──────────────────────────────────────────────────────────
@@ -495,6 +515,68 @@ export default function SeminarDetailPage() {
                 disabled={createTokenMutation.isPending}
               >
                 체크인 시작
+              </button>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── Staff: CSV Import ── */}
+      {isStaff && (
+        <section style={{ marginTop: "1rem" }}>
+          <h3>CSV 참석자 임포트</h3>
+          <p style={{ fontSize: "0.85rem", color: "#555", margin: "0 0 8px" }}>
+            Luma에서 내보낸 CSV 파일을 업로드하면 참석자를 자동으로 등록합니다.
+          </p>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <input
+              ref={csvInputRef}
+              type="file"
+              accept=".csv"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) importCsvMutation.mutate(file);
+              }}
+              disabled={importCsvMutation.isPending}
+            />
+            {importCsvMutation.isPending && <span>처리 중...</span>}
+          </div>
+          {importResult && (
+            <div
+              style={{
+                marginTop: 12,
+                padding: "12px",
+                background: "#f9f9f9",
+                border: "1px solid #ddd",
+                borderRadius: 4,
+                fontSize: "0.85rem",
+              }}
+            >
+              <strong>임포트 결과</strong>
+              <ul style={{ margin: "8px 0 0", paddingLeft: 20 }}>
+                <li>총 행수: {importResult.total}</li>
+                <li>기존 유저 매칭: {importResult.matched_regular}명</li>
+                <li>기존 임시 유저 매칭: {importResult.matched_temporary}명</li>
+                <li>임시 유저 신규 생성: {importResult.created_temporary}명</li>
+                <li>RSVP 생성: {importResult.rsvp_created}건</li>
+                <li>RSVP 중복 스킵: {importResult.rsvp_skipped}건</li>
+                <li>정회원 이메일 발송: {importResult.membership_emails_sent}건</li>
+                {importResult.errors?.length > 0 && (
+                  <li style={{ color: "red" }}>
+                    오류 {importResult.errors.length}건:
+                    <ul>
+                      {importResult.errors.map((e: string, i: number) => (
+                        <li key={i}>{e}</li>
+                      ))}
+                    </ul>
+                  </li>
+                )}
+              </ul>
+              <button
+                style={{ marginTop: 8, fontSize: "0.8rem" }}
+                onClick={() => setImportResult(null)}
+              >
+                결과 닫기
               </button>
             </div>
           )}

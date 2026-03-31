@@ -1,6 +1,8 @@
 export const api = {
   v1: {
     users: "/api/v1/users",
+    usersList: "/api/v1/users/list",
+    setPassword: "/api/v1/users/set-password",
 
     auth: {
       login: "/api/v1/auth/login",
@@ -13,6 +15,8 @@ export const api = {
     seminarCheckinToken: (seminarId: number) => `/api/v1/seminars/${seminarId}/checkin-token`,
     seminarUserCheckin: (seminarId: number, userId: number) =>
       `/api/v1/seminars/${seminarId}/users/${userId}/checkin`,
+
+    importCsv: (seminarId: number) => `/api/v1/import/${seminarId}`,
 
     // Legacy direct check-in
     seminarCheckIn: (seminarId: number) => `/api/v1/seminars/${seminarId}/check-in`,

@@ -6,7 +6,8 @@ from src.model.user import User
 from src.route.v1.auth import get_auth_service
 from src.service.auth_service import AuthService
 from src.service.user_service import UserService
-from src.schema.user import UserCreateRequest, UserModifyRequest, UserResponse
+from src.schema.user import UserCreateRequest, UserModifyRequest, UserResponse, SetPasswordRequest, UserAdminResponse
+from src.model.user import UserRole
 from src.util.security import http_bearer
 from fastapi import status
 
@@ -54,3 +55,38 @@ async def delete_user(
         user_service: UserService = Depends(get_user_service)
 ):
     return await user_service.delete_user(current_user)
+
+
+@router.post(
+    "/set-password",
+    summary="Set password for a temporary account (imported via CSV)",
+    description=(
+        "Converts a temporary account (created during CSV import) into a full account. "
+        "Provide the email that was imported. "
+        "Returns 409 if the account already has a password."
+    ),
+    response_model=UserResponse,
+)
+async def set_password(
+        payload: SetPasswordRequest,
+        user_service: UserService = Depends(get_user_service),
+):
+    return await user_service.set_password_for_temp_user(
+        email=payload.email,
+        new_password=payload.new_password,
+    )
+
+
+@router.get(
+    "/list",
+    summary="(Staff) Get all users",
+    response_model=list[UserAdminResponse],
+)
+async def list_users(
+        current_user: User = Depends(get_current_user),
+        user_service: UserService = Depends(get_user_service),
+):
+    from fastapi import HTTPException
+    if current_user.role != UserRole.STAFF:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Staff only")
+    return await user_service.get_all_users()

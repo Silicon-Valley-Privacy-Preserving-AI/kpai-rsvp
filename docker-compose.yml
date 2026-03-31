@@ -21,6 +21,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 300s
+    ports:
+      - "8000:8000"
 
   fe:
     container_name: kpai-fe
@@ -33,6 +35,15 @@ services:
     depends_on:
       be:
         condition: service_started
+    networks:
+      - kpai-network
+
+  mailhog:
+    container_name: kpai-mailhog
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "8025:8025"   # Web UI — http://localhost:8025
     networks:
       - kpai-network
 

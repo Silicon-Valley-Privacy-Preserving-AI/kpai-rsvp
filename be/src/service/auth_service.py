@@ -12,7 +12,13 @@ class AuthService:
 
     async def login(self, email: str, password: str):
         user = await self.user_service.get_user_by_email(email)
-        if not user or not verify_password(password, user.password):
+        if user and user.is_temporary:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="This account was automatically created via CSV import and has no password. "
+                       "Please set a password first via POST /api/v1/users/set-password.",
+            )
+        if not user or user.password is None or not verify_password(password, user.password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect email or password"

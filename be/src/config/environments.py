@@ -30,3 +30,11 @@ if not all([JWT_SECRET, ALGORITHM, TOKEN_LIFETIME_MINUTE]):
 STAFF_CODE = os.getenv("STAFF_CODE")
 if not STAFF_CODE:
     raise RuntimeError("STAFF_CODE is missing in the .env file")
+
+
+# SMTP (optional — emails are skipped if SMTP_HOST is not set)
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
+SMTP_USER = os.getenv("SMTP_USER", "")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+SMTP_FROM = os.getenv("SMTP_FROM", "")
