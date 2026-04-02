@@ -21,8 +21,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 300s
-    ports:
-      - "8000:8000"
+    # BE port is intentionally not exposed externally.
+    # FE nginx proxies /api/ → http://be:8000 over the internal kpai-network.
 
   fe:
     container_name: kpai-fe
