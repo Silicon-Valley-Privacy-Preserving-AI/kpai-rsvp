@@ -70,6 +70,11 @@ function pct(num: number, den: number) {
   return `${Math.round((num / den) * 100)}%`;
 }
 
+/** Returns true when actual count exceeds stated capacity. */
+function isOverCapacity(count: number, capacity: number | null): boolean {
+  return capacity != null && count > capacity;
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 interface SeminarRowProps {
@@ -85,6 +90,7 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
   const checkinCount = semRsvps.filter((r) => r.checked_in).length;
   const rsvpCount = semRsvps.length;
   const noshowCount = rsvpCount - checkinCount;
+  const overCapacity = isOverCapacity(rsvpCount, seminar.max_capacity);
 
   const userMap = Object.fromEntries(users.map((u) => [u.id, u]));
 
@@ -118,9 +124,13 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
             <PillLabel>No-show</PillLabel>
           </StatPill>
           {seminar.max_capacity != null && (
-            <StatPill color="purple">
-              <PillNum>{pct(rsvpCount, seminar.max_capacity)}</PillNum>
-              <PillLabel>Fill Rate</PillLabel>
+            <StatPill color={overCapacity ? "red" : "purple"}>
+              <PillNum>
+                {overCapacity
+                  ? `${rsvpCount}/${seminar.max_capacity}`
+                  : pct(rsvpCount, seminar.max_capacity)}
+              </PillNum>
+              <PillLabel>{overCapacity ? "Over Cap ⚠" : "Fill Rate"}</PillLabel>
             </StatPill>
           )}
         </StatPills>
@@ -159,8 +169,14 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
               <>
                 <StatDivider />
                 <StatItem>
-                  <StatBig color="#0ea5e9">{pct(rsvpCount, seminar.max_capacity)}</StatBig>
-                  <StatSub>Capacity Fill</StatSub>
+                  <StatBig color={overCapacity ? "#ef4444" : "#0ea5e9"}>
+                    {overCapacity
+                      ? `${rsvpCount} / ${seminar.max_capacity}`
+                      : pct(rsvpCount, seminar.max_capacity)}
+                  </StatBig>
+                  <StatSub>
+                    {overCapacity ? "⚠ Over Capacity" : "Capacity Fill"}
+                  </StatSub>
                 </StatItem>
               </>
             )}
@@ -559,14 +575,15 @@ const StatPills = styled.div`
   flex-wrap: wrap;
 `;
 
-const StatPill = styled.div<{ color?: "green" | "orange" | "purple" }>`
+const StatPill = styled.div<{ color?: "green" | "orange" | "purple" | "red" }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   background: ${({ color }) =>
     color === "green" ? "#d1fae5" :
     color === "orange" ? "#ffedd5" :
-    color === "purple" ? "#ede9fe" : "#f3f4f6"};
+    color === "purple" ? "#ede9fe" :
+    color === "red" ? "#fee2e2" : "#f3f4f6"};
   border-radius: 8px;
   padding: 6px 12px;
   min-width: 52px;
