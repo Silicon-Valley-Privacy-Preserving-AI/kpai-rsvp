@@ -7,6 +7,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Optional
 
+import markdown as _md
+
 from src.config.environments import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM
 
 logger = logging.getLogger(__name__)
@@ -174,11 +176,31 @@ def _build_reminder_email(
         f'</tr>'
         if location else ""
     )
-    desc_block = (
-        f'<p style="margin:24px 0 0;font-size:14px;line-height:1.7;color:#444;">'
-        f'{description.replace(chr(10), "<br>")}</p>'
-        if description else ""
-    )
+    if description:
+        md_html = _md.markdown(description, extensions=["extra", "nl2br"])
+        desc_block = (
+            f'<div style="margin:24px 0 0;border-top:1px solid #e8e4f8;padding-top:20px;">'
+            # Scoped styles for common markdown elements — email clients ignore <link>/<style> in <head>
+            f'<style>'
+            f'.md-body{{font-size:14px;line-height:1.75;color:#444;}}'
+            f'.md-body h1,.md-body h2,.md-body h3{{color:#1a1a2e;font-weight:700;margin:16px 0 6px;}}'
+            f'.md-body h1{{font-size:20px;}}.md-body h2{{font-size:17px;}}.md-body h3{{font-size:15px;}}'
+            f'.md-body p{{margin:8px 0;}}'
+            f'.md-body ul,.md-body ol{{margin:8px 0;padding-left:22px;}}'
+            f'.md-body li{{margin-bottom:4px;}}'
+            f'.md-body a{{color:#6c5ce7;text-decoration:underline;}}'
+            f'.md-body strong{{font-weight:700;color:#1a1a2e;}}'
+            f'.md-body em{{font-style:italic;}}'
+            f'.md-body code{{background:#f0eeff;color:#6c5ce7;padding:2px 5px;border-radius:3px;font-size:13px;}}'
+            f'.md-body blockquote{{border-left:4px solid #6c5ce7;margin:12px 0;padding:8px 14px;'
+            f'background:#f8f6ff;border-radius:0 6px 6px 0;color:#555;}}'
+            f'.md-body hr{{border:none;border-top:1px solid #e8e4f8;margin:14px 0;}}'
+            f'</style>'
+            f'<div class="md-body">{md_html}</div>'
+            f'</div>'
+        )
+    else:
+        desc_block = ""
 
     html = f"""\
 <!DOCTYPE html>

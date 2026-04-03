@@ -17,3 +17,6 @@ passlib[bcrypt]==1.7.4
 
 # JWT Authorization
 PyJWT
+
+# Markdown → HTML (for email rendering)
+markdown
