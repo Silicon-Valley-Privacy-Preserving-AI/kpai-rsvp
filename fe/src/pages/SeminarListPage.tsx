@@ -23,6 +23,24 @@ import {
   AlertBox,
 } from "../components/ui";
 
+/** Strip markdown syntax for plain-text card previews. */
+function stripMarkdown(md: string): string {
+  return md
+    .replace(/```[\s\S]*?```/g, "")   // fenced code blocks
+    .replace(/`[^`]*`/g, "")           // inline code
+    .replace(/!\[.*?\]\(.*?\)/g, "")   // images
+    .replace(/\[([^\]]+)\]\(.*?\)/g, "$1") // links → label
+    .replace(/^#{1,6}\s+/gm, "")       // headings
+    .replace(/(\*\*|__)(.*?)\1/g, "$2") // bold
+    .replace(/(\*|_)(.*?)\1/g, "$2")   // italic
+    .replace(/^[-*+]\s+/gm, "")        // list bullets
+    .replace(/^\d+\.\s+/gm, "")        // ordered list
+    .replace(/^>\s+/gm, "")            // blockquotes
+    .replace(/[-]{3,}/g, "")           // hr
+    .replace(/\n+/g, " ")
+    .trim();
+}
+
 function formatDate(iso: string | null) {
   if (!iso) return null;
   return new Date(iso).toLocaleString("ko-KR", {
@@ -198,7 +216,7 @@ export default function SeminarListPage() {
 
                 <SeminarTitle>{s.title}</SeminarTitle>
                 {s.host && <HostLine>🎙 {s.host}</HostLine>}
-                {s.description && <Description>{s.description}</Description>}
+                {s.description && <Description>{stripMarkdown(s.description)}</Description>}
 
                 <MetaBlock>
                   {s.start_time && (

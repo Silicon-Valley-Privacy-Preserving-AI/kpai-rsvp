@@ -7,6 +7,7 @@ import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 import { toLocalInput, toUtcIso } from "../utils/datetime";
 import type { SeminarDetailResponse, CheckInTokenResponse } from "../types/seminar";
+import MarkdownContent from "../components/MarkdownContent";
 import {
   Button,
   Input,
@@ -218,7 +219,11 @@ export default function SeminarDetailPage() {
             </TagRow>
             <SeminarTitle>{seminar.title}</SeminarTitle>
             {seminar.host && <HostLine>🎙 {seminar.host}</HostLine>}
-            {seminar.description && <SeminarDesc>{seminar.description}</SeminarDesc>}
+            {seminar.description && (
+              <SeminarDescWrap>
+                <MarkdownContent>{seminar.description}</MarkdownContent>
+              </SeminarDescWrap>
+            )}
 
             <MetaGrid>
               {seminar.start_time && (
@@ -603,10 +608,7 @@ const HostLine = styled.div`
   margin-bottom: 12px;
 `;
 
-const SeminarDesc = styled.p`
-  font-size: 15px;
-  color: #6b7280;
-  line-height: 1.7;
+const SeminarDescWrap = styled.div`
   margin-bottom: 20px;
 `;
 
