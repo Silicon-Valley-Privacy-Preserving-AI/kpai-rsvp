@@ -12,6 +12,7 @@ import {
   FormGroup,
   AlertBox,
 } from "../components/ui";
+import { AlertTriangleIcon } from "../components/icons";
 
 export default function SignInPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -60,8 +61,8 @@ export default function SignInPage() {
 
         <form onSubmit={handleSubmit}>
           {errorMsg && (
-            <AlertBox variant="error" style={{ marginBottom: 20 }}>
-              ⚠️ {errorMsg}
+            <AlertBox variant="error" style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+              <AlertTriangleIcon size={16} /> {errorMsg}
             </AlertBox>
           )}
 

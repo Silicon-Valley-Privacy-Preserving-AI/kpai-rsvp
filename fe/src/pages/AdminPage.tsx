@@ -20,6 +20,7 @@ import {
   AlertBox,
   EmptyState,
 } from "../components/ui";
+import { CalendarIcon, MicIcon, MapPinIcon, UserIcon, GraduationCapIcon, AlertTriangleIcon } from "../components/icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -103,9 +104,9 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
           <HeaderInfo>
             <SeminarName>{seminar.title}</SeminarName>
             <SeminarMeta>
-              {seminar.start_time && <span>📅 {formatDate(seminar.start_time)}</span>}
-              {seminar.host && <span>🎙 {seminar.host}</span>}
-              {seminar.location && <span>📍 {seminar.location}</span>}
+              {seminar.start_time && <span><CalendarIcon size={12} />{formatDate(seminar.start_time)}</span>}
+              {seminar.host && <span><MicIcon size={12} />{seminar.host}</span>}
+              {seminar.location && <span><MapPinIcon size={12} />{seminar.location}</span>}
             </SeminarMeta>
           </HeaderInfo>
         </HeaderLeft>
@@ -130,7 +131,7 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
                   ? `${rsvpCount}/${seminar.max_capacity}`
                   : pct(rsvpCount, seminar.max_capacity)}
               </PillNum>
-              <PillLabel>{overCapacity ? "Over Cap ⚠" : "Fill Rate"}</PillLabel>
+              <PillLabel>{overCapacity ? <OverCapLabel><AlertTriangleIcon size={11} color="#ef4444" /> Over Cap</OverCapLabel> : "Fill Rate"}</PillLabel>
             </StatPill>
           )}
         </StatPills>
@@ -175,7 +176,9 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
                       : pct(rsvpCount, seminar.max_capacity)}
                   </StatBig>
                   <StatSub>
-                    {overCapacity ? "⚠ Over Capacity" : "Capacity Fill"}
+                    {overCapacity
+                      ? <OverCapLabel><AlertTriangleIcon size={12} color="#ef4444" /> Over Capacity</OverCapLabel>
+                      : "Capacity Fill"}
                   </StatSub>
                 </StatItem>
               </>
@@ -346,10 +349,10 @@ export default function AdminPage() {
       {/* ── Tabs ── */}
       <TabBar>
         <TabBtn active={tab === "users"} onClick={() => setTab("users")}>
-          👤 Users <TabCount>{users.length}</TabCount>
+          <UserIcon size={15} /> Users <TabCount>{users.length}</TabCount>
         </TabBtn>
         <TabBtn active={tab === "seminars"} onClick={() => setTab("seminars")}>
-          🎓 Seminars <TabCount>{seminars.length}</TabCount>
+          <GraduationCapIcon size={15} /> Seminars <TabCount>{seminars.length}</TabCount>
         </TabBtn>
       </TabBar>
 
@@ -565,6 +568,9 @@ const SeminarMeta = styled.div`
   span {
     font-size: 12px;
     color: #9ca3af;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
   }
 `;
 
@@ -635,6 +641,12 @@ const StatBig = styled.div<{ color?: string }>`
   font-weight: 800;
   color: ${({ color }) => color ?? "#111827"};
   letter-spacing: -0.02em;
+`;
+
+const OverCapLabel = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 `;
 
 const StatSub = styled.div`

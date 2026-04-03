@@ -5,6 +5,7 @@ import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 import { route } from "../router/route";
 import { Button, Badge } from "../components/ui";
+import { GraduationCapIcon, KeyIcon, SparklesIcon, SettingsIcon } from "../components/icons";
 
 type User = {
   id: number;
@@ -87,19 +88,19 @@ export default function MainPage() {
       {/* ── Feature tiles ── */}
       <TileGrid>
         <Tile to={route.seminar}>
-          <TileIcon>🎓</TileIcon>
+          <TileIcon><GraduationCapIcon size={28} color="#6c5ce7" /></TileIcon>
           <TileTitle>Seminars</TileTitle>
           <TileDesc>Browse and RSVP for upcoming K-PAI seminars and events.</TileDesc>
         </Tile>
         {!isLoggedIn && (
           <>
             <Tile to={route.signin}>
-              <TileIcon>🔑</TileIcon>
+              <TileIcon><KeyIcon size={28} color="#6c5ce7" /></TileIcon>
               <TileTitle>Sign In</TileTitle>
               <TileDesc>Already a member? Sign in to manage your RSVPs.</TileDesc>
             </Tile>
             <Tile to={route.signup}>
-              <TileIcon>✨</TileIcon>
+              <TileIcon><SparklesIcon size={28} color="#6c5ce7" /></TileIcon>
               <TileTitle>Sign Up</TileTitle>
               <TileDesc>Create an account to participate in seminars.</TileDesc>
             </Tile>
@@ -107,7 +108,7 @@ export default function MainPage() {
         )}
         {data?.role === "staff" && (
           <Tile to={route.admin}>
-            <TileIcon>⚙️</TileIcon>
+            <TileIcon><SettingsIcon size={28} color="#6c5ce7" /></TileIcon>
             <TileTitle>Admin</TileTitle>
             <TileDesc>Manage users, seminars, and attendance records.</TileDesc>
           </Tile>
@@ -263,7 +264,13 @@ const Tile = styled(Link)`
 `;
 
 const TileIcon = styled.div`
-  font-size: 28px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ede9fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 12px;
 `;
 

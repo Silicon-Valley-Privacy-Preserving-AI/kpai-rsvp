@@ -9,6 +9,11 @@ import { toLocalInput, toUtcIso } from "../utils/datetime";
 import type { SeminarDetailResponse, CheckInTokenResponse } from "../types/seminar";
 import MarkdownContent from "../components/MarkdownContent";
 import {
+  CalendarIcon, MapPinIcon, MicIcon, UsersIcon,
+  CheckCircleIcon, CheckIcon, ClockIcon,
+  MailIcon, LockIcon, FolderOpenIcon, ShieldCheckIcon,
+} from "../components/icons";
+import {
   Button,
   Input,
   Textarea,
@@ -218,7 +223,7 @@ export default function SeminarDetailPage() {
               {seminar.waitlist_enabled && <Badge color="blue">Waitlist</Badge>}
             </TagRow>
             <SeminarTitle>{seminar.title}</SeminarTitle>
-            {seminar.host && <HostLine>🎙 {seminar.host}</HostLine>}
+            {seminar.host && <HostLine><MicIcon size={14} />{seminar.host}</HostLine>}
             {seminar.description && (
               <SeminarDescWrap>
                 <MarkdownContent>{seminar.description}</MarkdownContent>
@@ -228,7 +233,7 @@ export default function SeminarDetailPage() {
             <MetaGrid>
               {seminar.start_time && (
                 <MetaItem>
-                  <MetaIcon>📅</MetaIcon>
+                  <MetaIcon><CalendarIcon size={16} color="#6c5ce7" /></MetaIcon>
                   <div>
                     <MetaLabel>Date & Time</MetaLabel>
                     <MetaValue>{formatDate(seminar.start_time)}{seminar.end_time && ` — ${formatDate(seminar.end_time)}`}</MetaValue>
@@ -237,7 +242,7 @@ export default function SeminarDetailPage() {
               )}
               {seminar.location && (
                 <MetaItem>
-                  <MetaIcon>📍</MetaIcon>
+                  <MetaIcon><MapPinIcon size={16} color="#6c5ce7" /></MetaIcon>
                   <div>
                     <MetaLabel>Location</MetaLabel>
                     <MetaValue>{seminar.location}</MetaValue>
@@ -254,7 +259,7 @@ export default function SeminarDetailPage() {
                 />
               )}
               <MetaItem>
-                <MetaIcon>👥</MetaIcon>
+                <MetaIcon><UsersIcon size={16} color="#6c5ce7" /></MetaIcon>
                 <div>
                   <MetaLabel>Capacity</MetaLabel>
                   <MetaValue>
@@ -351,9 +356,9 @@ export default function SeminarDetailPage() {
             </AlertBox>
           ) : myRsvp ? (
             <RsvpStatus>
-              <RsvpBadge confirmed>✅ RSVP Confirmed</RsvpBadge>
+              <RsvpBadge confirmed><CheckCircleIcon size={16} /> RSVP Confirmed</RsvpBadge>
               {myRsvp.checked_in && (
-                <RsvpSub>☑ Checked in at {formatDate(myRsvp.checked_in_at)}</RsvpSub>
+                <RsvpSub><CheckIcon size={14} /> Checked in at {formatDate(myRsvp.checked_in_at)}</RsvpSub>
               )}
               <Button variant="danger" size="sm" onClick={() => cancelRsvpMutation.mutate()} disabled={cancelRsvpMutation.isPending}>
                 {cancelRsvpMutation.isPending ? "Cancelling…" : "Cancel RSVP"}
@@ -361,7 +366,7 @@ export default function SeminarDetailPage() {
             </RsvpStatus>
           ) : myWaitlist ? (
             <RsvpStatus>
-              <RsvpBadge>⏳ Waitlisted — #{myWaitlist.position}</RsvpBadge>
+              <RsvpBadge><ClockIcon size={16} /> Waitlisted — #{myWaitlist.position}</RsvpBadge>
               <Button variant="ghost" size="sm" onClick={() => cancelWaitlistMutation.mutate()} disabled={cancelWaitlistMutation.isPending}>
                 {cancelWaitlistMutation.isPending ? "Cancelling…" : "Cancel Waitlist"}
               </Button>
@@ -379,7 +384,7 @@ export default function SeminarDetailPage() {
       {/* ── Staff: Reminder email ── */}
       {isStaff && (
         <SectionBlock>
-          <SectionTitle>📧 Reminder Email</SectionTitle>
+          <SectionTitle><MailIcon size={17} /> Reminder Email</SectionTitle>
           <SectionDesc>Sends a seminar reminder email to all RSVP'd attendees.</SectionDesc>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <Button
@@ -409,11 +414,11 @@ export default function SeminarDetailPage() {
       {/* ── Staff: Check-in token ── */}
       {isStaff && (
         <SectionBlock>
-          <SectionTitle>🔐 Check-in Management</SectionTitle>
+          <SectionTitle><LockIcon size={17} /> Check-in Management</SectionTitle>
           {tokenActive ? (
             <>
               <AlertBox variant="success" style={{ marginBottom: 14 }}>
-                ✅ Check-in active &nbsp;|&nbsp; Expires: {formatDate(activeToken!.expires_at)}
+                <ShieldCheckIcon size={15} /> Check-in active &nbsp;|&nbsp; Expires: {formatDate(activeToken!.expires_at)}
               </AlertBox>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
                 <Button variant="secondary" size="sm" onClick={() => setShowQR((v) => !v)}>
@@ -455,7 +460,7 @@ export default function SeminarDetailPage() {
       {/* ── Staff: CSV Import ── */}
       {isStaff && (
         <SectionBlock>
-          <SectionTitle>📂 CSV Import</SectionTitle>
+          <SectionTitle><FolderOpenIcon size={17} /> CSV Import</SectionTitle>
           <SectionDesc>Upload a CSV exported from Luma to automatically register attendees.</SectionDesc>
           <CsvRow>
             <FileInput
@@ -495,7 +500,7 @@ export default function SeminarDetailPage() {
       {/* ── Staff: RSVP list ── */}
       {isStaff && (
         <SectionBlock>
-          <SectionTitle>👥 RSVP List ({seminar.current_rsvp_count})</SectionTitle>
+          <SectionTitle><UsersIcon size={17} /> RSVP List ({seminar.current_rsvp_count})</SectionTitle>
           {seminar.users.length === 0 ? (
             <EmptyState style={{ padding: "24px 0" }}>No RSVPs yet</EmptyState>
           ) : (
@@ -543,7 +548,7 @@ export default function SeminarDetailPage() {
       {/* ── Staff: Waitlist ── */}
       {isStaff && seminar.waitlist_enabled && (
         <SectionBlock>
-          <SectionTitle>⏳ Waitlist ({seminar.waitlist_count})</SectionTitle>
+          <SectionTitle><ClockIcon size={17} /> Waitlist ({seminar.waitlist_count})</SectionTitle>
           {seminar.waitlist.length === 0 ? (
             <EmptyState style={{ padding: "24px 0" }}>No one on the waitlist</EmptyState>
           ) : (
@@ -580,11 +585,12 @@ export default function SeminarDetailPage() {
 
 const CoverImg = styled.img`
   width: 100%;
-  height: 260px;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   border-radius: 14px;
   margin-bottom: 24px;
   display: block;
+  background: #f3f0ff;
 `;
 
 const InfoSection = styled.div`
@@ -615,6 +621,9 @@ const HostLine = styled.div`
   color: #6c5ce7;
   font-weight: 600;
   margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 const SeminarDescWrap = styled.div`
@@ -630,14 +639,19 @@ const MetaGrid = styled.div`
 
 const MetaItem = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
 `;
 
 const MetaIcon = styled.span`
-  font-size: 18px;
   flex-shrink: 0;
-  margin-top: 2px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #ede9fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const MetaLabel = styled.div`
@@ -698,11 +712,17 @@ const RsvpBadge = styled.div<{ confirmed?: boolean }>`
   font-size: 15px;
   font-weight: 600;
   color: ${({ confirmed }) => (confirmed ? "#059669" : "#d97706")};
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 const RsvpSub = styled.div`
   font-size: 13px;
   color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `;
 
 const QrBlock = styled.div`
@@ -828,4 +848,4 @@ const MapFrame = styled.iframe`
   @media (min-width: 768px) {
     height: 340px;
   }
-`;
+`;

@@ -14,6 +14,7 @@ import {
   ModalOverlay,
   ModalCard,
 } from "../components/ui";
+import { AlertTriangleIcon } from "../components/icons";
 
 type UserRole = "member" | "staff";
 type SignUpRequest = {
@@ -127,8 +128,8 @@ export default function SignUpPage() {
             <TempRow><span>Email</span><strong>{tempAccount.email}</strong></TempRow>
           </TempInfoBox>
 
-          <AlertBox variant="warning" style={{ marginBottom: 20 }}>
-            ⚠️ If this is not your information, please contact an administrator.
+          <AlertBox variant="warning" style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+            <AlertTriangleIcon size={16} /> If this is not your information, please contact an administrator.
           </AlertBox>
 
           <FormGroup>
@@ -180,8 +181,8 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit}>
           {errorMsg && (
-            <AlertBox variant="error" style={{ marginBottom: 20 }}>
-              ⚠️ {errorMsg}
+            <AlertBox variant="error" style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8 }}>
+              <AlertTriangleIcon size={16} /> {errorMsg}
             </AlertBox>
           )}
 

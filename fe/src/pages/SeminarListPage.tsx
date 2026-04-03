@@ -22,6 +22,7 @@ import {
   EmptyState,
   AlertBox,
 } from "../components/ui";
+import { MicIcon, CalendarIcon, MapPinIcon, UsersIcon, XIcon, PlusIcon } from "../components/icons";
 
 /** Strip markdown syntax for plain-text card previews. */
 function stripMarkdown(md: string): string {
@@ -121,7 +122,9 @@ export default function SeminarListPage() {
             variant={showCreateForm ? "ghost" : "primary"}
             onClick={() => { setShowCreateForm((v) => !v); setCreateError(""); }}
           >
-            {showCreateForm ? "✕ Cancel" : "+ New Seminar"}
+            {showCreateForm
+            ? <BtnInner><XIcon size={15} /> Cancel</BtnInner>
+            : <BtnInner><PlusIcon size={15} /> New Seminar</BtnInner>}
           </Button>
         )}
       </PageHeader>
@@ -215,16 +218,16 @@ export default function SeminarListPage() {
                 </TagRowTop>
 
                 <SeminarTitle>{s.title}</SeminarTitle>
-                {s.host && <HostLine>🎙 {s.host}</HostLine>}
+                {s.host && <HostLine><MicIcon size={14} color="#6c5ce7" /> {s.host}</HostLine>}
                 {s.description && <Description>{stripMarkdown(s.description)}</Description>}
 
                 <MetaBlock>
                   {s.start_time && (
-                    <MetaItem>📅 {formatDate(s.start_time)}{s.end_time && ` — ${formatDate(s.end_time)}`}</MetaItem>
+                    <MetaItem><CalendarIcon size={13} />{formatDate(s.start_time)}{s.end_time && ` — ${formatDate(s.end_time)}`}</MetaItem>
                   )}
-                  {s.location && <MetaItem>📍 {s.location}</MetaItem>}
+                  {s.location && <MetaItem><MapPinIcon size={13} />{s.location}</MetaItem>}
                   {s.max_capacity != null && (
-                    <MetaItem>👥 Capacity: {s.max_capacity}</MetaItem>
+                    <MetaItem><UsersIcon size={13} />Capacity: {s.max_capacity}</MetaItem>
                   )}
                 </MetaBlock>
 
@@ -343,6 +346,9 @@ const HostLine = styled.div`
   color: #6c5ce7;
   font-weight: 600;
   margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `;
 
 const Description = styled.p`
@@ -366,6 +372,15 @@ const MetaBlock = styled.div`
 const MetaItem = styled.div`
   font-size: 13px;
   color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const BtnInner = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 const CardActions = styled.div`
