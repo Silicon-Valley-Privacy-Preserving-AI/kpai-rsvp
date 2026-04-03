@@ -203,6 +203,7 @@ const DynamicSpacer = styled.span`
 `;
 
 const ExpandedWord = styled.span`
+  margin-bottom: 2px;
   font-size: 13px;
   font-weight: 500;
   color: #6b7280;
