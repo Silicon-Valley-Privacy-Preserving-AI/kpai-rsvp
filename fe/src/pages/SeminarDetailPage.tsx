@@ -244,6 +244,15 @@ export default function SeminarDetailPage() {
                   </div>
                 </MetaItem>
               )}
+              {seminar.location && (
+                <MapFrame
+                  title="seminar-location"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(seminar.location)}&output=embed&hl=ko`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  allowFullScreen
+                />
+              )}
               <MetaItem>
                 <MetaIcon>👥</MetaIcon>
                 <div>
@@ -806,4 +815,17 @@ const TableWrap = styled.div`
   overflow-x: auto;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
+`;
+
+const MapFrame = styled.iframe`
+  width: 100%;
+  height: 280px;
+  border: none;
+  border-radius: 12px;
+  margin-top: 4px;
+  display: block;
+
+  @media (min-width: 768px) {
+    height: 340px;
+  }
 `;
