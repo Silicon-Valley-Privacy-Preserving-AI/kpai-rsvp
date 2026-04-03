@@ -48,7 +48,7 @@ export default function SeminarPage() {
     maximum_rsvp_count: 0,
   });
 
-  // 🔥 현재 유저
+  // 🔥 Current user
   const { data: currentUser } = useQuery({
     queryKey: ["me"],
     queryFn: async () => {
@@ -60,7 +60,7 @@ export default function SeminarPage() {
 
   const isStaff = currentUser?.role === "staff";
 
-  // 🔥 세미나 목록
+  // 🔥 Seminar list
   const { data: seminars, isLoading } = useQuery({
     queryKey: ["seminars"],
     queryFn: async () => {
@@ -69,7 +69,7 @@ export default function SeminarPage() {
     },
   });
 
-  // 🔥 세미나 상세
+  // 🔥 Seminar detail
   const { data: seminarDetail } = useQuery({
     queryKey: ["seminarDetail", selectedSeminarId],
     queryFn: async () => {
@@ -81,7 +81,7 @@ export default function SeminarPage() {
     enabled: !!selectedSeminarId,
   });
 
-  // 🔥 생성
+  // 🔥 Create
   const createMutation = useMutation({
     mutationFn: async () => {
       await axiosInstance.post(api.v1.seminars, form);
@@ -92,7 +92,7 @@ export default function SeminarPage() {
     },
   });
 
-  // 🔥 삭제
+  // 🔥 Delete
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       await axiosInstance.delete(`${api.v1.seminars}/${id}`);
@@ -114,7 +114,7 @@ export default function SeminarPage() {
     },
   });
 
-  // 🔥 RSVP 취소
+  // 🔥 Cancel RSVP
   const cancelMutation = useMutation({
     mutationFn: async (id: number) => {
       await axiosInstance.delete(`${api.v1.seminars}/${id}/rsvp`);
@@ -126,7 +126,7 @@ export default function SeminarPage() {
     },
   });
 
-  // 🔥 staff 체크인 처리
+  // 🔥 Staff check-in
   const checkInMutation = useMutation({
     mutationFn: async (id: number) => {
       await axiosInstance.post(`${api.v1.seminars}/${id}/check-in`);
@@ -144,7 +144,7 @@ export default function SeminarPage() {
     <div style={{ padding: 40 }}>
       <h1>Seminar Page</h1>
 
-      {/* 🔥 STAFF 전용 생성 */}
+      {/* 🔥 Staff-only: create */}
       {isStaff && (
         <div style={{ marginBottom: 40 }}>
           <h2>Create Seminar</h2>
@@ -173,7 +173,7 @@ export default function SeminarPage() {
         </div>
       )}
 
-      {/* 🔥 세미나 리스트 */}
+      {/* 🔥 Seminar list */}
       {seminars?.map((seminar) => (
         <div
           key={seminar.id}
@@ -197,14 +197,14 @@ export default function SeminarPage() {
             Detail
           </button>
 
-          {/* 🔥 STAFF 삭제 */}
+          {/* 🔥 Staff delete */}
           {isStaff && (
             <button onClick={() => deleteMutation.mutate(seminar.id)}>
               Delete
             </button>
           )}
 
-          {/* 🔥 STAFF 체크인 Reveal */}
+          {/* 🔥 Staff check-in reveal */}
           {isStaff && (
             <button
               onClick={() =>
@@ -217,7 +217,7 @@ export default function SeminarPage() {
             </button>
           )}
 
-          {/* 🔥 체크인 링크 표시 */}
+          {/* 🔥 Show check-in link */}
           {isStaff && revealedCheckInId === seminar.id && (
             <div
               style={{
@@ -229,29 +229,29 @@ export default function SeminarPage() {
             >
               <h4>Check-in QR</h4>
 
-              {/* 🔥 체크인 URL */}
+              {/* 🔥 Check-in URL */}
               {(() => {
                 const checkInUrl = `${window.location.origin}/check-in/${seminar.id}`;
 
                 return (
                   <>
-                    {/* 🔥 QR 코드 */}
+                    {/* 🔥 QR code */}
                     <div style={{ marginBottom: 20 }}>
                       <QRCodeCanvas value={checkInUrl} size={220} level="H" />
                     </div>
 
-                    {/* 🔥 URL 표시 */}
+                    {/* 🔥 URL display */}
                     <input
                       readOnly
                       value={checkInUrl}
                       style={{ width: "100%", marginBottom: 10 }}
                     />
 
-                    {/* 🔥 복사 버튼 */}
+                    {/* 🔥 Copy button */}
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(checkInUrl);
-                        alert("링크 복사 완료");
+                        alert("Link copied!");
                       }}
                     >
                       Copy Link
@@ -262,7 +262,7 @@ export default function SeminarPage() {
             </div>
           )}
 
-          {/* 🔥 상세 */}
+          {/* 🔥 Detail */}
           {selectedSeminarId === seminar.id && seminarDetail && (
             <div style={{ marginTop: 20 }}>
               <p>Current RSVP: {seminarDetail.current_rsvp_count}</p>
@@ -272,7 +272,7 @@ export default function SeminarPage() {
                 <p style={{ color: "red" }}>🔥 Seminar Full</p>
               )}
 
-              {/* 🔥 RSVP 버튼 */}
+              {/* 🔥 RSVP button */}
               {isLoggedIn && (
                 <>
                   <button onClick={() => rsvpMutation.mutate(seminar.id)}>
@@ -284,7 +284,7 @@ export default function SeminarPage() {
                 </>
               )}
 
-              {/* 🔥 STAFF 참가자 리스트 */}
+              {/* 🔥 Staff participant list */}
               {isStaff && (
                 <div>
                   <h4>Participants</h4>

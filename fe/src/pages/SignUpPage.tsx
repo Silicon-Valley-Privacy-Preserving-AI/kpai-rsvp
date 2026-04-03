@@ -67,7 +67,7 @@ export default function SignUpPage() {
         setTempAccount(detail as TempAccountInfo);
         return;
       }
-      setErrorMsg(typeof detail === "string" ? detail : "회원가입에 실패했습니다.");
+      setErrorMsg(typeof detail === "string" ? detail : "Sign up failed. Please try again.");
     },
   });
 
@@ -93,7 +93,7 @@ export default function SignUpPage() {
       }
     },
     onError: (error: any) => {
-      setPwError(error?.response?.data?.detail ?? "비밀번호 설정에 실패했습니다.");
+      setPwError(error?.response?.data?.detail ?? "Failed to set password.");
     },
   });
 
@@ -106,7 +106,7 @@ export default function SignUpPage() {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (form.role === "staff" && !form.staff_code) {
-      setErrorMsg("Staff 코드를 입력하세요.");
+      setErrorMsg("Please enter the staff access code.");
       return;
     }
     signUpMutation.mutate(form);
@@ -117,26 +117,26 @@ export default function SignUpPage() {
     return (
       <ModalOverlay>
         <ModalCard>
-          <ModalTitle>자동 생성된 계정이 있습니다</ModalTitle>
+          <ModalTitle>An auto-created account exists</ModalTitle>
           <ModalDesc>
-            입력하신 이메일로 이미 임시 계정이 생성되어 있습니다. 이 계정으로 계속하시겠습니까?
+            A temporary account already exists for this email. Would you like to continue with this account?
           </ModalDesc>
 
           <TempInfoBox>
-            <TempRow><span>이름</span><strong>{tempAccount.username}</strong></TempRow>
-            <TempRow><span>이메일</span><strong>{tempAccount.email}</strong></TempRow>
+            <TempRow><span>Name</span><strong>{tempAccount.username}</strong></TempRow>
+            <TempRow><span>Email</span><strong>{tempAccount.email}</strong></TempRow>
           </TempInfoBox>
 
           <AlertBox variant="warning" style={{ marginBottom: 20 }}>
-            ⚠️ 본인 정보와 다르다면 관리자에게 문의해주십시오.
+            ⚠️ If this is not your information, please contact an administrator.
           </AlertBox>
 
           <FormGroup>
-            <Label htmlFor="newPw">사용할 비밀번호 설정</Label>
+            <Label htmlFor="newPw">Set a password</Label>
             <Input
               id="newPw"
               type="password"
-              placeholder="새 비밀번호 (4자 이상)"
+              placeholder="New password (at least 4 characters)"
               value={newPassword}
               onChange={(e) => { setNewPassword(e.target.value); setPwError(""); }}
             />
@@ -154,14 +154,14 @@ export default function SignUpPage() {
               disabled={newPassword.length < 4 || setPasswordMutation.isPending}
               onClick={() => setPasswordMutation.mutate({ email: tempAccount.email, password: newPassword })}
             >
-              {setPasswordMutation.isPending ? "처리 중…" : "이 계정으로 계속하기"}
+              {setPasswordMutation.isPending ? "Processing…" : "Continue with this account"}
             </Button>
             <Button
               fullWidth
               variant="ghost"
               onClick={() => { setTempAccount(null); setNewPassword(""); }}
             >
-              취소
+              Cancel
             </Button>
           </ModalActions>
         </ModalCard>

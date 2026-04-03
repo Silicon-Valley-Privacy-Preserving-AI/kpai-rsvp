@@ -43,7 +43,7 @@ function stripMarkdown(md: string): string {
 
 function formatDate(iso: string | null) {
   if (!iso) return null;
-  return new Date(iso).toLocaleString("ko-KR", {
+  return new Date(iso).toLocaleString("en-US", {
     year: "numeric", month: "short", day: "numeric",
     hour: "2-digit", minute: "2-digit",
   });
@@ -94,13 +94,13 @@ export default function SeminarListPage() {
       setCreateError("");
       setForm({ title: "", description: "", start_time: "", end_time: "", location: "", max_capacity: "", host: "", cover_image: "", rsvp_enabled: true, waitlist_enabled: false });
     },
-    onError: (e: any) => setCreateError(e.response?.data?.detail ?? "세미나 생성 실패"),
+    onError: (e: any) => setCreateError(e.response?.data?.detail ?? "Failed to create seminar"),
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => { await axiosInstance.delete(api.v1.seminarDetail(id)); },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["seminars"] }),
-    onError: (e: any) => alert(e.response?.data?.detail ?? "삭제 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Delete failed"),
   });
 
   if (isLoading) {

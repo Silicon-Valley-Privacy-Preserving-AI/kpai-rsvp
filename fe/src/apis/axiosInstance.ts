@@ -25,7 +25,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 서버가 응답을 준 경우 (4xx, 5xx)
+    // Server responded with 4xx / 5xx
     if (error.response) {
       console.error("❌ API Error");
       console.error("URL:", error.config?.url);
@@ -33,11 +33,11 @@ axiosInstance.interceptors.response.use(
       console.error("Status:", error.response.status);
       console.error("Data:", error.response.data);
     }
-    // 요청은 보냈지만 응답이 없는 경우 (네트워크 오류 등)
+    // Request sent but no response received (network error, etc.)
     else if (error.request) {
       console.error("❌ Network Error:", error.message);
     }
-    // 요청 자체가 잘못된 경우
+    // Request setup error
     else {
       console.error("❌ Axios Config Error:", error.message);
     }

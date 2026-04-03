@@ -36,7 +36,7 @@ export default function SignInPage() {
     },
     onError: (error: any) => {
       const detail = error?.response?.data?.detail;
-      setErrorMsg(typeof detail === "string" ? detail : "이메일 또는 비밀번호가 올바르지 않습니다.");
+      setErrorMsg(typeof detail === "string" ? detail : "Invalid email or password.");
     },
   });
 

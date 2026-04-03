@@ -32,7 +32,7 @@ import {
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("ko-KR", {
+  return new Date(iso).toLocaleString("en-US", {
     year: "numeric", month: "short", day: "numeric",
     hour: "2-digit", minute: "2-digit",
   });
@@ -87,35 +87,35 @@ export default function SeminarDetailPage() {
       await axiosInstance.put(api.v1.seminarDetail(seminarId), payload);
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); setEditMode(false); },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "수정 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Update failed"),
   });
 
   const deleteSeminarMutation = useMutation({
     mutationFn: async () => { await axiosInstance.delete(api.v1.seminarDetail(seminarId)); },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminars"] }); navigate("/seminar"); },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "삭제 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Delete failed"),
   });
 
   const rsvpMutation = useMutation({
     mutationFn: async () => { const res = await axiosInstance.post(api.v1.seminarRsvp(seminarId)); return res.data; },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] });
-      if (data.waitlisted) alert(`대기자 등록 완료! 현재 대기 순서: ${data.position}번`);
-      else alert("RSVP 완료!");
+      if (data.waitlisted) alert(`Added to waitlist! Your position: #${data.position}`);
+      else alert("RSVP confirmed!");
     },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "RSVP 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "RSVP failed"),
   });
 
   const cancelRsvpMutation = useMutation({
     mutationFn: async () => { await axiosInstance.delete(api.v1.seminarRsvp(seminarId)); },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); alert("RSVP 취소 완료"); },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "RSVP 취소 실패"),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); alert("RSVP cancelled"); },
+    onError: (e: any) => alert(e.response?.data?.detail ?? "RSVP cancellation failed"),
   });
 
   const cancelWaitlistMutation = useMutation({
     mutationFn: async () => { await axiosInstance.delete(api.v1.seminarWaitlist(seminarId)); },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); alert("대기자 취소 완료"); },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "대기자 취소 실패"),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); alert("Waitlist entry cancelled"); },
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Waitlist cancellation failed"),
   });
 
   const createTokenMutation = useMutation({
@@ -124,13 +124,13 @@ export default function SeminarDetailPage() {
       return res.data as CheckInTokenResponse;
     },
     onSuccess: (data) => { setActiveToken(data); setShowQR(true); },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "토큰 생성 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to create check-in token"),
   });
 
   const stopCheckinMutation = useMutation({
     mutationFn: async () => { await axiosInstance.delete(api.v1.seminarCheckinToken(seminarId)); },
     onSuccess: () => { setActiveToken(null); setShowQR(false); },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "체크인 중지 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to stop check-in"),
   });
 
   const modifyCheckinMutation = useMutation({
@@ -138,13 +138,13 @@ export default function SeminarDetailPage() {
       await axiosInstance.patch(api.v1.seminarUserCheckin(seminarId, userId), { checked_in });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }),
-    onError: (e: any) => alert(e.response?.data?.detail ?? "체크인 수정 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to update check-in"),
   });
 
   const reminderMutation = useMutation({
     mutationFn: async () => { const res = await axiosInstance.post(api.v1.seminarReminder(seminarId)); return res.data; },
     onSuccess: (data) => setReminderResult(data),
-    onError: (e: any) => alert(e.response?.data?.detail ?? "리마인더 발송 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to send reminder"),
   });
 
   const importCsvMutation = useMutation({
@@ -159,7 +159,7 @@ export default function SeminarDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] });
       if (csvInputRef.current) csvInputRef.current.value = "";
     },
-    onError: (e: any) => alert(e.response?.data?.detail ?? "CSV 임포트 실패"),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "CSV import failed"),
   });
 
   // ── Derived state ──────────────────────────────────────────────────────────
@@ -272,7 +272,7 @@ export default function SeminarDetailPage() {
                   variant="danger"
                   size="sm"
                   disabled={deleteSeminarMutation.isPending}
-                  onClick={() => { if (confirm(`"${seminar.title}" 세미나를 삭제하시겠습니까?`)) deleteSeminarMutation.mutate(); }}
+                  onClick={() => { if (confirm(`Delete seminar "${seminar.title}"?`)) deleteSeminarMutation.mutate(); }}
                 >
                   {deleteSeminarMutation.isPending ? "Deleting…" : "Delete"}
                 </Button>
@@ -347,7 +347,7 @@ export default function SeminarDetailPage() {
           <SectionTitle>My Status</SectionTitle>
           {!isLoggedIn ? (
             <AlertBox variant="info">
-              <a href="/signin">로그인</a>하면 RSVP 할 수 있습니다.
+              <a href="/signin">Sign in</a> to RSVP for this seminar.
             </AlertBox>
           ) : myRsvp ? (
             <RsvpStatus>
@@ -380,19 +380,19 @@ export default function SeminarDetailPage() {
       {isStaff && (
         <SectionBlock>
           <SectionTitle>📧 Reminder Email</SectionTitle>
-          <SectionDesc>RSVP 등록된 모든 참석자에게 세미나 안내 이메일을 발송합니다.</SectionDesc>
+          <SectionDesc>Sends a seminar reminder email to all RSVP'd attendees.</SectionDesc>
           <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
             <Button
               variant="secondary"
               onClick={() => {
-                if (confirm(`RSVP 참석자 ${seminar.current_rsvp_count}명에게 리마인더를 발송하시겠습니까?`)) {
+                if (confirm(`Send a reminder to ${seminar.current_rsvp_count} RSVP'd attendee(s)?`)) {
                   setReminderResult(null);
                   reminderMutation.mutate();
                 }
               }}
               disabled={reminderMutation.isPending || seminar.current_rsvp_count === 0}
             >
-              {reminderMutation.isPending ? "발송 중…" : "Send Reminder"}
+              {reminderMutation.isPending ? "Sending…" : "Send Reminder"}
             </Button>
             {seminar.current_rsvp_count === 0 && (
               <span style={{ fontSize: 13, color: "#9ca3af" }}>No RSVPs yet</span>
@@ -400,7 +400,7 @@ export default function SeminarDetailPage() {
           </div>
           {reminderResult && (
             <AlertBox variant={reminderResult.errors > 0 ? "warning" : "success"} style={{ marginTop: 12 }}>
-              발송 완료 — 성공 <strong>{reminderResult.sent}</strong>건 / 실패 <strong>{reminderResult.errors}</strong>건 / 총 RSVP <strong>{reminderResult.total_rsvp}</strong>명
+              Sent — <strong>{reminderResult.sent}</strong> succeeded / <strong>{reminderResult.errors}</strong> failed / <strong>{reminderResult.total_rsvp}</strong> total RSVPs
             </AlertBox>
           )}
         </SectionBlock>
@@ -413,14 +413,14 @@ export default function SeminarDetailPage() {
           {tokenActive ? (
             <>
               <AlertBox variant="success" style={{ marginBottom: 14 }}>
-                ✅ 체크인 활성 중 &nbsp;|&nbsp; 만료: {formatDate(activeToken!.expires_at)}
+                ✅ Check-in active &nbsp;|&nbsp; Expires: {formatDate(activeToken!.expires_at)}
               </AlertBox>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
                 <Button variant="secondary" size="sm" onClick={() => setShowQR((v) => !v)}>
-                  {showQR ? "QR 숨기기" : "QR 코드 보기"}
+                  {showQR ? "Hide QR" : "Show QR Code"}
                 </Button>
                 <Button variant="danger" size="sm" onClick={() => stopCheckinMutation.mutate()} disabled={stopCheckinMutation.isPending}>
-                  {stopCheckinMutation.isPending ? "Stopping…" : "체크인 중지"}
+                  {stopCheckinMutation.isPending ? "Stopping…" : "Stop Check-in"}
                 </Button>
               </div>
               {showQR && checkinUrl && (
@@ -432,10 +432,10 @@ export default function SeminarDetailPage() {
             </>
           ) : (
             <TokenForm>
-              <span style={{ fontSize: 14, color: "#6b7280" }}>체크인 비활성 상태</span>
+              <span style={{ fontSize: 14, color: "#6b7280" }}>Check-in is inactive</span>
               <TokenRow>
                 <label style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 8, color: "#374151" }}>
-                  유효 시간(분):
+                  Duration (minutes):
                   <DurationInput
                     type="number"
                     min={1}
@@ -444,7 +444,7 @@ export default function SeminarDetailPage() {
                   />
                 </label>
                 <Button size="sm" onClick={() => createTokenMutation.mutate()} disabled={createTokenMutation.isPending}>
-                  {createTokenMutation.isPending ? "Creating…" : "체크인 시작"}
+                  {createTokenMutation.isPending ? "Creating…" : "Start Check-in"}
                 </Button>
               </TokenRow>
             </TokenForm>
@@ -456,7 +456,7 @@ export default function SeminarDetailPage() {
       {isStaff && (
         <SectionBlock>
           <SectionTitle>📂 CSV Import</SectionTitle>
-          <SectionDesc>Luma에서 내보낸 CSV 파일을 업로드하면 참석자를 자동으로 등록합니다.</SectionDesc>
+          <SectionDesc>Upload a CSV exported from Luma to automatically register attendees.</SectionDesc>
           <CsvRow>
             <FileInput
               ref={csvInputRef}
@@ -465,27 +465,27 @@ export default function SeminarDetailPage() {
               onChange={(e) => { const file = e.target.files?.[0]; if (file) importCsvMutation.mutate(file); }}
               disabled={importCsvMutation.isPending}
             />
-            {importCsvMutation.isPending && <span style={{ fontSize: 13, color: "#6b7280" }}>처리 중…</span>}
+            {importCsvMutation.isPending && <span style={{ fontSize: 13, color: "#6b7280" }}>Processing…</span>}
           </CsvRow>
           {importResult && (
             <ImportResult>
-              <ImportResultTitle>임포트 결과</ImportResultTitle>
+              <ImportResultTitle>Import Result</ImportResultTitle>
               <ImportGrid>
-                <ImportStat><span>총 행수</span><strong>{importResult.total}</strong></ImportStat>
-                <ImportStat><span>기존 유저</span><strong>{importResult.matched_regular}</strong></ImportStat>
-                <ImportStat><span>임시 유저 매칭</span><strong>{importResult.matched_temporary}</strong></ImportStat>
-                <ImportStat><span>임시 유저 생성</span><strong>{importResult.created_temporary}</strong></ImportStat>
-                <ImportStat><span>RSVP 생성</span><strong>{importResult.rsvp_created}</strong></ImportStat>
-                <ImportStat><span>RSVP 중복 스킵</span><strong>{importResult.rsvp_skipped}</strong></ImportStat>
-                <ImportStat><span>멤버십 이메일</span><strong>{importResult.membership_emails_sent}</strong></ImportStat>
+                <ImportStat><span>Total Rows</span><strong>{importResult.total}</strong></ImportStat>
+                <ImportStat><span>Existing Users</span><strong>{importResult.matched_regular}</strong></ImportStat>
+                <ImportStat><span>Temp Matched</span><strong>{importResult.matched_temporary}</strong></ImportStat>
+                <ImportStat><span>Temp Created</span><strong>{importResult.created_temporary}</strong></ImportStat>
+                <ImportStat><span>RSVPs Created</span><strong>{importResult.rsvp_created}</strong></ImportStat>
+                <ImportStat><span>RSVPs Skipped</span><strong>{importResult.rsvp_skipped}</strong></ImportStat>
+                <ImportStat><span>Member Emails</span><strong>{importResult.membership_emails_sent}</strong></ImportStat>
               </ImportGrid>
               {importResult.errors?.length > 0 && (
                 <AlertBox variant="error" style={{ marginTop: 12 }}>
-                  오류 {importResult.errors.length}건: {importResult.errors.join(", ")}
+                  {importResult.errors.length} error(s): {importResult.errors.join(", ")}
                 </AlertBox>
               )}
               <Button variant="ghost" size="sm" style={{ marginTop: 12 }} onClick={() => setImportResult(null)}>
-                결과 닫기
+                Close
               </Button>
             </ImportResult>
           )}
@@ -495,19 +495,19 @@ export default function SeminarDetailPage() {
       {/* ── Staff: RSVP list ── */}
       {isStaff && (
         <SectionBlock>
-          <SectionTitle>👥 RSVP 목록 ({seminar.current_rsvp_count}명)</SectionTitle>
+          <SectionTitle>👥 RSVP List ({seminar.current_rsvp_count})</SectionTitle>
           {seminar.users.length === 0 ? (
-            <EmptyState style={{ padding: "24px 0" }}>RSVP 없음</EmptyState>
+            <EmptyState style={{ padding: "24px 0" }}>No RSVPs yet</EmptyState>
           ) : (
             <TableWrap>
               <Table>
                 <Thead>
                   <tr>
-                    <Th>이름</Th>
-                    <Th>이메일</Th>
-                    <Th>체크인</Th>
-                    <Th>체크인 시각</Th>
-                    <Th>조작</Th>
+                    <Th>Name</Th>
+                    <Th>Email</Th>
+                    <Th>Check-in</Th>
+                    <Th>Check-in Time</Th>
+                    <Th>Action</Th>
                   </tr>
                 </Thead>
                 <tbody>
@@ -517,7 +517,7 @@ export default function SeminarDetailPage() {
                       <Td style={{ color: "#6b7280" }}>{u.email}</Td>
                       <Td>
                         <Badge color={u.checked_in ? "green" : "gray"}>
-                          {u.checked_in ? "완료" : "미완료"}
+                          {u.checked_in ? "Done" : "Pending"}
                         </Badge>
                       </Td>
                       <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(u.checked_in_at)}</Td>
@@ -528,7 +528,7 @@ export default function SeminarDetailPage() {
                           onClick={() => modifyCheckinMutation.mutate({ userId: u.id, checked_in: !u.checked_in })}
                           disabled={modifyCheckinMutation.isPending}
                         >
-                          {u.checked_in ? "취소" : "체크인"}
+                          {u.checked_in ? "Undo" : "Check In"}
                         </Button>
                       </Td>
                     </Tr>
@@ -543,18 +543,18 @@ export default function SeminarDetailPage() {
       {/* ── Staff: Waitlist ── */}
       {isStaff && seminar.waitlist_enabled && (
         <SectionBlock>
-          <SectionTitle>⏳ 대기자 목록 ({seminar.waitlist_count}명)</SectionTitle>
+          <SectionTitle>⏳ Waitlist ({seminar.waitlist_count})</SectionTitle>
           {seminar.waitlist.length === 0 ? (
-            <EmptyState style={{ padding: "24px 0" }}>대기자 없음</EmptyState>
+            <EmptyState style={{ padding: "24px 0" }}>No one on the waitlist</EmptyState>
           ) : (
             <TableWrap>
               <Table>
                 <Thead>
                   <tr>
                     <Th>#</Th>
-                    <Th>이름</Th>
-                    <Th>이메일</Th>
-                    <Th>등록 시각</Th>
+                    <Th>Name</Th>
+                    <Th>Email</Th>
+                    <Th>Joined At</Th>
                   </tr>
                 </Thead>
                 <tbody>

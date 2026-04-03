@@ -59,7 +59,7 @@ interface SystemRsvp {
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("ko-KR", {
+  return new Date(iso).toLocaleString("en-US", {
     year: "numeric", month: "short", day: "numeric",
     hour: "2-digit", minute: "2-digit",
   });
@@ -111,16 +111,16 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
           </StatPill>
           <StatPill color="green">
             <PillNum>{checkinCount}</PillNum>
-            <PillLabel>체크인</PillLabel>
+            <PillLabel>Check-in</PillLabel>
           </StatPill>
           <StatPill color="orange">
             <PillNum>{noshowCount}</PillNum>
-            <PillLabel>노쇼</PillLabel>
+            <PillLabel>No-show</PillLabel>
           </StatPill>
           {seminar.max_capacity != null && (
             <StatPill color="purple">
               <PillNum>{pct(rsvpCount, seminar.max_capacity)}</PillNum>
-              <PillLabel>신청율</PillLabel>
+              <PillLabel>Fill Rate</PillLabel>
             </StatPill>
           )}
         </StatPills>
@@ -133,34 +133,34 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
           <StatsBar>
             <StatItem>
               <StatBig>{rsvpCount}</StatBig>
-              <StatSub>총 RSVP</StatSub>
+              <StatSub>Total RSVP</StatSub>
             </StatItem>
             <StatDivider />
             <StatItem>
               <StatBig color="#059669">{checkinCount}</StatBig>
-              <StatSub>체크인</StatSub>
+              <StatSub>Check-ins</StatSub>
             </StatItem>
             <StatDivider />
             <StatItem>
               <StatBig color="#d97706">{noshowCount}</StatBig>
-              <StatSub>노쇼</StatSub>
+              <StatSub>No-shows</StatSub>
             </StatItem>
             <StatDivider />
             <StatItem>
               <StatBig color="#6c5ce7">{pct(checkinCount, rsvpCount)}</StatBig>
-              <StatSub>참석율</StatSub>
+              <StatSub>Attendance</StatSub>
             </StatItem>
             <StatDivider />
             <StatItem>
               <StatBig color="#ef4444">{pct(noshowCount, rsvpCount)}</StatBig>
-              <StatSub>노쇼율</StatSub>
+              <StatSub>No-show Rate</StatSub>
             </StatItem>
             {seminar.max_capacity != null && (
               <>
                 <StatDivider />
                 <StatItem>
                   <StatBig color="#0ea5e9">{pct(rsvpCount, seminar.max_capacity)}</StatBig>
-                  <StatSub>신청율 (정원 대비)</StatSub>
+                  <StatSub>Capacity Fill</StatSub>
                 </StatItem>
               </>
             )}
@@ -168,18 +168,18 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
 
           {/* Attendee table */}
           {semRsvps.length === 0 ? (
-            <EmptyState style={{ padding: "24px 0" }}>RSVP 없음</EmptyState>
+            <EmptyState style={{ padding: "24px 0" }}>No RSVPs</EmptyState>
           ) : (
             <AttendeeTableWrap>
               <Table>
                 <Thead>
                   <tr>
-                    <Th>이름</Th>
-                    <Th>이메일</Th>
-                    <Th>계정 유형</Th>
-                    <Th>RSVP 일시</Th>
-                    <Th>체크인</Th>
-                    <Th>체크인 일시</Th>
+                    <Th>Name</Th>
+                    <Th>Email</Th>
+                    <Th>Account Type</Th>
+                    <Th>RSVP Date</Th>
+                    <Th>Check-in</Th>
+                    <Th>Check-in Time</Th>
                   </tr>
                 </Thead>
                 <tbody>
@@ -192,14 +192,14 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
                         <Td>
                           {user ? (
                             <Badge color={user.is_temporary ? "orange" : "blue"}>
-                              {user.is_temporary ? "임시" : "정식"}
+                              {user.is_temporary ? "Temporary" : "Regular"}
                             </Badge>
                           ) : "—"}
                         </Td>
                         <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(r.created_at)}</Td>
                         <Td>
                           <Badge color={r.checked_in ? "green" : "gray"}>
-                            {r.checked_in ? "완료" : "미완료"}
+                            {r.checked_in ? "Done" : "Pending"}
                           </Badge>
                         </Td>
                         <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(r.checked_in_at)}</Td>
@@ -254,16 +254,16 @@ export default function AdminPage() {
   // ── Guards ─────────────────────────────────────────────────────────────────
 
   if (!sessionStorage.getItem("accessToken")) {
-    return <PageContainer><AlertBox variant="warning">로그인이 필요합니다.</AlertBox></PageContainer>;
+    return <PageContainer><AlertBox variant="warning">You must be signed in to access this page.</AlertBox></PageContainer>;
   }
   if (me && !isStaff) {
-    return <PageContainer><AlertBox variant="error">접근 권한이 없습니다.</AlertBox></PageContainer>;
+    return <PageContainer><AlertBox variant="error">Access denied. Staff only.</AlertBox></PageContainer>;
   }
   if (!me || usersLoading) {
     return <LoadingCenter><Spinner />Loading…</LoadingCenter>;
   }
   if (usersError) {
-    return <PageContainer><AlertBox variant="error">데이터를 불러오지 못했습니다.</AlertBox></PageContainer>;
+    return <PageContainer><AlertBox variant="error">Failed to load data.</AlertBox></PageContainer>;
   }
 
   // ── User stats ─────────────────────────────────────────────────────────────
@@ -344,12 +344,12 @@ export default function AdminPage() {
             <Thead>
               <tr>
                 <Th>ID</Th>
-                <Th>가입일시</Th>
-                <Th>이름</Th>
-                <Th>이메일</Th>
-                <Th>역할</Th>
-                <Th>계정 유형</Th>
-                <Th>정회원 이메일</Th>
+                <Th>Joined</Th>
+                <Th>Name</Th>
+                <Th>Email</Th>
+                <Th>Role</Th>
+                <Th>Account Type</Th>
+                <Th>Member Email</Th>
               </tr>
             </Thead>
             <tbody>
@@ -366,12 +366,12 @@ export default function AdminPage() {
                   </Td>
                   <Td>
                     <Badge color={u.is_temporary ? "orange" : "blue"}>
-                      {u.is_temporary ? "임시" : "정식"}
+                      {u.is_temporary ? "Temporary" : "Regular"}
                     </Badge>
                   </Td>
                   <Td>
                     <Badge color={u.full_member_email_sent ? "green" : "gray"}>
-                      {u.full_member_email_sent ? "발송됨" : "미발송"}
+                      {u.full_member_email_sent ? "Sent" : "Not Sent"}
                     </Badge>
                   </Td>
                 </Tr>

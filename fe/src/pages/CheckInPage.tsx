@@ -21,14 +21,14 @@ export default function CheckInPage() {
       navigate(`/seminar/${data.seminar_id}`);
     },
     onError: (e: any) => {
-      alert(e.response?.data?.detail ?? "체크인 실패");
+      alert(e.response?.data?.detail ?? "Check-in failed");
       navigate("/seminar");
     },
   });
 
   useEffect(() => {
     if (!token) {
-      alert("유효하지 않은 체크인 링크입니다.");
+      alert("Invalid check-in link.");
       navigate("/seminar");
       return;
     }
