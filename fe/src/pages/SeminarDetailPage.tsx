@@ -209,82 +209,118 @@ export default function SeminarDetailPage() {
         ← Back to list
       </Button>
 
-      {/* Cover image */}
-      {seminar.cover_image && (
-        <CoverImg src={seminar.cover_image} alt="cover" />
-      )}
-
-      {/* ── Header info / Edit form ── */}
+      {/* ── Hero layout / Edit form ── */}
       {!editMode ? (
-        <InfoSection>
-          <InfoLeft>
-            <TagRow>
-              {seminar.rsvp_enabled && <Badge color="purple">RSVP</Badge>}
-              {seminar.waitlist_enabled && <Badge color="blue">Waitlist</Badge>}
-            </TagRow>
-            <SeminarTitle>{seminar.title}</SeminarTitle>
-            {seminar.host && <HostLine><MicIcon size={14} />{seminar.host}</HostLine>}
-            {seminar.description && (
-              <SeminarDescWrap>
-                <MarkdownContent>{seminar.description}</MarkdownContent>
-              </SeminarDescWrap>
+        <>
+          <HeroLayout>
+            {seminar.cover_image && (
+              <CoverImg src={seminar.cover_image} alt="cover" />
             )}
+            <InfoPanel>
+              <TagRow>
+                {seminar.rsvp_enabled && <Badge color="purple">RSVP</Badge>}
+                {seminar.waitlist_enabled && <Badge color="blue">Waitlist</Badge>}
+              </TagRow>
+              <SeminarTitle>{seminar.title}</SeminarTitle>
+              {seminar.host && <HostLine><MicIcon size={14} />{seminar.host}</HostLine>}
 
-            <MetaGrid>
-              {seminar.start_time && (
+              <MetaGrid>
+                {seminar.start_time && (
+                  <MetaItem>
+                    <MetaIcon><CalendarIcon size={16} color="#6c5ce7" /></MetaIcon>
+                    <div>
+                      <MetaLabel>Date & Time</MetaLabel>
+                      <MetaValue>{formatDate(seminar.start_time)}{seminar.end_time && ` — ${formatDate(seminar.end_time)}`}</MetaValue>
+                    </div>
+                  </MetaItem>
+                )}
+                {seminar.location && (
+                  <MetaItem>
+                    <MetaIcon><MapPinIcon size={16} color="#6c5ce7" /></MetaIcon>
+                    <div>
+                      <MetaLabel>Location</MetaLabel>
+                      <MetaValue>{seminar.location}</MetaValue>
+                    </div>
+                  </MetaItem>
+                )}
                 <MetaItem>
-                  <MetaIcon><CalendarIcon size={16} color="#6c5ce7" /></MetaIcon>
+                  <MetaIcon><UsersIcon size={16} color="#6c5ce7" /></MetaIcon>
                   <div>
-                    <MetaLabel>Date & Time</MetaLabel>
-                    <MetaValue>{formatDate(seminar.start_time)}{seminar.end_time && ` — ${formatDate(seminar.end_time)}`}</MetaValue>
+                    <MetaLabel>Capacity</MetaLabel>
+                    <MetaValue>
+                      {seminar.current_rsvp_count} / {seminar.max_capacity ?? "∞"}
+                      {seminar.waitlist_enabled && <span style={{ color: "#6b7280" }}> · Waitlist: {seminar.waitlist_count}</span>}
+                    </MetaValue>
                   </div>
                 </MetaItem>
-              )}
-              {seminar.location && (
-                <MetaItem>
-                  <MetaIcon><MapPinIcon size={16} color="#6c5ce7" /></MetaIcon>
-                  <div>
-                    <MetaLabel>Location</MetaLabel>
-                    <MetaValue>{seminar.location}</MetaValue>
-                  </div>
-                </MetaItem>
-              )}
-              {seminar.location && (
-                <MapFrame
-                  title="seminar-location"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(seminar.location)}&output=embed&hl=ko`}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  allowFullScreen
-                />
-              )}
-              <MetaItem>
-                <MetaIcon><UsersIcon size={16} color="#6c5ce7" /></MetaIcon>
-                <div>
-                  <MetaLabel>Capacity</MetaLabel>
-                  <MetaValue>
-                    {seminar.current_rsvp_count} / {seminar.max_capacity ?? "∞"}
-                    {seminar.waitlist_enabled && <span style={{ color: "#6b7280" }}> · Waitlist: {seminar.waitlist_count}</span>}
-                  </MetaValue>
-                </div>
-              </MetaItem>
-            </MetaGrid>
+              </MetaGrid>
 
-            {isStaff && (
-              <StaffActions>
-                <Button variant="secondary" size="sm" onClick={startEditForm}>Edit</Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  disabled={deleteSeminarMutation.isPending}
-                  onClick={() => { if (confirm(`Delete seminar "${seminar.title}"?`)) deleteSeminarMutation.mutate(); }}
-                >
-                  {deleteSeminarMutation.isPending ? "Deleting…" : "Delete"}
-                </Button>
-              </StaffActions>
-            )}
-          </InfoLeft>
-        </InfoSection>
+              {/* ── My Status (inline) ── */}
+              {!isStaff && seminar.rsvp_enabled && (
+                <RsvpPanel>
+                  <RsvpPanelTitle>My Status</RsvpPanelTitle>
+                  {!isLoggedIn ? (
+                    <AlertBox variant="info">
+                      <a href="/signin">Sign in</a> to RSVP for this seminar.
+                    </AlertBox>
+                  ) : myRsvp ? (
+                    <RsvpStatus>
+                      <RsvpBadge confirmed><CheckCircleIcon size={16} /> RSVP Confirmed</RsvpBadge>
+                      {myRsvp.checked_in && (
+                        <RsvpSub><CheckIcon size={14} /> Checked in at {formatDate(myRsvp.checked_in_at)}</RsvpSub>
+                      )}
+                      <Button variant="danger" size="sm" onClick={() => cancelRsvpMutation.mutate()} disabled={cancelRsvpMutation.isPending}>
+                        {cancelRsvpMutation.isPending ? "Cancelling…" : "Cancel RSVP"}
+                      </Button>
+                    </RsvpStatus>
+                  ) : myWaitlist ? (
+                    <RsvpStatus>
+                      <RsvpBadge><ClockIcon size={16} /> Waitlisted — #{myWaitlist.position}</RsvpBadge>
+                      <Button variant="ghost" size="sm" onClick={() => cancelWaitlistMutation.mutate()} disabled={cancelWaitlistMutation.isPending}>
+                        {cancelWaitlistMutation.isPending ? "Cancelling…" : "Cancel Waitlist"}
+                      </Button>
+                    </RsvpStatus>
+                  ) : isFull && !seminar.waitlist_enabled ? (
+                    <AlertBox variant="warning">This seminar is full and waitlist is not available.</AlertBox>
+                  ) : (
+                    <Button onClick={() => rsvpMutation.mutate()} disabled={rsvpMutation.isPending} style={{ width: "100%" }}>
+                      {rsvpMutation.isPending ? "Processing…" : isFull ? "Join Waitlist" : "RSVP Now"}
+                    </Button>
+                  )}
+                </RsvpPanel>
+              )}
+
+              {isStaff && (
+                <StaffActions>
+                  <Button variant="secondary" size="sm" onClick={startEditForm}>Edit</Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    disabled={deleteSeminarMutation.isPending}
+                    onClick={() => { if (confirm(`Delete seminar "${seminar.title}"?`)) deleteSeminarMutation.mutate(); }}
+                  >
+                    {deleteSeminarMutation.isPending ? "Deleting…" : "Delete"}
+                  </Button>
+                </StaffActions>
+              )}
+            </InfoPanel>
+          </HeroLayout>
+
+          {seminar.description && (
+            <SeminarDescWrap>
+              <MarkdownContent>{seminar.description}</MarkdownContent>
+            </SeminarDescWrap>
+          )}
+          {seminar.location && (
+            <MapFrame
+              title="seminar-location"
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(seminar.location)}&output=embed&hl=ko`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          )}
+        </>
       ) : (
         /* ── Edit form ── */
         <SectionBlock>
@@ -343,41 +379,6 @@ export default function SeminarDetailPage() {
             </Button>
             <Button variant="ghost" onClick={() => setEditMode(false)}>Cancel</Button>
           </EditActions>
-        </SectionBlock>
-      )}
-
-      {/* ── Member: RSVP / Waitlist ── */}
-      {!isStaff && seminar.rsvp_enabled && (
-        <SectionBlock>
-          <SectionTitle>My Status</SectionTitle>
-          {!isLoggedIn ? (
-            <AlertBox variant="info">
-              <a href="/signin">Sign in</a> to RSVP for this seminar.
-            </AlertBox>
-          ) : myRsvp ? (
-            <RsvpStatus>
-              <RsvpBadge confirmed><CheckCircleIcon size={16} /> RSVP Confirmed</RsvpBadge>
-              {myRsvp.checked_in && (
-                <RsvpSub><CheckIcon size={14} /> Checked in at {formatDate(myRsvp.checked_in_at)}</RsvpSub>
-              )}
-              <Button variant="danger" size="sm" onClick={() => cancelRsvpMutation.mutate()} disabled={cancelRsvpMutation.isPending}>
-                {cancelRsvpMutation.isPending ? "Cancelling…" : "Cancel RSVP"}
-              </Button>
-            </RsvpStatus>
-          ) : myWaitlist ? (
-            <RsvpStatus>
-              <RsvpBadge><ClockIcon size={16} /> Waitlisted — #{myWaitlist.position}</RsvpBadge>
-              <Button variant="ghost" size="sm" onClick={() => cancelWaitlistMutation.mutate()} disabled={cancelWaitlistMutation.isPending}>
-                {cancelWaitlistMutation.isPending ? "Cancelling…" : "Cancel Waitlist"}
-              </Button>
-            </RsvpStatus>
-          ) : isFull && !seminar.waitlist_enabled ? (
-            <AlertBox variant="warning">This seminar is full and waitlist is not available.</AlertBox>
-          ) : (
-            <Button onClick={() => rsvpMutation.mutate()} disabled={rsvpMutation.isPending}>
-              {rsvpMutation.isPending ? "Processing…" : isFull ? "Join Waitlist" : "RSVP Now"}
-            </Button>
-          )}
         </SectionBlock>
       )}
 
@@ -583,21 +584,58 @@ export default function SeminarDetailPage() {
 
 // ── Styled components ─────────────────────────────────────────────────────────
 
+const HeroLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 28px;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+`;
+
 const CoverImg = styled.img`
   width: 100%;
   height: auto;
   object-fit: contain;
   border-radius: 14px;
-  margin-bottom: 24px;
   display: block;
   background: #f3f0ff;
+
+  @media (min-width: 640px) {
+    width: 45%;
+    flex: 0 0 45%;
+  }
 `;
 
-const InfoSection = styled.div`
-  margin-bottom: 4px;
+const InfoPanel = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 `;
 
-const InfoLeft = styled.div``;
+const RsvpPanel = styled.div`
+  margin-top: 20px;
+  padding: 18px;
+  background: #f8f7ff;
+  border: 1px solid #ede9fe;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const RsvpPanelTitle = styled.div`
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+`;
 
 const TagRow = styled.div`
   display: flex;
@@ -627,7 +665,7 @@ const HostLine = styled.div`
 `;
 
 const SeminarDescWrap = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 `;
 
 const MetaGrid = styled.div`
