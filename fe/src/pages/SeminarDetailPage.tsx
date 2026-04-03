@@ -2,17 +2,39 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
+import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 import { toLocalInput, toUtcIso } from "../utils/datetime";
-import type {
-  SeminarDetailResponse,
-  CheckInTokenResponse,
-} from "../types/seminar";
+import type { SeminarDetailResponse, CheckInTokenResponse } from "../types/seminar";
+import {
+  Button,
+  Input,
+  Textarea,
+  Label,
+  FormGroup,
+  CheckboxRow,
+  Badge,
+  PageContainer,
+  SectionBlock,
+  SectionTitle,
+  AlertBox,
+  Table,
+  Thead,
+  Th,
+  Td,
+  Tr,
+  LoadingCenter,
+  Spinner,
+  EmptyState,
+} from "../components/ui";
 
 function formatDate(iso: string | null) {
-  if (!iso) return "-";
-  return new Date(iso).toLocaleString("ko-KR");
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString("ko-KR", {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
 }
 
 export default function SeminarDetailPage() {
@@ -25,45 +47,30 @@ export default function SeminarDetailPage() {
   const [editForm, setEditForm] = useState<Record<string, any>>({});
   const [tokenDuration, setTokenDuration] = useState(60);
   const [showQR, setShowQR] = useState(false);
+  const [importResult, setImportResult] = useState<Record<string, any> | null>(null);
+  const [reminderResult, setReminderResult] = useState<{ sent: number; errors: number; total_rsvp: number } | null>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
-  // Current user
   const { data: me } = useQuery({
     queryKey: ["me"],
-    queryFn: async () => {
-      const res = await axiosInstance.get(api.v1.users);
-      return res.data;
-    },
+    queryFn: async () => { const res = await axiosInstance.get(api.v1.users); return res.data; },
     enabled: !!sessionStorage.getItem("accessToken"),
     retry: false,
   });
-
   const isStaff = me?.role === "staff";
   const isLoggedIn = !!sessionStorage.getItem("accessToken");
 
-  // Seminar detail
-  const {
-    data: seminar,
-    isLoading,
-    error,
-  } = useQuery<SeminarDetailResponse>({
+  const { data: seminar, isLoading, error } = useQuery<SeminarDetailResponse>({
     queryKey: ["seminar", seminarId],
-    queryFn: async () => {
-      const res = await axiosInstance.get(api.v1.seminarDetail(seminarId));
-      return res.data;
-    },
+    queryFn: async () => { const res = await axiosInstance.get(api.v1.seminarDetail(seminarId)); return res.data; },
   });
 
-  // Active check-in token (staff) — useState로 관리해 React Query 캐시 불안정 이슈 회피
-  const [activeToken, setActiveToken] = useState<CheckInTokenResponse | null>(
-    null,
-  );
-
+  const [activeToken, setActiveToken] = useState<CheckInTokenResponse | null>(null);
   useEffect(() => {
     if (!isStaff) return;
-    axiosInstance
-      .get(api.v1.seminarCheckinToken(seminarId))
+    axiosInstance.get(api.v1.seminarCheckinToken(seminarId))
       .then((res) => setActiveToken(res.data))
-      .catch(() => setActiveToken(null)); // 404 = 활성 토큰 없음
+      .catch(() => setActiveToken(null));
   }, [isStaff, seminarId]);
 
   // ── Mutations ──────────────────────────────────────────────────────────────
@@ -74,125 +81,67 @@ export default function SeminarDetailPage() {
       const payload: Record<string, any> = {};
       for (const key of Object.keys(editForm)) {
         const v = editForm[key];
-        if (datetimeFields.has(key)) {
-          // datetime-local 값(로컬 시간)을 UTC ISO 문자열로 변환
-          payload[key] = v ? toUtcIso(v) : null;
-        } else {
-          payload[key] = v === "" ? null : v;
-        }
+        payload[key] = datetimeFields.has(key) ? (v ? toUtcIso(v) : null) : (v === "" ? null : v);
       }
       await axiosInstance.put(api.v1.seminarDetail(seminarId), payload);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] });
-      setEditMode(false);
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); setEditMode(false); },
     onError: (e: any) => alert(e.response?.data?.detail ?? "수정 실패"),
   });
 
   const deleteSeminarMutation = useMutation({
-    mutationFn: async () => {
-      await axiosInstance.delete(api.v1.seminarDetail(seminarId));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["seminars"] });
-      navigate("/seminar");
-    },
+    mutationFn: async () => { await axiosInstance.delete(api.v1.seminarDetail(seminarId)); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminars"] }); navigate("/seminar"); },
     onError: (e: any) => alert(e.response?.data?.detail ?? "삭제 실패"),
   });
 
   const rsvpMutation = useMutation({
-    mutationFn: async () => {
-      const res = await axiosInstance.post(api.v1.seminarRsvp(seminarId));
-      return res.data;
-    },
+    mutationFn: async () => { const res = await axiosInstance.post(api.v1.seminarRsvp(seminarId)); return res.data; },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] });
-      if (data.waitlisted) {
-        alert(`대기자 등록 완료! 현재 대기 순서: ${data.position}번`);
-      } else {
-        alert("RSVP 완료!");
-      }
+      if (data.waitlisted) alert(`대기자 등록 완료! 현재 대기 순서: ${data.position}번`);
+      else alert("RSVP 완료!");
     },
     onError: (e: any) => alert(e.response?.data?.detail ?? "RSVP 실패"),
   });
 
   const cancelRsvpMutation = useMutation({
-    mutationFn: async () => {
-      await axiosInstance.delete(api.v1.seminarRsvp(seminarId));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] });
-      alert("RSVP 취소 완료");
-    },
+    mutationFn: async () => { await axiosInstance.delete(api.v1.seminarRsvp(seminarId)); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); alert("RSVP 취소 완료"); },
     onError: (e: any) => alert(e.response?.data?.detail ?? "RSVP 취소 실패"),
   });
 
   const cancelWaitlistMutation = useMutation({
-    mutationFn: async () => {
-      await axiosInstance.delete(api.v1.seminarWaitlist(seminarId));
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] });
-      alert("대기자 취소 완료");
-    },
+    mutationFn: async () => { await axiosInstance.delete(api.v1.seminarWaitlist(seminarId)); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }); alert("대기자 취소 완료"); },
     onError: (e: any) => alert(e.response?.data?.detail ?? "대기자 취소 실패"),
   });
 
   const createTokenMutation = useMutation({
     mutationFn: async () => {
-      const res = await axiosInstance.post(
-        api.v1.seminarCheckinToken(seminarId),
-        {
-          duration_minutes: tokenDuration,
-        },
-      );
+      const res = await axiosInstance.post(api.v1.seminarCheckinToken(seminarId), { duration_minutes: tokenDuration });
       return res.data as CheckInTokenResponse;
     },
-    onSuccess: (data) => {
-      setActiveToken(data); // 로컬 state 직접 업데이트 → 즉시 반영
-      setShowQR(true);
-    },
+    onSuccess: (data) => { setActiveToken(data); setShowQR(true); },
     onError: (e: any) => alert(e.response?.data?.detail ?? "토큰 생성 실패"),
   });
 
   const stopCheckinMutation = useMutation({
-    mutationFn: async () => {
-      await axiosInstance.delete(api.v1.seminarCheckinToken(seminarId));
-    },
-    onSuccess: () => {
-      setActiveToken(null); // 로컬 state 비워 "비활성" 상태로 전환
-      setShowQR(false);
-    },
+    mutationFn: async () => { await axiosInstance.delete(api.v1.seminarCheckinToken(seminarId)); },
+    onSuccess: () => { setActiveToken(null); setShowQR(false); },
     onError: (e: any) => alert(e.response?.data?.detail ?? "체크인 중지 실패"),
   });
 
   const modifyCheckinMutation = useMutation({
-    mutationFn: async ({
-      userId,
-      checked_in,
-    }: {
-      userId: number;
-      checked_in: boolean;
-    }) => {
-      await axiosInstance.patch(api.v1.seminarUserCheckin(seminarId, userId), {
-        checked_in,
-      });
+    mutationFn: async ({ userId, checked_in }: { userId: number; checked_in: boolean }) => {
+      await axiosInstance.patch(api.v1.seminarUserCheckin(seminarId, userId), { checked_in });
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }),
     onError: (e: any) => alert(e.response?.data?.detail ?? "체크인 수정 실패"),
   });
 
-  const [importResult, setImportResult] = useState<Record<string, any> | null>(null);
-  const csvInputRef = useRef<HTMLInputElement>(null);
-  const [reminderResult, setReminderResult] = useState<{ sent: number; errors: number; total_rsvp: number } | null>(null);
-
   const reminderMutation = useMutation({
-    mutationFn: async () => {
-      const res = await axiosInstance.post(api.v1.seminarReminder(seminarId));
-      return res.data;
-    },
+    mutationFn: async () => { const res = await axiosInstance.post(api.v1.seminarReminder(seminarId)); return res.data; },
     onSuccess: (data) => setReminderResult(data),
     onError: (e: any) => alert(e.response?.data?.detail ?? "리마인더 발송 실패"),
   });
@@ -201,9 +150,7 @@ export default function SeminarDetailPage() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await axiosInstance.post(api.v1.importCsv(seminarId), formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axiosInstance.post(api.v1.importCsv(seminarId), formData, { headers: { "Content-Type": "multipart/form-data" } });
       return res.data;
     },
     onSuccess: (data) => {
@@ -218,263 +165,211 @@ export default function SeminarDetailPage() {
 
   const myRsvp = seminar?.users.find((u) => u.id === me?.id);
   const myWaitlist = seminar?.waitlist.find((u) => u.id === me?.id);
-  const isFull =
-    seminar?.max_capacity != null &&
-    seminar.current_rsvp_count >= seminar.max_capacity;
-
-  const checkinUrl = activeToken
-    ? `${window.location.origin}/check-in?token=${activeToken.token}`
-    : null;
-
-  // ── Render helpers ─────────────────────────────────────────────────────────
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !seminar) return <div>Seminar not found.</div>;
+  const isFull = seminar?.max_capacity != null && seminar.current_rsvp_count >= seminar.max_capacity;
+  const checkinUrl = activeToken ? `${window.location.origin}/check-in?token=${activeToken.token}` : null;
+  const tokenActive = activeToken && new Date(activeToken.expires_at) > new Date();
 
   const startEditForm = () => {
     setEditForm({
-      title: seminar.title,
-      description: seminar.description ?? "",
-      start_time: seminar.start_time ? toLocalInput(seminar.start_time) : "",
-      end_time: seminar.end_time ? toLocalInput(seminar.end_time) : "",
-      location: seminar.location ?? "",
-      max_capacity: seminar.max_capacity ?? "",
-      host: seminar.host ?? "",
-      cover_image: seminar.cover_image ?? "",
-      rsvp_enabled: seminar.rsvp_enabled,
-      waitlist_enabled: seminar.waitlist_enabled,
+      title: seminar!.title,
+      description: seminar!.description ?? "",
+      start_time: seminar!.start_time ? toLocalInput(seminar!.start_time) : "",
+      end_time: seminar!.end_time ? toLocalInput(seminar!.end_time) : "",
+      location: seminar!.location ?? "",
+      max_capacity: seminar!.max_capacity ?? "",
+      host: seminar!.host ?? "",
+      cover_image: seminar!.cover_image ?? "",
+      rsvp_enabled: seminar!.rsvp_enabled,
+      waitlist_enabled: seminar!.waitlist_enabled,
     });
     setEditMode(true);
   };
 
+  // ── Loading / error states ─────────────────────────────────────────────────
+
+  if (isLoading) {
+    return <LoadingCenter><Spinner />Loading seminar…</LoadingCenter>;
+  }
+  if (error || !seminar) {
+    return <LoadingCenter>Seminar not found.</LoadingCenter>;
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   return (
-    <div style={{ padding: "1rem", maxWidth: 800, margin: "0 auto" }}>
-      <button onClick={() => navigate("/seminar")}>← Back to list</button>
+    <PageContainer style={{ maxWidth: 900 }}>
+      {/* Back */}
+      <Button variant="ghost" size="sm" onClick={() => navigate("/seminar")} style={{ marginBottom: 20 }}>
+        ← Back to list
+      </Button>
 
-      {/* ── Cover image ── */}
+      {/* Cover image */}
       {seminar.cover_image && (
-        <img
-          src={seminar.cover_image}
-          alt="cover"
-          style={{
-            width: "100%",
-            maxHeight: 240,
-            objectFit: "cover",
-            marginTop: 12,
-          }}
-        />
+        <CoverImg src={seminar.cover_image} alt="cover" />
       )}
 
-      {/* ── Title & basic info ── */}
+      {/* ── Header info / Edit form ── */}
       {!editMode ? (
-        <>
-          <h1>{seminar.title}</h1>
-          {seminar.host && <div>🎙 Host: {seminar.host}</div>}
-          {seminar.description && <p>{seminar.description}</p>}
-          <div>
-            📅 {formatDate(seminar.start_time)} ~ {formatDate(seminar.end_time)}
-          </div>
-          {seminar.location && <div>📍 {seminar.location}</div>}
-          <div style={{ marginTop: 8 }}>
-            Capacity:{" "}
-            <strong>
-              {seminar.current_rsvp_count} / {seminar.max_capacity ?? "∞"}
-            </strong>
-            {seminar.waitlist_enabled && (
-              <span> | Waitlist: {seminar.waitlist_count}명</span>
-            )}
-          </div>
-          <div style={{ fontSize: "0.85rem", color: "#555" }}>
-            RSVP: {seminar.rsvp_enabled ? "ON" : "OFF"} | Waitlist:{" "}
-            {seminar.waitlist_enabled ? "ON" : "OFF"}
-          </div>
-          {isStaff && (
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <button onClick={startEditForm}>Edit Seminar</button>
-              <button
-                style={{ color: "red" }}
-                disabled={deleteSeminarMutation.isPending}
-                onClick={() => {
-                  if (confirm(`"${seminar.title}" 세미나를 삭제하시겠습니까?`)) {
-                    deleteSeminarMutation.mutate();
-                  }
-                }}
-              >
-                {deleteSeminarMutation.isPending ? "Deleting..." : "Delete Seminar"}
-              </button>
-            </div>
-          )}
-        </>
-      ) : (
-        /* ── Edit form (staff) ── */
-        <fieldset style={{ marginTop: 12 }}>
-          <legend>Edit Seminar</legend>
-          <div style={{ display: "grid", gap: "0.5rem" }}>
-            <input
-              placeholder="Title *"
-              value={editForm.title}
-              onChange={(e) =>
-                setEditForm({ ...editForm, title: e.target.value })
-              }
-            />
-            <textarea
-              placeholder="Description"
-              value={editForm.description}
-              onChange={(e) =>
-                setEditForm({ ...editForm, description: e.target.value })
-              }
-            />
-            <label>
-              Start time&nbsp;
-              <input
-                type="datetime-local"
-                value={editForm.start_time}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, start_time: e.target.value })
-                }
-              />
-            </label>
-            <label>
-              End time&nbsp;
-              <input
-                type="datetime-local"
-                value={editForm.end_time}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, end_time: e.target.value })
-                }
-              />
-            </label>
-            <input
-              placeholder="Location"
-              value={editForm.location}
-              onChange={(e) =>
-                setEditForm({ ...editForm, location: e.target.value })
-              }
-            />
-            <input
-              type="number"
-              placeholder="Max capacity (blank = unlimited)"
-              value={editForm.max_capacity}
-              onChange={(e) =>
-                setEditForm({ ...editForm, max_capacity: e.target.value })
-              }
-            />
-            <input
-              placeholder="Host / Organizer"
-              value={editForm.host}
-              onChange={(e) =>
-                setEditForm({ ...editForm, host: e.target.value })
-              }
-            />
-            <input
-              placeholder="Cover image URL"
-              value={editForm.cover_image}
-              onChange={(e) =>
-                setEditForm({ ...editForm, cover_image: e.target.value })
-              }
-            />
-            <label>
-              <input
-                type="checkbox"
-                checked={editForm.rsvp_enabled}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, rsvp_enabled: e.target.checked })
-                }
-              />
-              &nbsp;RSVP enabled
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={editForm.waitlist_enabled}
-                onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    waitlist_enabled: e.target.checked,
-                  })
-                }
-              />
-              &nbsp;Waitlist enabled
-            </label>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                onClick={() => modifyMutation.mutate()}
-                disabled={modifyMutation.isPending}
-              >
-                Save
-              </button>
-              <button onClick={() => setEditMode(false)}>Cancel</button>
-            </div>
-          </div>
-        </fieldset>
-      )}
+        <InfoSection>
+          <InfoLeft>
+            <TagRow>
+              {seminar.rsvp_enabled && <Badge color="purple">RSVP</Badge>}
+              {seminar.waitlist_enabled && <Badge color="blue">Waitlist</Badge>}
+            </TagRow>
+            <SeminarTitle>{seminar.title}</SeminarTitle>
+            {seminar.host && <HostLine>🎙 {seminar.host}</HostLine>}
+            {seminar.description && <SeminarDesc>{seminar.description}</SeminarDesc>}
 
-      <hr />
+            <MetaGrid>
+              {seminar.start_time && (
+                <MetaItem>
+                  <MetaIcon>📅</MetaIcon>
+                  <div>
+                    <MetaLabel>Date & Time</MetaLabel>
+                    <MetaValue>{formatDate(seminar.start_time)}{seminar.end_time && ` — ${formatDate(seminar.end_time)}`}</MetaValue>
+                  </div>
+                </MetaItem>
+              )}
+              {seminar.location && (
+                <MetaItem>
+                  <MetaIcon>📍</MetaIcon>
+                  <div>
+                    <MetaLabel>Location</MetaLabel>
+                    <MetaValue>{seminar.location}</MetaValue>
+                  </div>
+                </MetaItem>
+              )}
+              <MetaItem>
+                <MetaIcon>👥</MetaIcon>
+                <div>
+                  <MetaLabel>Capacity</MetaLabel>
+                  <MetaValue>
+                    {seminar.current_rsvp_count} / {seminar.max_capacity ?? "∞"}
+                    {seminar.waitlist_enabled && <span style={{ color: "#6b7280" }}> · Waitlist: {seminar.waitlist_count}</span>}
+                  </MetaValue>
+                </div>
+              </MetaItem>
+            </MetaGrid>
+
+            {isStaff && (
+              <StaffActions>
+                <Button variant="secondary" size="sm" onClick={startEditForm}>Edit</Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={deleteSeminarMutation.isPending}
+                  onClick={() => { if (confirm(`"${seminar.title}" 세미나를 삭제하시겠습니까?`)) deleteSeminarMutation.mutate(); }}
+                >
+                  {deleteSeminarMutation.isPending ? "Deleting…" : "Delete"}
+                </Button>
+              </StaffActions>
+            )}
+          </InfoLeft>
+        </InfoSection>
+      ) : (
+        /* ── Edit form ── */
+        <SectionBlock>
+          <SectionTitle>Edit Seminar</SectionTitle>
+          <TwoCol>
+            <FormGroup>
+              <Label>Title *</Label>
+              <Input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} />
+            </FormGroup>
+            <FormGroup>
+              <Label>Host / Organizer</Label>
+              <Input value={editForm.host} onChange={(e) => setEditForm({ ...editForm, host: e.target.value })} />
+            </FormGroup>
+          </TwoCol>
+          <FormGroup>
+            <Label>Description</Label>
+            <Textarea value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
+          </FormGroup>
+          <TwoCol>
+            <FormGroup>
+              <Label>Start time</Label>
+              <Input type="datetime-local" value={editForm.start_time} onChange={(e) => setEditForm({ ...editForm, start_time: e.target.value })} />
+            </FormGroup>
+            <FormGroup>
+              <Label>End time</Label>
+              <Input type="datetime-local" value={editForm.end_time} onChange={(e) => setEditForm({ ...editForm, end_time: e.target.value })} />
+            </FormGroup>
+          </TwoCol>
+          <TwoCol>
+            <FormGroup>
+              <Label>Location</Label>
+              <Input value={editForm.location} onChange={(e) => setEditForm({ ...editForm, location: e.target.value })} />
+            </FormGroup>
+            <FormGroup>
+              <Label>Max capacity</Label>
+              <Input type="number" value={editForm.max_capacity} onChange={(e) => setEditForm({ ...editForm, max_capacity: e.target.value })} />
+            </FormGroup>
+          </TwoCol>
+          <FormGroup>
+            <Label>Cover image URL</Label>
+            <Input value={editForm.cover_image} onChange={(e) => setEditForm({ ...editForm, cover_image: e.target.value })} />
+          </FormGroup>
+          <CheckRow>
+            <CheckboxRow>
+              <input type="checkbox" checked={editForm.rsvp_enabled} onChange={(e) => setEditForm({ ...editForm, rsvp_enabled: e.target.checked })} />
+              RSVP enabled
+            </CheckboxRow>
+            <CheckboxRow>
+              <input type="checkbox" checked={editForm.waitlist_enabled} onChange={(e) => setEditForm({ ...editForm, waitlist_enabled: e.target.checked })} />
+              Waitlist enabled
+            </CheckboxRow>
+          </CheckRow>
+          <EditActions>
+            <Button onClick={() => modifyMutation.mutate()} disabled={modifyMutation.isPending}>
+              {modifyMutation.isPending ? "Saving…" : "Save Changes"}
+            </Button>
+            <Button variant="ghost" onClick={() => setEditMode(false)}>Cancel</Button>
+          </EditActions>
+        </SectionBlock>
+      )}
 
       {/* ── Member: RSVP / Waitlist ── */}
-      {!isStaff && isLoggedIn && seminar.rsvp_enabled && (
-        <section>
-          <h3>My Status</h3>
-          {myRsvp ? (
-            <div>
-              ✅ RSVP 완료
+      {!isStaff && seminar.rsvp_enabled && (
+        <SectionBlock>
+          <SectionTitle>My Status</SectionTitle>
+          {!isLoggedIn ? (
+            <AlertBox variant="info">
+              <a href="/signin">로그인</a>하면 RSVP 할 수 있습니다.
+            </AlertBox>
+          ) : myRsvp ? (
+            <RsvpStatus>
+              <RsvpBadge confirmed>✅ RSVP Confirmed</RsvpBadge>
               {myRsvp.checked_in && (
-                <span>
-                  {" "}
-                  | ☑ 체크인 완료 ({formatDate(myRsvp.checked_in_at)})
-                </span>
+                <RsvpSub>☑ Checked in at {formatDate(myRsvp.checked_in_at)}</RsvpSub>
               )}
-              <br />
-              <button
-                onClick={() => cancelRsvpMutation.mutate()}
-                disabled={cancelRsvpMutation.isPending}
-              >
-                RSVP 취소
-              </button>
-            </div>
+              <Button variant="danger" size="sm" onClick={() => cancelRsvpMutation.mutate()} disabled={cancelRsvpMutation.isPending}>
+                {cancelRsvpMutation.isPending ? "Cancelling…" : "Cancel RSVP"}
+              </Button>
+            </RsvpStatus>
           ) : myWaitlist ? (
-            <div>
-              ⏳ 대기 중 ({myWaitlist.position}번째)
-              <br />
-              <button
-                onClick={() => cancelWaitlistMutation.mutate()}
-                disabled={cancelWaitlistMutation.isPending}
-              >
-                대기 취소
-              </button>
-            </div>
+            <RsvpStatus>
+              <RsvpBadge>⏳ Waitlisted — #{myWaitlist.position}</RsvpBadge>
+              <Button variant="ghost" size="sm" onClick={() => cancelWaitlistMutation.mutate()} disabled={cancelWaitlistMutation.isPending}>
+                {cancelWaitlistMutation.isPending ? "Cancelling…" : "Cancel Waitlist"}
+              </Button>
+            </RsvpStatus>
+          ) : isFull && !seminar.waitlist_enabled ? (
+            <AlertBox variant="warning">This seminar is full and waitlist is not available.</AlertBox>
           ) : (
-            <div>
-              {isFull && !seminar.waitlist_enabled ? (
-                <span>정원 마감 (대기 불가)</span>
-              ) : (
-                <button
-                  onClick={() => rsvpMutation.mutate()}
-                  disabled={rsvpMutation.isPending}
-                >
-                  {isFull ? "대기자 등록" : "RSVP"}
-                </button>
-              )}
-            </div>
+            <Button onClick={() => rsvpMutation.mutate()} disabled={rsvpMutation.isPending}>
+              {rsvpMutation.isPending ? "Processing…" : isFull ? "Join Waitlist" : "RSVP Now"}
+            </Button>
           )}
-        </section>
-      )}
-
-      {!isLoggedIn && (
-        <p>
-          <a href="/signin">로그인</a>하면 RSVP 할 수 있습니다.
-        </p>
+        </SectionBlock>
       )}
 
       {/* ── Staff: Reminder email ── */}
       {isStaff && (
-        <section style={{ marginTop: "1rem" }}>
-          <h3>리마인더 이메일</h3>
-          <p style={{ fontSize: "0.85rem", color: "#555", margin: "0 0 10px" }}>
-            RSVP 등록된 모든 참석자에게 세미나 안내 이메일을 발송합니다.
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <button
+        <SectionBlock>
+          <SectionTitle>📧 Reminder Email</SectionTitle>
+          <SectionDesc>RSVP 등록된 모든 참석자에게 세미나 안내 이메일을 발송합니다.</SectionDesc>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <Button
+              variant="secondary"
               onClick={() => {
                 if (confirm(`RSVP 참석자 ${seminar.current_rsvp_count}명에게 리마인더를 발송하시겠습니까?`)) {
                   setReminderResult(null);
@@ -483,243 +378,430 @@ export default function SeminarDetailPage() {
               }}
               disabled={reminderMutation.isPending || seminar.current_rsvp_count === 0}
             >
-              {reminderMutation.isPending ? "발송 중..." : "📧 리마인더 발송"}
-            </button>
+              {reminderMutation.isPending ? "발송 중…" : "Send Reminder"}
+            </Button>
             {seminar.current_rsvp_count === 0 && (
-              <span style={{ fontSize: "0.85rem", color: "#aaa" }}>RSVP 참석자 없음</span>
+              <span style={{ fontSize: 13, color: "#9ca3af" }}>No RSVPs yet</span>
             )}
           </div>
           {reminderResult && (
-            <div
-              style={{
-                marginTop: 10,
-                padding: "10px 14px",
-                background: reminderResult.errors > 0 ? "#fff3f3" : "#f0fff4",
-                border: `1px solid ${reminderResult.errors > 0 ? "#ffb3b3" : "#b2f5d0"}`,
-                borderRadius: 6,
-                fontSize: "0.85rem",
-              }}
-            >
-              ✅ 발송 완료 — 성공 <strong>{reminderResult.sent}</strong>건 /
-              실패 <strong>{reminderResult.errors}</strong>건 /
-              총 RSVP <strong>{reminderResult.total_rsvp}</strong>명
-            </div>
+            <AlertBox variant={reminderResult.errors > 0 ? "warning" : "success"} style={{ marginTop: 12 }}>
+              발송 완료 — 성공 <strong>{reminderResult.sent}</strong>건 / 실패 <strong>{reminderResult.errors}</strong>건 / 총 RSVP <strong>{reminderResult.total_rsvp}</strong>명
+            </AlertBox>
           )}
-        </section>
+        </SectionBlock>
       )}
 
-      {/* ── Staff: Check-in token management ── */}
+      {/* ── Staff: Check-in token ── */}
       {isStaff && (
-        <section style={{ marginTop: "1rem" }}>
-          <h3>Check-in 관리</h3>
-          {activeToken && new Date(activeToken.expires_at) > new Date() ? (
-            <div>
-              <div>
-                ✅ 체크인 활성 중 | 만료: {formatDate(activeToken.expires_at)}
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <button onClick={() => setShowQR((v) => !v)}>
+        <SectionBlock>
+          <SectionTitle>🔐 Check-in Management</SectionTitle>
+          {tokenActive ? (
+            <>
+              <AlertBox variant="success" style={{ marginBottom: 14 }}>
+                ✅ 체크인 활성 중 &nbsp;|&nbsp; 만료: {formatDate(activeToken!.expires_at)}
+              </AlertBox>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+                <Button variant="secondary" size="sm" onClick={() => setShowQR((v) => !v)}>
                   {showQR ? "QR 숨기기" : "QR 코드 보기"}
-                </button>
-                &nbsp;
-                <button
-                  style={{ color: "red" }}
-                  onClick={() => stopCheckinMutation.mutate()}
-                  disabled={stopCheckinMutation.isPending}
-                >
-                  체크인 중지
-                </button>
+                </Button>
+                <Button variant="danger" size="sm" onClick={() => stopCheckinMutation.mutate()} disabled={stopCheckinMutation.isPending}>
+                  {stopCheckinMutation.isPending ? "Stopping…" : "체크인 중지"}
+                </Button>
               </div>
               {showQR && checkinUrl && (
-                <div style={{ marginTop: 12 }}>
-                  <QRCodeSVG value={checkinUrl} size={200} />
-                  <div
-                    style={{
-                      marginTop: 8,
-                      wordBreak: "break-all",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    <a href={checkinUrl} target="_blank" rel="noreferrer">
-                      {checkinUrl}
-                    </a>
-                  </div>
-                </div>
+                <QrBlock>
+                  <QRCodeSVG value={checkinUrl} size={180} />
+                  <QrUrl href={checkinUrl} target="_blank" rel="noreferrer">{checkinUrl}</QrUrl>
+                </QrBlock>
               )}
-            </div>
+            </>
           ) : (
-            <div>
-              <span>체크인 비활성 상태</span>
-              <br />
-              <label style={{ marginTop: 8, display: "inline-block" }}>
-                유효 시간(분):&nbsp;
-                <input
-                  type="number"
-                  min={1}
-                  value={tokenDuration}
-                  onChange={(e) => setTokenDuration(Number(e.target.value))}
-                  style={{ width: 70 }}
-                />
-              </label>
-              &nbsp;
-              <button
-                onClick={() => createTokenMutation.mutate()}
-                disabled={createTokenMutation.isPending}
-              >
-                체크인 시작
-              </button>
-            </div>
+            <TokenForm>
+              <span style={{ fontSize: 14, color: "#6b7280" }}>체크인 비활성 상태</span>
+              <TokenRow>
+                <label style={{ fontSize: 14, display: "flex", alignItems: "center", gap: 8, color: "#374151" }}>
+                  유효 시간(분):
+                  <DurationInput
+                    type="number"
+                    min={1}
+                    value={tokenDuration}
+                    onChange={(e) => setTokenDuration(Number(e.target.value))}
+                  />
+                </label>
+                <Button size="sm" onClick={() => createTokenMutation.mutate()} disabled={createTokenMutation.isPending}>
+                  {createTokenMutation.isPending ? "Creating…" : "체크인 시작"}
+                </Button>
+              </TokenRow>
+            </TokenForm>
           )}
-        </section>
+        </SectionBlock>
       )}
 
       {/* ── Staff: CSV Import ── */}
       {isStaff && (
-        <section style={{ marginTop: "1rem" }}>
-          <h3>CSV 참석자 임포트</h3>
-          <p style={{ fontSize: "0.85rem", color: "#555", margin: "0 0 8px" }}>
-            Luma에서 내보낸 CSV 파일을 업로드하면 참석자를 자동으로 등록합니다.
-          </p>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <input
+        <SectionBlock>
+          <SectionTitle>📂 CSV Import</SectionTitle>
+          <SectionDesc>Luma에서 내보낸 CSV 파일을 업로드하면 참석자를 자동으로 등록합니다.</SectionDesc>
+          <CsvRow>
+            <FileInput
               ref={csvInputRef}
               type="file"
               accept=".csv"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) importCsvMutation.mutate(file);
-              }}
+              onChange={(e) => { const file = e.target.files?.[0]; if (file) importCsvMutation.mutate(file); }}
               disabled={importCsvMutation.isPending}
             />
-            {importCsvMutation.isPending && <span>처리 중...</span>}
-          </div>
+            {importCsvMutation.isPending && <span style={{ fontSize: 13, color: "#6b7280" }}>처리 중…</span>}
+          </CsvRow>
           {importResult && (
-            <div
-              style={{
-                marginTop: 12,
-                padding: "12px",
-                background: "#f9f9f9",
-                border: "1px solid #ddd",
-                borderRadius: 4,
-                fontSize: "0.85rem",
-              }}
-            >
-              <strong>임포트 결과</strong>
-              <ul style={{ margin: "8px 0 0", paddingLeft: 20 }}>
-                <li>총 행수: {importResult.total}</li>
-                <li>기존 유저 매칭: {importResult.matched_regular}명</li>
-                <li>기존 임시 유저 매칭: {importResult.matched_temporary}명</li>
-                <li>임시 유저 신규 생성: {importResult.created_temporary}명</li>
-                <li>RSVP 생성: {importResult.rsvp_created}건</li>
-                <li>RSVP 중복 스킵: {importResult.rsvp_skipped}건</li>
-                <li>정회원 이메일 발송: {importResult.membership_emails_sent}건</li>
-                {importResult.errors?.length > 0 && (
-                  <li style={{ color: "red" }}>
-                    오류 {importResult.errors.length}건:
-                    <ul>
-                      {importResult.errors.map((e: string, i: number) => (
-                        <li key={i}>{e}</li>
-                      ))}
-                    </ul>
-                  </li>
-                )}
-              </ul>
-              <button
-                style={{ marginTop: 8, fontSize: "0.8rem" }}
-                onClick={() => setImportResult(null)}
-              >
+            <ImportResult>
+              <ImportResultTitle>임포트 결과</ImportResultTitle>
+              <ImportGrid>
+                <ImportStat><span>총 행수</span><strong>{importResult.total}</strong></ImportStat>
+                <ImportStat><span>기존 유저</span><strong>{importResult.matched_regular}</strong></ImportStat>
+                <ImportStat><span>임시 유저 매칭</span><strong>{importResult.matched_temporary}</strong></ImportStat>
+                <ImportStat><span>임시 유저 생성</span><strong>{importResult.created_temporary}</strong></ImportStat>
+                <ImportStat><span>RSVP 생성</span><strong>{importResult.rsvp_created}</strong></ImportStat>
+                <ImportStat><span>RSVP 중복 스킵</span><strong>{importResult.rsvp_skipped}</strong></ImportStat>
+                <ImportStat><span>멤버십 이메일</span><strong>{importResult.membership_emails_sent}</strong></ImportStat>
+              </ImportGrid>
+              {importResult.errors?.length > 0 && (
+                <AlertBox variant="error" style={{ marginTop: 12 }}>
+                  오류 {importResult.errors.length}건: {importResult.errors.join(", ")}
+                </AlertBox>
+              )}
+              <Button variant="ghost" size="sm" style={{ marginTop: 12 }} onClick={() => setImportResult(null)}>
                 결과 닫기
-              </button>
-            </div>
+              </Button>
+            </ImportResult>
           )}
-        </section>
+        </SectionBlock>
       )}
 
       {/* ── Staff: RSVP list ── */}
       {isStaff && (
-        <section style={{ marginTop: "1rem" }}>
-          <h3>RSVP 목록 ({seminar.current_rsvp_count}명)</h3>
+        <SectionBlock>
+          <SectionTitle>👥 RSVP 목록 ({seminar.current_rsvp_count}명)</SectionTitle>
           {seminar.users.length === 0 ? (
-            <p>RSVP 없음</p>
+            <EmptyState style={{ padding: "24px 0" }}>RSVP 없음</EmptyState>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#f0f0f0" }}>
-                  <th style={th}>이름</th>
-                  <th style={th}>이메일</th>
-                  <th style={th}>체크인</th>
-                  <th style={th}>체크인 시각</th>
-                  <th style={th}>조작</th>
-                </tr>
-              </thead>
-              <tbody>
-                {seminar.users.map((u) => (
-                  <tr key={u.id}>
-                    <td style={td}>{u.username}</td>
-                    <td style={td}>{u.email}</td>
-                    <td style={td}>{u.checked_in ? "✅" : "❌"}</td>
-                    <td style={td}>{formatDate(u.checked_in_at)}</td>
-                    <td style={td}>
-                      <button
-                        onClick={() =>
-                          modifyCheckinMutation.mutate({
-                            userId: u.id,
-                            checked_in: !u.checked_in,
-                          })
-                        }
-                        disabled={modifyCheckinMutation.isPending}
-                      >
-                        {u.checked_in ? "체크인 취소" : "체크인"}
-                      </button>
-                    </td>
+            <TableWrap>
+              <Table>
+                <Thead>
+                  <tr>
+                    <Th>이름</Th>
+                    <Th>이메일</Th>
+                    <Th>체크인</Th>
+                    <Th>체크인 시각</Th>
+                    <Th>조작</Th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </Thead>
+                <tbody>
+                  {seminar.users.map((u) => (
+                    <Tr key={u.id}>
+                      <Td>{u.username}</Td>
+                      <Td style={{ color: "#6b7280" }}>{u.email}</Td>
+                      <Td>
+                        <Badge color={u.checked_in ? "green" : "gray"}>
+                          {u.checked_in ? "완료" : "미완료"}
+                        </Badge>
+                      </Td>
+                      <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(u.checked_in_at)}</Td>
+                      <Td>
+                        <Button
+                          size="sm"
+                          variant={u.checked_in ? "danger" : "secondary"}
+                          onClick={() => modifyCheckinMutation.mutate({ userId: u.id, checked_in: !u.checked_in })}
+                          disabled={modifyCheckinMutation.isPending}
+                        >
+                          {u.checked_in ? "취소" : "체크인"}
+                        </Button>
+                      </Td>
+                    </Tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableWrap>
           )}
-        </section>
+        </SectionBlock>
       )}
 
       {/* ── Staff: Waitlist ── */}
       {isStaff && seminar.waitlist_enabled && (
-        <section style={{ marginTop: "1rem" }}>
-          <h3>대기자 목록 ({seminar.waitlist_count}명)</h3>
+        <SectionBlock>
+          <SectionTitle>⏳ 대기자 목록 ({seminar.waitlist_count}명)</SectionTitle>
           {seminar.waitlist.length === 0 ? (
-            <p>대기자 없음</p>
+            <EmptyState style={{ padding: "24px 0" }}>대기자 없음</EmptyState>
           ) : (
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr style={{ background: "#f0f0f0" }}>
-                  <th style={th}>#</th>
-                  <th style={th}>이름</th>
-                  <th style={th}>이메일</th>
-                  <th style={th}>등록 시각</th>
-                </tr>
-              </thead>
-              <tbody>
-                {seminar.waitlist.map((u) => (
-                  <tr key={u.id}>
-                    <td style={td}>{u.position}</td>
-                    <td style={td}>{u.username}</td>
-                    <td style={td}>{u.email}</td>
-                    <td style={td}>{formatDate(u.joined_at)}</td>
+            <TableWrap>
+              <Table>
+                <Thead>
+                  <tr>
+                    <Th>#</Th>
+                    <Th>이름</Th>
+                    <Th>이메일</Th>
+                    <Th>등록 시각</Th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </Thead>
+                <tbody>
+                  {seminar.waitlist.map((u) => (
+                    <Tr key={u.id}>
+                      <Td><Badge color="blue">{u.position}</Badge></Td>
+                      <Td>{u.username}</Td>
+                      <Td style={{ color: "#6b7280" }}>{u.email}</Td>
+                      <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(u.joined_at)}</Td>
+                    </Tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableWrap>
           )}
-        </section>
+        </SectionBlock>
       )}
-    </div>
+    </PageContainer>
   );
 }
 
-const th: React.CSSProperties = {
-  border: "1px solid #ccc",
-  padding: "4px 8px",
-  textAlign: "left",
-};
-const td: React.CSSProperties = {
-  border: "1px solid #ccc",
-  padding: "4px 8px",
-};
+// ── Styled components ─────────────────────────────────────────────────────────
+
+const CoverImg = styled.img`
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  display: block;
+`;
+
+const InfoSection = styled.div`
+  margin-bottom: 4px;
+`;
+
+const InfoLeft = styled.div``;
+
+const TagRow = styled.div`
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+`;
+
+const SeminarTitle = styled.h1`
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+
+  @media (min-width: 768px) { font-size: 34px; }
+`;
+
+const HostLine = styled.div`
+  font-size: 15px;
+  color: #6c5ce7;
+  font-weight: 600;
+  margin-bottom: 12px;
+`;
+
+const SeminarDesc = styled.p`
+  font-size: 15px;
+  color: #6b7280;
+  line-height: 1.7;
+  margin-bottom: 20px;
+`;
+
+const MetaGrid = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+`;
+
+const MetaItem = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+`;
+
+const MetaIcon = styled.span`
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+`;
+
+const MetaLabel = styled.div`
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  margin-bottom: 2px;
+`;
+
+const MetaValue = styled.div`
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+`;
+
+const StaffActions = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+`;
+
+const TwoCol = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0 16px;
+
+  @media (min-width: 560px) { grid-template-columns: 1fr 1fr; }
+`;
+
+const CheckRow = styled.div`
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+`;
+
+const EditActions = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const SectionDesc = styled.p`
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 14px;
+`;
+
+const RsvpStatus = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+`;
+
+const RsvpBadge = styled.div<{ confirmed?: boolean }>`
+  font-size: 15px;
+  font-weight: 600;
+  color: ${({ confirmed }) => (confirmed ? "#059669" : "#d97706")};
+`;
+
+const RsvpSub = styled.div`
+  font-size: 13px;
+  color: #6b7280;
+`;
+
+const QrBlock = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+  background: #f8f7ff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 4px;
+`;
+
+const QrUrl = styled.a`
+  font-size: 12px;
+  color: #6c5ce7;
+  word-break: break-all;
+`;
+
+const TokenForm = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const TokenRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
+const DurationInput = styled.input`
+  width: 72px;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+
+  &:focus {
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+  }
+`;
+
+const CsvRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
+const FileInput = styled.input`
+  font-size: 13px;
+  color: #374151;
+
+  &::file-selector-button {
+    padding: 7px 14px;
+    background: #ede9fe;
+    color: #6c5ce7;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 10px;
+    font-family: inherit;
+    transition: background 0.15s;
+
+    &:hover { background: #ddd6fe; }
+  }
+`;
+
+const ImportResult = styled.div`
+  margin-top: 16px;
+  background: #f8f7ff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 18px 20px;
+`;
+
+const ImportResultTitle = styled.div`
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+`;
+
+const ImportGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+
+  @media (min-width: 560px) { grid-template-columns: repeat(4, 1fr); }
+`;
+
+const ImportStat = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  span { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  strong { font-size: 18px; color: #111827; }
+`;
+
+const TableWrap = styled.div`
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+`;

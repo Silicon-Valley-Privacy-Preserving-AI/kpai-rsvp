@@ -1,7 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
+import {
+  Badge,
+  PageContainer,
+  PageHeader,
+  PageTitle,
+  Table,
+  Thead,
+  Th,
+  Td,
+  Tr,
+  LoadingCenter,
+  Spinner,
+  Button,
+  AlertBox,
+} from "../components/ui";
 
 interface UserAdminRow {
   id: number;
@@ -14,117 +30,185 @@ interface UserAdminRow {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("ko-KR");
+  return new Date(iso).toLocaleString("ko-KR", {
+    year: "numeric", month: "short", day: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
 }
-
-const badge = (label: string, color: string) => (
-  <span
-    style={{
-      display: "inline-block",
-      padding: "2px 8px",
-      borderRadius: 4,
-      fontSize: "0.78rem",
-      fontWeight: 600,
-      background: color,
-      color: "#fff",
-    }}
-  >
-    {label}
-  </span>
-);
 
 export default function AdminPage() {
   const navigate = useNavigate();
 
   const { data: me } = useQuery({
     queryKey: ["me"],
-    queryFn: async () => {
-      const res = await axiosInstance.get(api.v1.users);
-      return res.data;
-    },
+    queryFn: async () => { const res = await axiosInstance.get(api.v1.users); return res.data; },
     enabled: !!sessionStorage.getItem("accessToken"),
     retry: false,
   });
 
-  const {
-    data: users = [],
-    isLoading,
-    error,
-  } = useQuery<UserAdminRow[]>({
+  const { data: users = [], isLoading, error } = useQuery<UserAdminRow[]>({
     queryKey: ["admin-users"],
-    queryFn: async () => {
-      const res = await axiosInstance.get(api.v1.usersList);
-      return res.data;
-    },
+    queryFn: async () => { const res = await axiosInstance.get(api.v1.usersList); return res.data; },
     enabled: me?.role === "staff",
   });
 
   if (!sessionStorage.getItem("accessToken")) {
-    return <p style={{ padding: "1rem" }}>로그인이 필요합니다.</p>;
+    return (
+      <PageContainer>
+        <AlertBox variant="warning">로그인이 필요합니다.</AlertBox>
+      </PageContainer>
+    );
   }
   if (me && me.role !== "staff") {
-    return <p style={{ padding: "1rem" }}>접근 권한이 없습니다.</p>;
+    return (
+      <PageContainer>
+        <AlertBox variant="error">접근 권한이 없습니다.</AlertBox>
+      </PageContainer>
+    );
   }
-  if (isLoading || !me) return <div style={{ padding: "1rem" }}>Loading...</div>;
-  if (error) return <p style={{ padding: "1rem", color: "red" }}>유저 목록을 불러오지 못했습니다.</p>;
+  if (isLoading || !me) {
+    return <LoadingCenter><Spinner />Loading users…</LoadingCenter>;
+  }
+  if (error) {
+    return (
+      <PageContainer>
+        <AlertBox variant="error">유저 목록을 불러오지 못했습니다.</AlertBox>
+      </PageContainer>
+    );
+  }
+
+  const staffCount = users.filter((u) => u.role === "staff").length;
+  const tempCount = users.filter((u) => u.is_temporary).length;
+  const memberCount = users.filter((u) => u.full_member_email_sent).length;
 
   return (
-    <div style={{ padding: "1rem", maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: "1rem" }}>
-        <button onClick={() => navigate("/")}>← Back</button>
-        <h1 style={{ margin: 0 }}>Admin — User List</h1>
-        <span style={{ marginLeft: "auto", fontSize: "0.9rem", color: "#555" }}>
-          총 {users.length}명
-        </span>
-      </div>
+    <PageContainer style={{ maxWidth: 1100 }}>
+      <PageHeader>
+        <div>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")} style={{ marginBottom: 8 }}>
+            ← Back
+          </Button>
+          <PageTitle>Admin — User List</PageTitle>
+        </div>
+        <TotalBadge>{users.length} users</TotalBadge>
+      </PageHeader>
 
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
-          <thead>
-            <tr style={{ background: "#f4f4f4", textAlign: "left" }}>
-              <th style={th}>ID</th>
-              <th style={th}>가입일시</th>
-              <th style={th}>이메일</th>
-              <th style={th}>이름</th>
-              <th style={th}>역할</th>
-              <th style={th}>임시 계정</th>
-              <th style={th}>정회원 이메일 발송</th>
+      {/* ── Stats row ── */}
+      <StatsRow>
+        <StatCard>
+          <StatNum>{users.length}</StatNum>
+          <StatLabel>Total Users</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatNum>{staffCount}</StatNum>
+          <StatLabel>Staff</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatNum>{tempCount}</StatNum>
+          <StatLabel>Temporary</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatNum>{memberCount}</StatNum>
+          <StatLabel>Full Members</StatLabel>
+        </StatCard>
+      </StatsRow>
+
+      {/* ── Table ── */}
+      <TableWrap>
+        <Table>
+          <Thead>
+            <tr>
+              <Th>ID</Th>
+              <Th>가입일시</Th>
+              <Th>이름</Th>
+              <Th>이메일</Th>
+              <Th>역할</Th>
+              <Th>계정 유형</Th>
+              <Th>정회원 이메일</Th>
             </tr>
-          </thead>
+          </Thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={td}>{u.id}</td>
-                <td style={td}>{formatDate(u.created_at)}</td>
-                <td style={td}>{u.email}</td>
-                <td style={td}>{u.username}</td>
-                <td style={td}>
-                  {u.role === "staff"
-                    ? badge("Staff", "#6c5ce7")
-                    : badge("Member", "#00b894")}
-                </td>
-                <td style={td}>
-                  {u.is_temporary ? badge("임시", "#e17055") : badge("정식", "#0984e3")}
-                </td>
-                <td style={td}>
-                  {u.full_member_email_sent ? badge("발송됨", "#00b894") : badge("미발송", "#b2bec3")}
-                </td>
-              </tr>
+              <Tr key={u.id}>
+                <Td style={{ color: "#9ca3af", fontSize: 13 }}>#{u.id}</Td>
+                <Td style={{ fontSize: 13, color: "#6b7280", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
+                <Td style={{ fontWeight: 600 }}>{u.username}</Td>
+                <Td style={{ color: "#6b7280", fontSize: 13 }}>{u.email}</Td>
+                <Td>
+                  <Badge color={u.role === "staff" ? "purple" : "green"}>
+                    {u.role === "staff" ? "Staff" : "Member"}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Badge color={u.is_temporary ? "orange" : "blue"}>
+                    {u.is_temporary ? "임시" : "정식"}
+                  </Badge>
+                </Td>
+                <Td>
+                  <Badge color={u.full_member_email_sent ? "green" : "gray"}>
+                    {u.full_member_email_sent ? "발송됨" : "미발송"}
+                  </Badge>
+                </Td>
+              </Tr>
             ))}
           </tbody>
-        </table>
-      </div>
-    </div>
+        </Table>
+      </TableWrap>
+    </PageContainer>
   );
 }
 
-const th: React.CSSProperties = {
-  padding: "8px 12px",
-  fontWeight: 600,
-  whiteSpace: "nowrap",
-  borderBottom: "2px solid #ddd",
-};
-const td: React.CSSProperties = {
-  padding: "8px 12px",
-  verticalAlign: "middle",
-};
+// ── Styled components ─────────────────────────────────────────────────────────
+
+const TotalBadge = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 6px 14px;
+  border-radius: 20px;
+  align-self: flex-end;
+`;
+
+const StatsRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+`;
+
+const StatCard = styled.div`
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 20px;
+  text-align: center;
+`;
+
+const StatNum = styled.div`
+  font-size: 28px;
+  font-weight: 800;
+  color: #6c5ce7;
+  letter-spacing: -0.02em;
+`;
+
+const StatLabel = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+`;
+
+const TableWrap = styled.div`
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  overflow-x: auto;
+`;

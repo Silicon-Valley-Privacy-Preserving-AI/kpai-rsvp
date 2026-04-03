@@ -1,12 +1,38 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { axiosInstance } from "../apis/axiosInstance";
+import { api } from "../apis/endpoints";
+import { route } from "../router/route";
 import { BREAKPOINTS } from "../utils/constants";
+import { Button } from "./ui";
 
 export default function Header() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const isLoggedIn = !!sessionStorage.getItem("accessToken");
+
+  const { data: me } = useQuery({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const res = await axiosInstance.get(api.v1.users);
+      return res.data;
+    },
+    enabled: isLoggedIn,
+    retry: false,
+  });
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("accessToken");
+    queryClient.removeQueries({ queryKey: ["me"] });
+    navigate("/");
+    window.location.reload();
+  };
+
   return (
     <HeaderWrapper>
       <Inner>
-        <Link to="/">
+        <Link to="/" style={{ textDecoration: "none" }}>
           <LogoContainer>
             <LogoImage src="/logo.png" alt="K-PAI Logo" />
             <LogoWrapper>
@@ -30,20 +56,48 @@ export default function Header() {
             </LogoWrapper>
           </LogoContainer>
         </Link>
+
+        <NavRight>
+          <NavLink to={route.seminar}>Seminars</NavLink>
+          {me?.role === "staff" && (
+            <NavLink to={route.admin}>Admin</NavLink>
+          )}
+          {isLoggedIn ? (
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              Sign Out
+            </Button>
+          ) : (
+            <>
+              <NavLink to={route.signin}>Sign In</NavLink>
+              <Button
+                as={Link as any}
+                to={route.signup}
+                variant="primary"
+                size="sm"
+              >
+                Sign Up
+              </Button>
+            </>
+          )}
+        </NavRight>
       </Inner>
     </HeaderWrapper>
   );
 }
 
 const HeaderWrapper = styled.header`
-  height: 56px;
+  height: 60px;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
-    height: 64px;
+    height: 68px;
   }
 `;
 
@@ -52,9 +106,13 @@ const Inner = styled.div`
   width: 100%;
   margin: 0 auto;
   padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
-    padding: 0 24px;
+    padding: 0 32px;
   }
 `;
 
@@ -96,7 +154,7 @@ const LogoWrapper = styled.div`
   color: #111827;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
-    font-size: 28px;
+    font-size: 26px;
   }
 `;
 
@@ -128,10 +186,7 @@ const Separator = styled.span`
 
 const Spacer = styled.span`
   width: 6px;
-
-  @media (min-width: ${BREAKPOINTS.mobile}) {
-    width: 8px;
-  }
+  @media (min-width: ${BREAKPOINTS.mobile}) { width: 8px; }
 `;
 
 const DynamicSpacer = styled.span`
@@ -139,38 +194,55 @@ const DynamicSpacer = styled.span`
   transition: width 0.35s ease;
 
   @media (hover: hover) {
-    ${LogoContainer}:hover & {
-      width: 8px;
-    }
+    ${LogoContainer}:hover & { width: 8px; }
   }
 
   @media (min-width: ${BREAKPOINTS.mobile}) and (hover: hover) {
-    ${LogoContainer}:hover & {
-      width: 12px;
-    }
+    ${LogoContainer}:hover & { width: 12px; }
   }
 `;
 
 const ExpandedWord = styled.span`
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #6b7280;
   white-space: nowrap;
-
   opacity: 0;
   max-width: 0;
-  transition:
-    opacity 0.35s ease,
-    max-width 0.35s ease;
+  transition: opacity 0.35s ease, max-width 0.35s ease;
 
-  @media (min-width: ${BREAKPOINTS.mobile}) {
-    font-size: 20px;
-  }
+  @media (min-width: ${BREAKPOINTS.mobile}) { font-size: 18px; }
 
   @media (hover: hover) {
     ${LogoContainer}:hover & {
       opacity: 1;
       max-width: 200px;
     }
+  }
+`;
+
+const NavRight = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  @media (min-width: ${BREAKPOINTS.mobile}) {
+    gap: 8px;
+  }
+`;
+
+const NavLink = styled(Link)`
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: #111827;
+    background: #f3f4f6;
+    text-decoration: none;
   }
 `;

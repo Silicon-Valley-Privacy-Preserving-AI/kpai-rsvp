@@ -1,11 +1,21 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
+import {
+  Button,
+  Input,
+  Label,
+  FormGroup,
+  Select,
+  AlertBox,
+  ModalOverlay,
+  ModalCard,
+} from "../components/ui";
 
 type UserRole = "member" | "staff";
-
 type SignUpRequest = {
   username: string;
   email: string;
@@ -13,8 +23,6 @@ type SignUpRequest = {
   role: UserRole;
   staff_code?: string;
 };
-
-// Temp account info returned in 409 detail when TEMP_ACCOUNT_EXISTS
 interface TempAccountInfo {
   code: "TEMP_ACCOUNT_EXISTS";
   username: string;
@@ -30,11 +38,10 @@ export default function SignUpPage() {
     role: "member",
     staff_code: "",
   });
-
-  // Holds temp account info when 409 TEMP_ACCOUNT_EXISTS is returned
+  const [errorMsg, setErrorMsg] = useState("");
   const [tempAccount, setTempAccount] = useState<TempAccountInfo | null>(null);
-  // Password entered for set-password flow
   const [newPassword, setNewPassword] = useState("");
+  const [pwError, setPwError] = useState("");
 
   // ── Normal sign-up ────────────────────────────────────────────────────────
   const signUpMutation = useMutation({
@@ -51,22 +58,20 @@ export default function SignUpPage() {
         sessionStorage.setItem("accessToken", loginData.access_token);
         navigate("/");
       } catch {
-        alert("회원가입 성공! 로그인 페이지로 이동합니다.");
         navigate("/signin");
       }
     },
     onError: (error: any) => {
       const detail = error?.response?.data?.detail;
-      // BE returns an object when TEMP_ACCOUNT_EXISTS
       if (detail && typeof detail === "object" && detail.code === "TEMP_ACCOUNT_EXISTS") {
         setTempAccount(detail as TempAccountInfo);
         return;
       }
-      alert(typeof detail === "string" ? detail : "회원가입 실패");
+      setErrorMsg(typeof detail === "string" ? detail : "회원가입에 실패했습니다.");
     },
   });
 
-  // ── Set password for existing temp account ────────────────────────────────
+  // ── Set password for temp account ─────────────────────────────────────────
   const setPasswordMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
       const { data } = await axiosInstance.post(api.v1.setPassword, {
@@ -76,7 +81,6 @@ export default function SignUpPage() {
       return data;
     },
     onSuccess: async () => {
-      // Auto-login after setting password
       try {
         const { data: loginData } = await axiosInstance.post(api.v1.auth.login, {
           email: tempAccount!.email,
@@ -85,16 +89,16 @@ export default function SignUpPage() {
         sessionStorage.setItem("accessToken", loginData.access_token);
         navigate("/");
       } catch {
-        alert("비밀번호 설정 완료! 로그인 페이지로 이동합니다.");
         navigate("/signin");
       }
     },
     onError: (error: any) => {
-      alert(error?.response?.data?.detail ?? "비밀번호 설정 실패");
+      setPwError(error?.response?.data?.detail ?? "비밀번호 설정에 실패했습니다.");
     },
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setErrorMsg("");
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
@@ -102,149 +106,255 @@ export default function SignUpPage() {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (form.role === "staff" && !form.staff_code) {
-      alert("Staff 코드를 입력하세요");
+      setErrorMsg("Staff 코드를 입력하세요.");
       return;
     }
     signUpMutation.mutate(form);
   };
 
-  // ── Temp account confirmation modal ──────────────────────────────────────
+  // ── Temp account modal ────────────────────────────────────────────────────
   if (tempAccount) {
     return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(0,0,0,0.45)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1000,
-        }}
-      >
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: 8,
-            padding: "2rem",
-            maxWidth: 420,
-            width: "90%",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-          }}
-        >
-          <h2 style={{ marginTop: 0 }}>자동 생성된 계정이 있습니다</h2>
-          <p>
-            입력하신 이메일로 이미 임시 계정이 생성되어 있습니다.
-            이 계정으로 계속하시겠습니까?
-          </p>
-          <div
-            style={{
-              background: "#f4f4f4",
-              borderRadius: 6,
-              padding: "12px 16px",
-              marginBottom: "1rem",
-            }}
-          >
-            <div><strong>이름:</strong> {tempAccount.username}</div>
-            <div><strong>이메일:</strong> {tempAccount.email}</div>
-          </div>
-          <p style={{ fontSize: "0.85rem", color: "#e17055" }}>
-            본인 정보와 다르다면 관리자에게 문의해주십시오.
-          </p>
+      <ModalOverlay>
+        <ModalCard>
+          <ModalTitle>자동 생성된 계정이 있습니다</ModalTitle>
+          <ModalDesc>
+            입력하신 이메일로 이미 임시 계정이 생성되어 있습니다. 이 계정으로 계속하시겠습니까?
+          </ModalDesc>
 
-          <div style={{ marginBottom: "0.75rem" }}>
-            <label style={{ display: "block", marginBottom: 4, fontWeight: 500 }}>
-              사용할 비밀번호 설정
-            </label>
-            <input
+          <TempInfoBox>
+            <TempRow><span>이름</span><strong>{tempAccount.username}</strong></TempRow>
+            <TempRow><span>이메일</span><strong>{tempAccount.email}</strong></TempRow>
+          </TempInfoBox>
+
+          <AlertBox variant="warning" style={{ marginBottom: 20 }}>
+            ⚠️ 본인 정보와 다르다면 관리자에게 문의해주십시오.
+          </AlertBox>
+
+          <FormGroup>
+            <Label htmlFor="newPw">사용할 비밀번호 설정</Label>
+            <Input
+              id="newPw"
               type="password"
               placeholder="새 비밀번호 (4자 이상)"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              style={{ width: "100%", boxSizing: "border-box", padding: "8px" }}
+              onChange={(e) => { setNewPassword(e.target.value); setPwError(""); }}
             />
-          </div>
+          </FormGroup>
 
-          <div style={{ display: "flex", gap: 8 }}>
-            <button
-              style={{ flex: 1 }}
+          {pwError && (
+            <AlertBox variant="error" style={{ marginBottom: 12 }}>
+              {pwError}
+            </AlertBox>
+          )}
+
+          <ModalActions>
+            <Button
+              fullWidth
               disabled={newPassword.length < 4 || setPasswordMutation.isPending}
-              onClick={() =>
-                setPasswordMutation.mutate({
-                  email: tempAccount.email,
-                  password: newPassword,
-                })
-              }
+              onClick={() => setPasswordMutation.mutate({ email: tempAccount.email, password: newPassword })}
             >
-              {setPasswordMutation.isPending ? "처리 중..." : "이 계정으로 계속하기"}
-            </button>
-            <button
-              style={{ flex: 1 }}
-              onClick={() => {
-                setTempAccount(null);
-                setNewPassword("");
-              }}
+              {setPasswordMutation.isPending ? "처리 중…" : "이 계정으로 계속하기"}
+            </Button>
+            <Button
+              fullWidth
+              variant="ghost"
+              onClick={() => { setTempAccount(null); setNewPassword(""); }}
             >
               취소
-            </button>
-          </div>
-        </div>
-      </div>
+            </Button>
+          </ModalActions>
+        </ModalCard>
+      </ModalOverlay>
     );
   }
 
   // ── Normal sign-up form ───────────────────────────────────────────────────
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <input
-          name="username"
-          placeholder="username"
-          value={form.username}
-          onChange={handleChange}
-        />
-      </div>
+    <PageWrap>
+      <AuthCard>
+        <CardHeader>
+          <CardTitle>Sign Up</CardTitle>
+          <CardSub>Join the K-PAI community</CardSub>
+        </CardHeader>
 
-      <div>
-        <input
-          name="email"
-          placeholder="email"
-          value={form.email}
-          onChange={handleChange}
-        />
-      </div>
+        <form onSubmit={handleSubmit}>
+          {errorMsg && (
+            <AlertBox variant="error" style={{ marginBottom: 20 }}>
+              ⚠️ {errorMsg}
+            </AlertBox>
+          )}
 
-      <div>
-        <input
-          name="password"
-          type="password"
-          placeholder="password"
-          value={form.password}
-          onChange={handleChange}
-        />
-      </div>
+          <FormGroup>
+            <Label htmlFor="username">Name</Label>
+            <Input
+              id="username"
+              name="username"
+              placeholder="Your name"
+              value={form.username}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
 
-      <div>
-        <select name="role" value={form.role} onChange={handleChange}>
-          <option value="member">Member</option>
-          <option value="staff">Staff</option>
-        </select>
-      </div>
+          <FormGroup>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
 
-      {form.role === "staff" && (
-        <div>
-          <input
-            name="staff_code"
-            placeholder="Staff Code"
-            value={form.staff_code}
-            onChange={handleChange}
-          />
-        </div>
-      )}
+          <FormGroup>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+          </FormGroup>
 
-      <button type="submit" disabled={signUpMutation.isPending}>
-        {signUpMutation.isPending ? "Loading..." : "Sign Up"}
-      </button>
-    </form>
+          <FormGroup>
+            <Label htmlFor="role">Role</Label>
+            <Select id="role" name="role" value={form.role} onChange={handleChange}>
+              <option value="member">Member</option>
+              <option value="staff">Staff</option>
+            </Select>
+          </FormGroup>
+
+          {form.role === "staff" && (
+            <FormGroup>
+              <Label htmlFor="staff_code">Staff Code</Label>
+              <Input
+                id="staff_code"
+                name="staff_code"
+                placeholder="Enter staff access code"
+                value={form.staff_code}
+                onChange={handleChange}
+              />
+            </FormGroup>
+          )}
+
+          <Button
+            type="submit"
+            fullWidth
+            size="lg"
+            disabled={signUpMutation.isPending}
+            style={{ marginTop: 8 }}
+          >
+            {signUpMutation.isPending ? "Creating account…" : "Create Account"}
+          </Button>
+        </form>
+
+        <Divider />
+        <FooterText>
+          Already have an account?{" "}
+          <Link to="/signin">Sign in</Link>
+        </FooterText>
+      </AuthCard>
+    </PageWrap>
   );
 }
+
+// ── Styled components ─────────────────────────────────────────────────────────
+
+const PageWrap = styled.div`
+  min-height: calc(100vh - 128px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+`;
+
+const AuthCard = styled.div`
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 24px rgba(108, 92, 231, 0.08);
+`;
+
+const CardHeader = styled.div`
+  margin-bottom: 28px;
+`;
+
+const CardTitle = styled.h1`
+  font-size: 26px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+`;
+
+const CardSub = styled.p`
+  font-size: 14px;
+  color: #6b7280;
+`;
+
+const Divider = styled.hr`
+  border: none;
+  border-top: 1px solid #f3f4f6;
+  margin: 24px 0;
+`;
+
+const FooterText = styled.p`
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+
+  a {
+    color: #6c5ce7;
+    font-weight: 600;
+  }
+`;
+
+// Modal internals
+const ModalTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 10px;
+`;
+
+const ModalDesc = styled.p`
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 20px;
+  line-height: 1.6;
+`;
+
+const TempInfoBox = styled.div`
+  background: #f8f7ff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+`;
+
+const TempRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 4px 0;
+
+  span { color: #6b7280; }
+  strong { color: #111827; }
+`;
+
+const ModalActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+`;
