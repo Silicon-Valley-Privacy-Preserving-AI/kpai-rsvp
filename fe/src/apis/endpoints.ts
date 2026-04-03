@@ -24,5 +24,9 @@ export const api = {
 
     // Token-based check-in
     checkIn: "/api/v1/check-in",
+
+    // System (admin raw data)
+    systemSeminars: "/api/v1/system/seminars",
+    systemRsvps: "/api/v1/system/seminar_rsvps",
   },
 };
