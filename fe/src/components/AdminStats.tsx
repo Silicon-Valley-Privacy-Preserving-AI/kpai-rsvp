@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend, ReferenceLine, Cell,
@@ -188,6 +188,10 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
   const BLUE    = "#0ea5e9";
   const GRID    = "#f0eeff";
 
+  type ChartTab = "attendance" | "rsvp" | "checkin" | "noshow" | "capacity";
+  const [chartTab, setChartTab] = useState<ChartTab>("attendance");
+  const hasCapacity = stats.some(s => s.fillRate !== null);
+
   return (
     <Wrap>
 
@@ -232,156 +236,169 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
         </KpiCard>
       </KpiGrid>
 
-      {/* ── Section: Attendance Chart ── */}
+      {/* ── Section: Charts (tabbed) ── */}
       <SectionHead style={{ marginTop: 36 }}>
-        <SectionHeadTitle>Attendance by Seminar</SectionHeadTitle>
-        <SectionHeadDesc>
-          RSVPs (registrations) vs actual check-ins per event, in chronological order.
-          A large gap between the two bars signals a high no-show rate for that seminar.
-        </SectionHeadDesc>
+        <SectionHeadTitle>Charts</SectionHeadTitle>
       </SectionHead>
-      <ChartCard>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}
-            barCategoryGap="28%">
-            <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
-              angle={-35}
-              textAnchor="end"
-              interval={0}
-            />
-            <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
-            <Tooltip
-              contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
-              formatter={(val: number, name: string) => [val, name === "rsvp" ? "RSVPs" : "Check-ins"]}
-              labelFormatter={(l: string) => {
-                const s = chartData.find(d => d.date === l);
-                return s ? s.fullTitle : l;
-              }}
-            />
-            <Legend
-              formatter={(v: string) => v === "rsvp" ? "RSVPs" : "Check-ins"}
-              wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-            />
-            <Bar dataKey="rsvp"    fill={PURPLE} radius={[4,4,0,0]} name="rsvp" />
-            <Bar dataKey="checkin" fill={GREEN}  radius={[4,4,0,0]} name="checkin" />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartCard>
 
-      {/* ── Section: Check-in Rate Trend ── */}
-      <SectionHead style={{ marginTop: 36 }}>
-        <SectionHeadTitle>Check-in Rate Trend</SectionHeadTitle>
-        <SectionHeadDesc>
-          Attendance rate (check-ins ÷ RSVPs) per seminar. The dashed line shows a 3-seminar
-          rolling average to smooth out one-off outliers. Aim to keep this above 60%.
-        </SectionHeadDesc>
-      </SectionHead>
-      <ChartCard>
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
-              angle={-35}
-              textAnchor="end"
-              interval={0}
-            />
-            <YAxis
-              tick={{ fontSize: 11, fill: "#9ca3af" }}
-              domain={[0, 100]}
-              tickFormatter={(v: number) => `${v}%`}
-            />
-            <Tooltip
-              contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
-              formatter={(val: number, name: string) => [
-                `${val}%`,
-                name === "checkinRate" ? "Check-in rate" : "3-sem. rolling avg",
-              ]}
-              labelFormatter={(l: string) => {
-                const s = chartData.find(d => d.date === l);
-                return s ? s.fullTitle : l;
-              }}
-            />
-            <ReferenceLine y={60} stroke={ORANGE} strokeDasharray="4 2"
-              label={{ value: "60% target", position: "right", fontSize: 11, fill: ORANGE }} />
-            <Legend
-              formatter={(v: string) => v === "checkinRate" ? "Check-in Rate" : "3-Sem. Rolling Avg"}
-              wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="checkinRate"
-              stroke={GREEN}
-              strokeWidth={2}
-              dot={{ r: 4, fill: GREEN }}
-              name="checkinRate"
-            />
-            <Line
-              type="monotone"
-              dataKey="rollingCI"
-              stroke={PURPLE}
-              strokeWidth={2}
-              strokeDasharray="5 3"
-              dot={false}
-              name="rollingCI"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </ChartCard>
+      <ChartTabBar>
+        <ChartTabBtn active={chartTab === "attendance"} onClick={() => setChartTab("attendance")}>
+          RSVPs vs Check-ins
+        </ChartTabBtn>
+        <ChartTabBtn active={chartTab === "rsvp"} onClick={() => setChartTab("rsvp")}>
+          RSVP Trend
+        </ChartTabBtn>
+        <ChartTabBtn active={chartTab === "checkin"} onClick={() => setChartTab("checkin")}>
+          Check-in Rate
+        </ChartTabBtn>
+        <ChartTabBtn active={chartTab === "noshow"} onClick={() => setChartTab("noshow")}>
+          No-show Trend
+        </ChartTabBtn>
+        {hasCapacity && (
+          <ChartTabBtn active={chartTab === "capacity"} onClick={() => setChartTab("capacity")}>
+            Capacity Fill
+          </ChartTabBtn>
+        )}
+      </ChartTabBar>
 
-      {/* ── Section: Capacity Fill ── */}
-      {stats.some(s => s.fillRate !== null) && (
-        <>
-          <SectionHead style={{ marginTop: 36 }}>
-            <SectionHeadTitle>Capacity Utilization</SectionHeadTitle>
-            <SectionHeadDesc>
+      <ChartCard>
+        {/* RSVPs vs Check-ins */}
+        {chartTab === "attendance" && (
+          <>
+            <ChartTabDesc>
+              RSVPs (registrations) vs actual check-ins per event, in chronological order.
+              A large gap between the two bars signals a high no-show rate for that seminar.
+            </ChartTabDesc>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }} barCategoryGap="28%">
+                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  formatter={(val: number, name: string) => [val, name === "rsvp" ? "RSVPs" : "Check-ins"]}
+                  labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
+                />
+                <Legend formatter={(v: string) => v === "rsvp" ? "RSVPs" : "Check-ins"} wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                <Bar dataKey="rsvp"    fill={PURPLE} radius={[4,4,0,0]} name="rsvp" />
+                <Bar dataKey="checkin" fill={GREEN}  radius={[4,4,0,0]} name="checkin" />
+              </BarChart>
+            </ResponsiveContainer>
+          </>
+        )}
+
+        {/* RSVP Trend */}
+        {chartTab === "rsvp" && (
+          <>
+            <ChartTabDesc>
+              Actual RSVP count per seminar over time, in chronological order.
+              An upward trend indicates growing audience interest.
+            </ChartTabDesc>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  formatter={(val: number) => [val, "RSVPs"]}
+                  labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
+                />
+                <Line type="monotone" dataKey="rsvp" stroke={PURPLE} strokeWidth={2} dot={{ r: 4, fill: PURPLE }} name="rsvp" />
+              </LineChart>
+            </ResponsiveContainer>
+          </>
+        )}
+
+        {/* Check-in Rate Trend */}
+        {chartTab === "checkin" && (
+          <>
+            <ChartTabDesc>
+              Attendance rate (check-ins ÷ RSVPs) per seminar. The dashed line shows a 3-seminar
+              rolling average to smooth out one-off outliers. Aim to keep this above 60%.
+            </ChartTabDesc>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  formatter={(val: number, name: string) => [`${val}%`, name === "checkinRate" ? "Check-in rate" : "3-sem. rolling avg"]}
+                  labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
+                />
+                <ReferenceLine y={60} stroke={ORANGE} strokeDasharray="4 2"
+                  label={{ value: "60% target", position: "right", fontSize: 11, fill: ORANGE }} />
+                <Legend
+                  formatter={(v: string) => v === "checkinRate" ? "Check-in Rate" : "3-Sem. Rolling Avg"}
+                  wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+                />
+                <Line type="monotone" dataKey="checkinRate" stroke={GREEN} strokeWidth={2} dot={{ r: 4, fill: GREEN }} name="checkinRate" />
+                <Line type="monotone" dataKey="rollingCI" stroke={PURPLE} strokeWidth={2} strokeDasharray="5 3" dot={false} name="rollingCI" />
+              </LineChart>
+            </ResponsiveContainer>
+          </>
+        )}
+
+        {/* No-show Trend */}
+        {chartTab === "noshow" && (
+          <>
+            <ChartTabDesc>
+              Number of no-shows (RSVPed but did not check in) per seminar.
+              Spikes may indicate scheduling conflicts or low engagement for that event.
+            </ChartTabDesc>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  formatter={(val: number) => [val, "No-shows"]}
+                  labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
+                />
+                <Bar dataKey="noshow" radius={[4,4,0,0]} name="noshow">
+                  {chartData.map((s, i) => (
+                    <Cell key={i} fill={s.noshow === 0 ? GREEN : s.noshow <= 2 ? ORANGE : RED} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <CapacityLegend>
+              <CapLegItem color={GREEN}>0 no-shows</CapLegItem>
+              <CapLegItem color={ORANGE}>1–2 no-shows</CapLegItem>
+              <CapLegItem color={RED}>3+ no-shows</CapLegItem>
+            </CapacityLegend>
+          </>
+        )}
+
+        {/* Capacity Fill */}
+        {chartTab === "capacity" && hasCapacity && (
+          <>
+            <ChartTabDesc>
               Percentage of seats filled per seminar (RSVPs ÷ max capacity).
-              Over 100% means the CSV import bypassed the cap — marked in red.
+              Over 100% means registrations exceeded the cap — marked in red.
               100% = fully booked, which may indicate unmet demand.
-            </SectionHeadDesc>
-          </SectionHead>
-          <ChartCard>
-            <ResponsiveContainer width="100%" height={240}>
+            </ChartTabDesc>
+            <ResponsiveContainer width="100%" height={280}>
               <BarChart
                 data={chartData.filter(s => s.fillRate !== null)}
                 margin={{ top: 8, right: 16, left: 0, bottom: 40 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  angle={-35}
-                  textAnchor="end"
-                  interval={0}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  tickFormatter={(v: number) => `${v}%`}
-                />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v: number) => `${v}%`} />
                 <Tooltip
                   contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
                   formatter={(val: number) => [`${val}%`, "Capacity Fill"]}
-                  labelFormatter={(l: string) => {
-                    const s = chartData.find(d => d.date === l);
-                    return s ? `${s.fullTitle} (cap: ${s.maxCapacity})` : l;
-                  }}
+                  labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? `${s.fullTitle} (cap: ${s.maxCapacity})` : l; }}
                 />
                 <ReferenceLine y={100} stroke={RED} strokeDasharray="4 2"
                   label={{ value: "100%", position: "right", fontSize: 11, fill: RED }} />
                 <Bar dataKey="fillRate" radius={[4,4,0,0]} name="fillRate">
-                  {chartData
-                    .filter(s => s.fillRate !== null)
-                    .map((s, i) => (
-                      <Cell
-                        key={i}
-                        fill={s.fillRate! >= 100 ? RED : s.fillRate! >= 80 ? ORANGE : BLUE}
-                      />
-                    ))
-                  }
+                  {chartData.filter(s => s.fillRate !== null).map((s, i) => (
+                    <Cell key={i} fill={s.fillRate! >= 100 ? RED : s.fillRate! >= 80 ? ORANGE : BLUE} />
+                  ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -390,9 +407,9 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
               <CapLegItem color={ORANGE}>80–99%</CapLegItem>
               <CapLegItem color={RED}>100%+ (over capacity)</CapLegItem>
             </CapacityLegend>
-          </ChartCard>
-        </>
-      )}
+          </>
+        )}
+      </ChartCard>
 
       {/* ── Section: Performers ── */}
       <SectionHead style={{ marginTop: 36 }}>
@@ -572,6 +589,39 @@ const TrendDown = styled(TrendBase)`
 const TrendNeutral = styled(TrendBase)`
   background: #f3f4f6;
   color: #9ca3af;
+`;
+
+// Chart tabs
+const ChartTabBar = styled.div`
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+`;
+
+const ChartTabBtn = styled.button<{ active: boolean }>`
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid ${({ active }) => active ? "#6c5ce7" : "#e5e7eb"};
+  background: ${({ active }) => active ? "#6c5ce7" : "#fff"};
+  color: ${({ active }) => active ? "#fff" : "#6b7280"};
+  font-size: 13px;
+  font-weight: ${({ active }) => active ? 600 : 400};
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #6c5ce7;
+    color: ${({ active }) => active ? "#fff" : "#6c5ce7"};
+  }
+`;
+
+const ChartTabDesc = styled.div`
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin-bottom: 16px;
+  max-width: 640px;
 `;
 
 // Chart card
