@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
@@ -83,9 +83,11 @@ interface SeminarRowProps {
   seminar: SystemSeminar;
   rsvps: SystemRsvp[];
   users: UserAdminRow[];
+  onCancelRsvp: (seminarId: number, userId: number) => void;
+  cancelRsvpPending: boolean;
 }
 
-function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
+function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: SeminarRowProps) {
   const [open, setOpen] = useState(false);
 
   const semRsvps = rsvps.filter((r) => r.seminar_id === seminar.id);
@@ -200,6 +202,7 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
                     <Th>RSVP Date</Th>
                     <Th>Check-in</Th>
                     <Th>Check-in Time</Th>
+                    <Th>Action</Th>
                   </tr>
                 </Thead>
                 <tbody>
@@ -223,6 +226,22 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
                           </Badge>
                         </Td>
                         <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(r.checked_in_at)}</Td>
+                        <Td>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            style={{ color: "#ef4444", whiteSpace: "nowrap" }}
+                            disabled={cancelRsvpPending}
+                            onClick={() => {
+                              const name = user?.username ?? `#${r.user_id}`;
+                              if (confirm(`Cancel RSVP for ${name}?`)) {
+                                onCancelRsvp(seminar.id, r.user_id);
+                              }
+                            }}
+                          >
+                            Cancel RSVP
+                          </Button>
+                        </Td>
                       </Tr>
                     );
                   })}
@@ -242,7 +261,9 @@ type Tab = "users" | "seminars" | "statistics";
 
 export default function AdminPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("users");
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -269,6 +290,28 @@ export default function AdminPage() {
     queryKey: ["admin-rsvps"],
     queryFn: async () => { const res = await axiosInstance.get(api.v1.systemRsvps); return res.data; },
     enabled: isStaff,
+  });
+
+  // ── Mutations ──────────────────────────────────────────────────────────────
+
+  const adminCancelRsvpMutation = useMutation({
+    mutationFn: async ({ seminarId, userId }: { seminarId: number; userId: number }) => {
+      await axiosInstance.delete(api.v1.staffCancelRsvp(seminarId, userId));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-rsvps"] }),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to cancel RSVP"),
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      await axiosInstance.delete(api.v1.adminDeleteUser(userId));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-rsvps"] });
+      setSelectedUserId(null);
+    },
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to delete user"),
   });
 
   // ── Guards ─────────────────────────────────────────────────────────────────
@@ -377,7 +420,11 @@ export default function AdminPage() {
             </Thead>
             <tbody>
               {users.map((u) => (
-                <Tr key={u.id}>
+                <UserTr
+                  key={u.id}
+                  selected={selectedUserId === u.id}
+                  onClick={() => setSelectedUserId(selectedUserId === u.id ? null : u.id)}
+                >
                   <Td style={{ color: "#9ca3af", fontSize: 13 }}>#{u.id}</Td>
                   <Td style={{ fontSize: 13, color: "#6b7280", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
                   <Td style={{ fontWeight: 600 }}>{u.username}</Td>
@@ -397,12 +444,110 @@ export default function AdminPage() {
                       {u.full_member_email_sent ? "Sent" : "Not Sent"}
                     </Badge>
                   </Td>
-                </Tr>
+                </UserTr>
               ))}
             </tbody>
           </Table>
         </TableWrap>
       )}
+
+      {/* ── User detail drawer ── */}
+      {tab === "users" && selectedUserId !== null && (() => {
+        const user = users.find(u => u.id === selectedUserId);
+        if (!user) return null;
+        const userRsvps = rsvps.filter(r => r.user_id === user.id);
+        const checkins = userRsvps.filter(r => r.checked_in);
+        const noShows = userRsvps.filter(r => !r.checked_in);
+        const attendanceRate = userRsvps.length > 0
+          ? Math.round((checkins.length / userRsvps.length) * 100)
+          : null;
+        const seminarHistory = userRsvps
+          .map(r => ({ rsvp: r, seminar: seminars.find(s => s.id === r.seminar_id) }))
+          .filter((x): x is { rsvp: SystemRsvp; seminar: SystemSeminar } => !!x.seminar)
+          .sort((a, b) => new Date(b.rsvp.created_at).getTime() - new Date(a.rsvp.created_at).getTime());
+
+        return (
+          <DrawerOverlay onClick={() => setSelectedUserId(null)}>
+            <DrawerPanel onClick={e => e.stopPropagation()}>
+              <DrawerHeader>
+                <DrawerHeaderInfo>
+                  <DrawerName>{user.username}</DrawerName>
+                  <DrawerEmail>{user.email}</DrawerEmail>
+                </DrawerHeaderInfo>
+                <DrawerCloseBtn onClick={() => setSelectedUserId(null)}>✕</DrawerCloseBtn>
+              </DrawerHeader>
+
+              <DrawerBadgeRow>
+                <Badge color={user.role === "staff" ? "purple" : "green"}>
+                  {user.role === "staff" ? "Staff" : "Member"}
+                </Badge>
+                <Badge color={user.is_temporary ? "orange" : "blue"}>
+                  {user.is_temporary ? "Temporary" : "Regular"}
+                </Badge>
+                {user.full_member_email_sent && <Badge color="green">Email Sent</Badge>}
+              </DrawerBadgeRow>
+              <DrawerMeta>Joined {formatDate(user.created_at)}</DrawerMeta>
+
+              <DrawerStatGrid>
+                <DrawerStat>
+                  <DrawerStatVal>{userRsvps.length}</DrawerStatVal>
+                  <DrawerStatLabel>RSVPs</DrawerStatLabel>
+                </DrawerStat>
+                <DrawerStat>
+                  <DrawerStatVal style={{ color: "#059669" }}>{checkins.length}</DrawerStatVal>
+                  <DrawerStatLabel>Check-ins</DrawerStatLabel>
+                </DrawerStat>
+                <DrawerStat>
+                  <DrawerStatVal style={{ color: "#d97706" }}>{noShows.length}</DrawerStatVal>
+                  <DrawerStatLabel>No-shows</DrawerStatLabel>
+                </DrawerStat>
+                <DrawerStat>
+                  <DrawerStatVal style={{ color: "#6c5ce7" }}>
+                    {attendanceRate !== null ? `${attendanceRate}%` : "—"}
+                  </DrawerStatVal>
+                  <DrawerStatLabel>Attendance</DrawerStatLabel>
+                </DrawerStat>
+              </DrawerStatGrid>
+
+              <DrawerSection>
+                <DrawerSectionTitle>Seminar History</DrawerSectionTitle>
+                {seminarHistory.length === 0 ? (
+                  <EmptyState style={{ padding: "12px 0", fontSize: 13 }}>No seminar participation</EmptyState>
+                ) : (
+                  <DrawerHistoryList>
+                    {seminarHistory.map(({ rsvp, seminar }) => (
+                      <DrawerHistoryItem key={rsvp.id}>
+                        <DrawerHistoryInfo>
+                          <DrawerHistoryTitle>{seminar.title}</DrawerHistoryTitle>
+                          <DrawerHistoryDate>{formatDate(seminar.start_time)}</DrawerHistoryDate>
+                        </DrawerHistoryInfo>
+                        <Badge color={rsvp.checked_in ? "green" : "gray"}>
+                          {rsvp.checked_in ? "Attended" : "No-show"}
+                        </Badge>
+                      </DrawerHistoryItem>
+                    ))}
+                  </DrawerHistoryList>
+                )}
+              </DrawerSection>
+
+              <DrawerActions>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={deleteUserMutation.isPending}
+                  onClick={() => {
+                    if (confirm(`Delete user "${user.username}" (${user.email})? This action cannot be undone.`)) {
+                      deleteUserMutation.mutate(user.id);
+                    }
+                  }}
+                >
+                  {deleteUserMutation.isPending ? "Deleting…" : "Delete User"}
+                </Button>
+              </DrawerActions>
+            </DrawerPanel>
+          </DrawerOverlay>
+        );
+      })()}
 
       {/* ── Seminars tab ── */}
       {tab === "seminars" && (
@@ -419,6 +564,10 @@ export default function AdminPage() {
                   seminar={s}
                   rsvps={rsvps}
                   users={users}
+                  onCancelRsvp={(seminarId, userId) =>
+                    adminCancelRsvpMutation.mutate({ seminarId, userId })
+                  }
+                  cancelRsvpPending={adminCancelRsvpMutation.isPending}
                 />
               ))}
             </SeminarList>
@@ -681,4 +830,179 @@ const AttendeeTableWrap = styled.div`
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #e5e7eb;
+`;
+
+// Clickable user row
+const UserTr = styled.tr<{ selected: boolean }>`
+  cursor: pointer;
+  background: ${({ selected }) => selected ? "#f5f3ff" : "transparent"};
+  transition: background 0.12s;
+
+  &:hover { background: ${({ selected }) => selected ? "#ede9fe" : "#faf9ff"}; }
+
+  td { border-bottom: 1px solid #f3f4f6; }
+  &:last-child td { border-bottom: none; }
+`;
+
+// User detail drawer
+const DrawerOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 200;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const DrawerPanel = styled.div`
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+`;
+
+const DrawerHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid #f3f4f6;
+`;
+
+const DrawerHeaderInfo = styled.div`
+  min-width: 0;
+`;
+
+const DrawerName = styled.div`
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 3px;
+`;
+
+const DrawerEmail = styled.div`
+  font-size: 13px;
+  color: #6b7280;
+  word-break: break-all;
+`;
+
+const DrawerCloseBtn = styled.button`
+  font-size: 16px;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 6px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  line-height: 1;
+  &:hover { color: #374151; }
+`;
+
+const DrawerBadgeRow = styled.div`
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 14px 20px 0;
+`;
+
+const DrawerMeta = styled.div`
+  font-size: 12px;
+  color: #9ca3af;
+  padding: 6px 20px 16px;
+  border-bottom: 1px solid #f3f4f6;
+`;
+
+const DrawerStatGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  gap: 0;
+`;
+
+const DrawerStat = styled.div`
+  text-align: center;
+  padding: 4px 0;
+`;
+
+const DrawerStatVal = styled.div`
+  font-size: 22px;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 4px;
+`;
+
+const DrawerStatLabel = styled.div`
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+`;
+
+const DrawerSection = styled.div`
+  padding: 16px 20px;
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const DrawerSectionTitle = styled.div`
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  margin-bottom: 10px;
+`;
+
+const DrawerHistoryList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const DrawerHistoryItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+`;
+
+const DrawerHistoryInfo = styled.div`
+  min-width: 0;
+  flex: 1;
+`;
+
+const DrawerHistoryTitle = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const DrawerHistoryDate = styled.div`
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 2px;
+`;
+
+const DrawerActions = styled.div`
+  padding: 16px 20px;
+  border-top: 1px solid #f3f4f6;
+  background: #fff;
+  position: sticky;
+  bottom: 0;
 `;

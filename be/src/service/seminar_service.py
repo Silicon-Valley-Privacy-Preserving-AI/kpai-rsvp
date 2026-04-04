@@ -242,6 +242,56 @@ class SeminarService:
 
         return {"message": "RSVP cancelled"}
 
+    async def staff_cancel_rsvp(self, seminar: "Seminar", user_id: int):
+        """(Staff) Cancel a specific user's RSVP and trigger waitlist promotion."""
+        result = await self.db.execute(
+            select(SeminarRSVP).where(
+                SeminarRSVP.seminar_id == seminar.id,
+                SeminarRSVP.user_id == user_id,
+            )
+        )
+        rsvp = result.scalar_one_or_none()
+        if rsvp is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="RSVP not found")
+
+        await self.db.delete(rsvp)
+        await self.db.flush()
+
+        promoted_user_id: int | None = None
+        if seminar.waitlist_enabled:
+            next_result = await self.db.execute(
+                select(SeminarWaitlist)
+                .where(SeminarWaitlist.seminar_id == seminar.id)
+                .order_by(SeminarWaitlist.created_at.asc())
+                .limit(1)
+            )
+            next_entry = next_result.scalar_one_or_none()
+            if next_entry:
+                promoted_user_id = next_entry.user_id
+                new_rsvp = SeminarRSVP(user_id=next_entry.user_id, seminar_id=seminar.id)
+                self.db.add(new_rsvp)
+                await self.db.delete(next_entry)
+
+        await self.db.commit()
+
+        if promoted_user_id is not None:
+            user_result = await self.db.execute(
+                select(User).where(User.id == promoted_user_id)
+            )
+            promoted_user = user_result.scalar_one_or_none()
+            if promoted_user:
+                await send_waitlist_promotion_email(
+                    to_email=promoted_user.email,
+                    username=promoted_user.username,
+                    title=seminar.title,
+                    start_time=seminar.start_time,
+                    end_time=seminar.end_time,
+                    location=seminar.location,
+                    host=seminar.host,
+                )
+
+        return {"message": "RSVP cancelled"}
+
     async def cancel_waitlist(self, seminar: Seminar, user: User):
         result = await self.db.execute(
             select(SeminarWaitlist).where(

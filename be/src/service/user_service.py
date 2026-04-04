@@ -61,6 +61,19 @@ class UserService:
         await self.db.commit()
         return {"message": "User deleted successfully"}
 
+    async def delete_user_by_id(self, user_id: int):
+        """(Staff) Delete any user by ID."""
+        result = await self.db.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
+        await self.db.delete(user)
+        await self.db.commit()
+        return {"message": "User deleted successfully"}
+
     async def get_user_by_email(self, email: str):
         result = await self.db.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()

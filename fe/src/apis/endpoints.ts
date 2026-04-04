@@ -15,6 +15,10 @@ export const api = {
     seminarCheckinToken: (seminarId: number) => `/api/v1/seminars/${seminarId}/checkin-token`,
     seminarUserCheckin: (seminarId: number, userId: number) =>
       `/api/v1/seminars/${seminarId}/users/${userId}/checkin`,
+    staffCancelRsvp: (seminarId: number, userId: number) =>
+      `/api/v1/seminars/${seminarId}/users/${userId}/rsvp`,
+
+    adminDeleteUser: (userId: number) => `/api/v1/users/${userId}`,
 
     importCsv: (seminarId: number) => `/api/v1/import/${seminarId}`,
     seminarReminder: (seminarId: number) => `/api/v1/seminars/${seminarId}/reminder`,

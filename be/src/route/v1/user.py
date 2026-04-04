@@ -90,3 +90,17 @@ async def list_users(
     if current_user.role != UserRole.STAFF:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Staff only")
     return await user_service.get_all_users()
+
+
+@router.delete("/{user_id}", summary="(Staff) Delete a user by ID")
+async def admin_delete_user(
+        user_id: int,
+        current_user: User = Depends(get_current_user),
+        user_service: UserService = Depends(get_user_service),
+):
+    from fastapi import HTTPException
+    if current_user.role != UserRole.STAFF:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Staff only")
+    if current_user.id == user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete your own account")
+    return await user_service.delete_user_by_id(user_id)

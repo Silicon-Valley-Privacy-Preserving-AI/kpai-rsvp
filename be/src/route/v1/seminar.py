@@ -194,6 +194,24 @@ async def modify_user_checkin(
     return await seminar_service.modify_user_checkin(seminar, user_id, body.checked_in)
 
 
+# ── Staff: cancel a specific user's RSVP ─────────────────────────────────────
+
+@router.delete(
+    "/{seminar_id}/users/{user_id}/rsvp",
+    summary="(Staff) Cancel a specific user's RSVP",
+)
+async def staff_cancel_user_rsvp(
+    seminar_id: int,
+    user_id: int,
+    staff_user: User = Depends(get_current_staff),
+    seminar_service: SeminarService = Depends(get_seminar_service),
+):
+    seminar = await seminar_service.get_seminar_by_id(seminar_id)
+    if seminar is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Seminar not found")
+    return await seminar_service.staff_cancel_rsvp(seminar, user_id)
+
+
 # ── Reminder email ────────────────────────────────────────────────────────────
 
 @router.post(

@@ -146,6 +146,14 @@ export default function SeminarDetailPage() {
     onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to update check-in"),
   });
 
+  const staffCancelRsvpMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      await axiosInstance.delete(api.v1.staffCancelRsvp(seminarId, userId));
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["seminar", seminarId] }),
+    onError: (e: any) => alert(e.response?.data?.detail ?? "Failed to cancel RSVP"),
+  });
+
   const reminderMutation = useMutation({
     mutationFn: async () => { const res = await axiosInstance.post(api.v1.seminarReminder(seminarId)); return res.data; },
     onSuccess: (data) => setReminderResult(data),
@@ -528,14 +536,29 @@ export default function SeminarDetailPage() {
                       </Td>
                       <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(u.checked_in_at)}</Td>
                       <Td>
-                        <Button
-                          size="sm"
-                          variant={u.checked_in ? "danger" : "secondary"}
-                          onClick={() => modifyCheckinMutation.mutate({ userId: u.id, checked_in: !u.checked_in })}
-                          disabled={modifyCheckinMutation.isPending}
-                        >
-                          {u.checked_in ? "Undo" : "Check In"}
-                        </Button>
+                        <RsvpActionCell>
+                          <Button
+                            size="sm"
+                            variant={u.checked_in ? "danger" : "secondary"}
+                            onClick={() => modifyCheckinMutation.mutate({ userId: u.id, checked_in: !u.checked_in })}
+                            disabled={modifyCheckinMutation.isPending}
+                          >
+                            {u.checked_in ? "Undo" : "Check In"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            style={{ color: "#ef4444" }}
+                            onClick={() => {
+                              if (confirm(`Cancel RSVP for ${u.username}?`)) {
+                                staffCancelRsvpMutation.mutate(u.id);
+                              }
+                            }}
+                            disabled={staffCancelRsvpMutation.isPending}
+                          >
+                            Cancel RSVP
+                          </Button>
+                        </RsvpActionCell>
                       </Td>
                     </Tr>
                   ))}
@@ -867,6 +890,13 @@ const ImportStat = styled.div`
 
   span { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
   strong { font-size: 18px; color: #111827; }
+`;
+
+const RsvpActionCell = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap;
 `;
 
 const TableWrap = styled.div`
