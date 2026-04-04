@@ -114,24 +114,20 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
     };
   }), [sorted, rsvps]);
 
+  // Trend comparison mode (must be before any conditional return)
+  type ComparisonMode = "half" | "last";
+  const [comparisonMode, setComparisonMode] = useState<ComparisonMode>("half");
+
+  type ChartTab = "attendance" | "rsvp" | "checkin" | "noshow" | "capacity";
+  const [chartTab, setChartTab] = useState<ChartTab>("attendance");
+
   // Trend: compare last half vs previous half
   const half = Math.max(1, Math.floor(stats.length / 2));
   const prevSlice = stats.slice(0, half);
   const recentSlice = stats.slice(stats.length - half);
 
   const kpi = useMemo(() => {
-    const recentRsvp    = avg(recentSlice.map(s => s.rsvp));
-    const prevRsvp      = avg(prevSlice.map(s => s.rsvp));
-    const recentCI      = avg(recentSlice.map(s => s.checkinRate));
-    const prevCI        = avg(prevSlice.map(s => s.checkinRate));
-    const recentNS      = avg(recentSlice.map(s => s.noshow));
-    const prevNS        = avg(prevSlice.map(s => s.noshow));
-
-    const withCap       = stats.filter(s => s.fillRate !== null);
-    const prevFill      = avg(withCap.slice(0, half).map(s => s.fillRate!));
-    const recentFill    = avg(withCap.slice(-half).map(s => s.fillRate!));
-
-    // User growth: last 30d vs prev 30d
+    // User growth: always 30-day window regardless of mode
     const now = Date.now();
     const d30 = 30 * 86_400_000;
     const newUsersRecent = users.filter(u =>
@@ -141,29 +137,54 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
       && now - new Date(u.created_at).getTime() >= d30
       && now - new Date(u.created_at).getTime() < d30 * 2).length;
 
+    if (comparisonMode === "last") {
+      // Compare the single most recent seminar vs the one immediately before it
+      const last = stats[stats.length - 1];
+      const prev = stats.length >= 2 ? stats[stats.length - 2] : null;
+      return {
+        avgRsvp:        last.rsvp,
+        avgRsvpTrend:   prev ? pctChange(last.rsvp, prev.rsvp) : null,
+        avgCI:          last.checkinRate,
+        avgCITrend:     prev ? pctChange(last.checkinRate, prev.checkinRate) : null,
+        avgNoshow:      last.noshow,
+        avgNoshowTrend: prev ? pctChange(last.noshow, prev.noshow) : null,
+        avgFill:        last.fillRate ?? 0,
+        avgFillTrend:   (prev && last.fillRate !== null && prev.fillRate !== null)
+                          ? pctChange(last.fillRate, prev.fillRate) : null,
+        newUsers:       newUsersRecent,
+        newUsersTrend:  pctChange(newUsersRecent, newUsersPrev),
+        latestDate:     last.dateYear,
+        prevDate:       prev?.dateYear ?? null,
+      };
+    }
+
+    // "half" mode: compare avg of recent half vs avg of earlier half
+    const recentRsvp = avg(recentSlice.map(s => s.rsvp));
+    const prevRsvp   = avg(prevSlice.map(s => s.rsvp));
+    const recentCI   = avg(recentSlice.map(s => s.checkinRate));
+    const prevCI     = avg(prevSlice.map(s => s.checkinRate));
+    const recentNS   = avg(recentSlice.map(s => s.noshow));
+    const prevNS     = avg(prevSlice.map(s => s.noshow));
+
+    const withCap    = stats.filter(s => s.fillRate !== null);
+    const prevFill   = avg(withCap.slice(0, half).map(s => s.fillRate!));
+    const recentFill = avg(withCap.slice(-half).map(s => s.fillRate!));
+
     return {
-      totalSeminars:   stats.length,
-      totalRsvps:      rsvps.length,
-      totalCheckins:   rsvps.filter(r => r.checked_in).length,
-      overallRate:     rsvps.length > 0
-        ? Math.round((rsvps.filter(r => r.checked_in).length / rsvps.length) * 100) : 0,
-
-      avgRsvp:         Math.round(recentRsvp),
-      avgRsvpTrend:    pctChange(recentRsvp, prevRsvp),
-
-      avgCI:           Math.round(recentCI),
-      avgCITrend:      pctChange(recentCI, prevCI),
-
-      avgNoshow:       Math.round(recentNS),
-      avgNoshowTrend:  pctChange(recentNS, prevNS),
-
-      avgFill:         Math.round(recentFill),
-      avgFillTrend:    pctChange(recentFill, prevFill),
-
-      newUsers:        newUsersRecent,
-      newUsersTrend:   pctChange(newUsersRecent, newUsersPrev),
+      avgRsvp:        Math.round(recentRsvp),
+      avgRsvpTrend:   pctChange(recentRsvp, prevRsvp),
+      avgCI:          Math.round(recentCI),
+      avgCITrend:     pctChange(recentCI, prevCI),
+      avgNoshow:      Math.round(recentNS),
+      avgNoshowTrend: pctChange(recentNS, prevNS),
+      avgFill:        Math.round(recentFill),
+      avgFillTrend:   pctChange(recentFill, prevFill),
+      newUsers:       newUsersRecent,
+      newUsersTrend:  pctChange(newUsersRecent, newUsersPrev),
+      latestDate:     null as string | null,
+      prevDate:       null as string | null,
     };
-  }, [stats, recentSlice, prevSlice, half, rsvps, users]);
+  }, [stats, recentSlice, prevSlice, half, rsvps, users, comparisonMode]);
 
   // Best / worst performers
   const byCI    = [...stats].sort((a, b) => b.checkinRate - a.checkinRate);
@@ -188,50 +209,81 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
   const BLUE    = "#0ea5e9";
   const GRID    = "#f0eeff";
 
-  type ChartTab = "attendance" | "rsvp" | "checkin" | "noshow" | "capacity";
-  const [chartTab, setChartTab] = useState<ChartTab>("attendance");
   const hasCapacity = stats.some(s => s.fillRate !== null);
 
   return (
     <Wrap>
 
       {/* ── Section: Summary KPIs ── */}
-      <SectionHead>
-        <SectionHeadTitle>Overview</SectionHeadTitle>
-        <SectionHeadDesc>
-          Trend indicators compare the most recent half of seminars to the earlier half.
-        </SectionHeadDesc>
-      </SectionHead>
+      <OverviewHead>
+        <div>
+          <SectionHeadTitle>Overview</SectionHeadTitle>
+          <SectionHeadDesc>
+            {comparisonMode === "half"
+              ? `Trend badges compare avg of the most recent ${half} seminar(s) vs the earlier ${half}.`
+              : kpi.prevDate
+                ? `Trend badges compare the latest seminar (${kpi.latestDate}) vs the previous one (${kpi.prevDate}).`
+                : "Only one seminar recorded — trend comparison not available yet."}
+          </SectionHeadDesc>
+        </div>
+        <ModeSelector>
+          <ModeSelectorLabel>Compare by</ModeSelectorLabel>
+          <ModeBtnGroup>
+            <ModeBtn
+              active={comparisonMode === "half"}
+              onClick={() => setComparisonMode("half")}
+              title="Average of most recent half vs earlier half"
+            >
+              Recent ½ vs Earlier ½
+            </ModeBtn>
+            <ModeBtn
+              active={comparisonMode === "last"}
+              onClick={() => setComparisonMode("last")}
+              title="Latest seminar vs the one immediately before it"
+            >
+              Latest vs Previous
+            </ModeBtn>
+          </ModeBtnGroup>
+        </ModeSelector>
+      </OverviewHead>
 
       <KpiGrid>
         <KpiCard>
           <KpiValue>{kpi.avgRsvp}</KpiValue>
-          <KpiLabel>Avg RSVPs / Seminar</KpiLabel>
-          <Trend value={kpi.avgRsvpTrend} />
+          <KpiLabel>
+            {comparisonMode === "half" ? "Avg RSVPs / Seminar" : "RSVPs (latest)"}
+          </KpiLabel>
+          <Trend value={kpi.avgRsvpTrend} suffix="" />
           <KpiDesc>Higher = growing demand</KpiDesc>
         </KpiCard>
         <KpiCard>
           <KpiValue>{kpi.avgCI}%</KpiValue>
-          <KpiLabel>Avg Check-in Rate</KpiLabel>
+          <KpiLabel>
+            {comparisonMode === "half" ? "Avg Check-in Rate" : "Check-in Rate (latest)"}
+          </KpiLabel>
           <Trend value={kpi.avgCITrend} />
           <KpiDesc>Higher = better commitment</KpiDesc>
         </KpiCard>
         <KpiCard>
           <KpiValue>{kpi.avgNoshow}</KpiValue>
-          <KpiLabel>Avg No-shows / Seminar</KpiLabel>
-          <Trend value={kpi.avgNoshowTrend} lowerIsBetter />
+          <KpiLabel>
+            {comparisonMode === "half" ? "Avg No-shows / Seminar" : "No-shows (latest)"}
+          </KpiLabel>
+          <Trend value={kpi.avgNoshowTrend} lowerIsBetter suffix="" />
           <KpiDesc>Lower = better show-up quality</KpiDesc>
         </KpiCard>
         <KpiCard>
           <KpiValue>{kpi.avgFill > 0 ? `${kpi.avgFill}%` : "—"}</KpiValue>
-          <KpiLabel>Avg Capacity Fill</KpiLabel>
+          <KpiLabel>
+            {comparisonMode === "half" ? "Avg Capacity Fill" : "Capacity Fill (latest)"}
+          </KpiLabel>
           <Trend value={kpi.avgFillTrend} />
           <KpiDesc>Demand vs available seats</KpiDesc>
         </KpiCard>
         <KpiCard>
           <KpiValue>{kpi.newUsers}</KpiValue>
           <KpiLabel>New Members (30d)</KpiLabel>
-          <Trend value={kpi.newUsersTrend} />
+          <Trend value={kpi.newUsersTrend} suffix="" />
           <KpiDesc>Regular accounts created recently</KpiDesc>
         </KpiCard>
       </KpiGrid>
@@ -505,6 +557,57 @@ const EmptyMsg = styled.div`
   text-align: center;
   color: #9ca3af;
   font-size: 14px;
+`;
+
+const OverviewHead = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+`;
+
+const ModeSelector = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+`;
+
+const ModeSelectorLabel = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+`;
+
+const ModeBtnGroup = styled.div`
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
+const ModeBtn = styled.button<{ active: boolean }>`
+  padding: 5px 12px;
+  border: none;
+  border-right: 1px solid #e5e7eb;
+  background: ${({ active }) => active ? "#6c5ce7" : "#fff"};
+  color: ${({ active }) => active ? "#fff" : "#6b7280"};
+  font-size: 12px;
+  font-weight: ${({ active }) => active ? 600 : 400};
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+
+  &:last-child { border-right: none; }
+  &:hover:not([disabled]) {
+    background: ${({ active }) => active ? "#5b4bd6" : "#f5f3ff"};
+    color: ${({ active }) => active ? "#fff" : "#6c5ce7"};
+  }
 `;
 
 const SectionHead = styled.div`
