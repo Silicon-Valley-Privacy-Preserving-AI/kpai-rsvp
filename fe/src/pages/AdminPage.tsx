@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
+import AdminStats from "../components/AdminStats";
 import {
   Badge,
   PageContainer,
@@ -20,7 +21,7 @@ import {
   AlertBox,
   EmptyState,
 } from "../components/ui";
-import { CalendarIcon, MicIcon, MapPinIcon, UserIcon, GraduationCapIcon, AlertTriangleIcon } from "../components/icons";
+import { CalendarIcon, MicIcon, MapPinIcon, UserIcon, GraduationCapIcon, AlertTriangleIcon, SparklesIcon } from "../components/icons";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -237,7 +238,7 @@ function SeminarRow({ seminar, rsvps, users }: SeminarRowProps) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
-type Tab = "users" | "seminars";
+type Tab = "users" | "seminars" | "statistics";
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -354,6 +355,9 @@ export default function AdminPage() {
         <TabBtn active={tab === "seminars"} onClick={() => setTab("seminars")}>
           <GraduationCapIcon size={15} /> Seminars <TabCount>{seminars.length}</TabCount>
         </TabBtn>
+        <TabBtn active={tab === "statistics"} onClick={() => setTab("statistics")}>
+          <SparklesIcon size={15} /> Statistics
+        </TabBtn>
       </TabBar>
 
       {/* ── Users tab ── */}
@@ -420,6 +424,15 @@ export default function AdminPage() {
             </SeminarList>
           )}
         </>
+      )}
+
+      {/* ── Statistics tab ── */}
+      {tab === "statistics" && (
+        seminarsLoading || rsvpsLoading || usersLoading ? (
+          <LoadingCenter><Spinner />Loading statistics…</LoadingCenter>
+        ) : (
+          <AdminStats seminars={seminars} rsvps={rsvps} users={users} />
+        )
       )}
     </PageContainer>
   );
