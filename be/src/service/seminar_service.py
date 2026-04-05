@@ -141,6 +141,12 @@ class SeminarService:
                 detail="RSVP is not enabled for this seminar",
             )
 
+        if seminar.start_time is not None and _ensure_utc(seminar.start_time) <= datetime.now(UTC):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="RSVP is closed — this event has already started",
+            )
+
         existing_rsvp = await self.db.execute(
             select(SeminarRSVP).where(
                 SeminarRSVP.seminar_id == seminar.id,
@@ -193,6 +199,12 @@ class SeminarService:
         return {"message": "RSVP successful", "waitlisted": False}
 
     async def cancel_rsvp(self, seminar: Seminar, user: User):
+        if seminar.end_time is not None and _ensure_utc(seminar.end_time) <= datetime.now(UTC):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="RSVP cannot be cancelled — this event has already ended",
+            )
+
         result = await self.db.execute(
             select(SeminarRSVP).where(
                 SeminarRSVP.seminar_id == seminar.id,
@@ -293,6 +305,12 @@ class SeminarService:
         return {"message": "RSVP cancelled"}
 
     async def cancel_waitlist(self, seminar: Seminar, user: User):
+        if seminar.end_time is not None and _ensure_utc(seminar.end_time) <= datetime.now(UTC):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Waitlist cannot be cancelled — this event has already ended",
+            )
+
         result = await self.db.execute(
             select(SeminarWaitlist).where(
                 SeminarWaitlist.seminar_id == seminar.id,

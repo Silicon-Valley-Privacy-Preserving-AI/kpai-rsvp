@@ -59,6 +59,15 @@ interface SystemRsvp {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+type SeminarStatus = "upcoming" | "ongoing" | "ended";
+
+function getSeminarStatus(startTime: string | null, endTime: string | null): SeminarStatus {
+  const now = new Date();
+  if (!startTime || new Date(startTime) > now) return "upcoming";
+  if (!endTime || new Date(endTime) > now) return "ongoing";
+  return "ended";
+}
+
 function formatDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-US", {
@@ -266,6 +275,7 @@ export default function AdminPage() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [seminarSortField, setSeminarSortField] = useState<"date" | "rsvp" | "checkin">("date");
   const [seminarSortDir, setSeminarSortDir] = useState<"desc" | "asc">("desc");
+  const [seminarStatusFilter, setSeminarStatusFilter] = useState<"all" | SeminarStatus>("all");
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -362,6 +372,17 @@ export default function AdminPage() {
     }
     return seminarSortDir === "desc" ? valB - valA : valA - valB;
   });
+
+  const adminFilteredSeminars = seminarStatusFilter === "all"
+    ? sortedSeminars
+    : sortedSeminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === seminarStatusFilter);
+
+  const adminStatusCounts = {
+    all: seminars.length,
+    upcoming: seminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === "upcoming").length,
+    ongoing: seminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === "ongoing").length,
+    ended: seminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === "ended").length,
+  };
 
   return (
     <PageContainer style={{ maxWidth: 1100 }}>
@@ -591,8 +612,19 @@ export default function AdminPage() {
                   {seminarSortDir === "desc" ? "↓ Desc" : "↑ Asc"}
                 </SortDirBtn>
               </SortBar>
+              <AdminFilterBar>
+                {(["all", "upcoming", "ongoing", "ended"] as const).map((f) => (
+                  <AdminFilterBtn key={f} active={seminarStatusFilter === f} status={f} onClick={() => setSeminarStatusFilter(f)}>
+                    {f === "all" ? "All" : f === "upcoming" ? "Upcoming" : f === "ongoing" ? "Live Now" : "Ended"}
+                    <AdminFilterCount active={seminarStatusFilter === f}>{adminStatusCounts[f]}</AdminFilterCount>
+                  </AdminFilterBtn>
+                ))}
+              </AdminFilterBar>
+              {adminFilteredSeminars.length === 0 ? (
+                <EmptyState>No seminars match this filter.</EmptyState>
+              ) : (
               <SeminarList>
-              {sortedSeminars.map((s) => (
+              {adminFilteredSeminars.map((s) => (
                 <SeminarRow
                   key={s.id}
                   seminar={s}
@@ -605,6 +637,7 @@ export default function AdminPage() {
                 />
               ))}
               </SeminarList>
+              )}
             </>
           )}
         </>
@@ -1040,6 +1073,62 @@ const DrawerActions = styled.div`
   background: #fff;
   position: sticky;
   bottom: 0;
+`;
+
+// Seminar status filter bar
+const AdminFilterBar = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+`;
+
+const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  border: 1.5px solid ${({ active, status }) =>
+    !active ? "#e5e7eb" :
+    status === "ongoing" ? "#dc2626" :
+    status === "upcoming" ? "#16a34a" :
+    status === "ended" ? "#6b7280" : "#6c5ce7"};
+  background: ${({ active, status }) =>
+    !active ? "#fff" :
+    status === "ongoing" ? "#fee2e2" :
+    status === "upcoming" ? "#dcfce7" :
+    status === "ended" ? "#f3f4f6" : "#ede9fe"};
+  color: ${({ active, status }) =>
+    !active ? "#6b7280" :
+    status === "ongoing" ? "#dc2626" :
+    status === "upcoming" ? "#16a34a" :
+    status === "ended" ? "#4b5563" : "#6c5ce7"};
+
+  &:hover {
+    border-color: ${({ status }) =>
+      status === "ongoing" ? "#dc2626" :
+      status === "upcoming" ? "#16a34a" :
+      status === "ended" ? "#6b7280" : "#6c5ce7"};
+    color: ${({ status }) =>
+      status === "ongoing" ? "#dc2626" :
+      status === "upcoming" ? "#16a34a" :
+      status === "ended" ? "#4b5563" : "#6c5ce7"};
+  }
+`;
+
+const AdminFilterCount = styled.span<{ active: boolean }>`
+  background: ${({ active }) => active ? "rgba(0,0,0,0.1)" : "#f3f4f6"};
+  color: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0 5px;
+  border-radius: 8px;
+  line-height: 16px;
 `;
 
 // Seminar sort bar

@@ -122,6 +122,56 @@ class SystemService:
             self.db.add(seminar)
             seminars.append((seminar, n_rsvp, ci_rate))
 
+        # ── 3-extra. Upcoming seminars (for UI filter testing) ────────────────
+        upcoming_specs = [
+            ("Blockchain & Web3 Dev",
+             "David Yoon",
+             "Stanford d.school, 416 Escondido Mall, Stanford, CA",
+             7, 30,
+             "https://picsum.photos/seed/blockchain/800/450"),
+            ("Open Source Contribution Workshop",
+             "Carol Lee",
+             "KOTRA Silicon Valley, 3003 N 1st St, San Jose, CA",
+             21, None,
+             "https://picsum.photos/seed/opensource/800/450"),
+        ]
+        for title, host, location, days_ahead, max_cap, cover_image in upcoming_specs:
+            start = now + timedelta(days=days_ahead)
+            s = Seminar(
+                title=title, host=host, location=location,
+                start_time=start,
+                end_time=start + timedelta(hours=2),
+                max_capacity=max_cap,
+                rsvp_enabled=True,
+                waitlist_enabled=(max_cap is not None),
+                cover_image=cover_image,
+                description=(
+                    f"An upcoming session on {title.lower()}. Register now to secure your spot!"
+                ),
+            )
+            self.db.add(s)
+            seminars.append((s, 5, 0.0))   # a few RSVPs, no check-ins yet
+
+        # ── 3-extra. Live Now seminar (starts 1 h ago, ends 1 h from now) ─────
+        live_start = now - timedelta(hours=1)
+        live_seminar = Seminar(
+            title="Tech Networking Night",
+            host="Bob Park",
+            location="Samsung Research America, 665 Clyde Ave, Mountain View, CA",
+            start_time=live_start,
+            end_time=live_start + timedelta(hours=2),   # = now + 1 h
+            max_capacity=50,
+            rsvp_enabled=True,
+            waitlist_enabled=True,
+            cover_image="https://picsum.photos/seed/networking/800/450",
+            description=(
+                "A live networking event for tech professionals and students. "
+                "Come meet industry leaders and fellow developers!"
+            ),
+        )
+        self.db.add(live_seminar)
+        seminars.append((live_seminar, 12, 0.0))   # 12 RSVPs, event in progress
+
         await self.db.flush()   # populate seminar IDs
 
         # ── 3. Create RSVPs and check-ins ─────────────────────────────────────

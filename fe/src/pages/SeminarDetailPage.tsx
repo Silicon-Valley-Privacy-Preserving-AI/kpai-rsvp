@@ -43,6 +43,20 @@ function formatDate(iso: string | null) {
   });
 }
 
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins  = Math.floor(diffMs / 60_000);
+  const hours = Math.floor(diffMs / 3_600_000);
+  const days  = Math.floor(diffMs / 86_400_000);
+  const months = Math.floor(days / 30);
+  const years  = Math.floor(days / 365);
+  if (mins < 60)   return mins <= 1 ? "just now" : `${mins} minutes ago`;
+  if (hours < 24)  return hours === 1 ? "1 hour ago" : `${hours} hours ago`;
+  if (days < 30)   return days === 1 ? "1 day ago" : `${days} days ago`;
+  if (months < 12) return months === 1 ? "1 month ago" : `${months} months ago`;
+  return years === 1 ? "1 year ago" : `${years} years ago`;
+}
+
 export default function SeminarDetailPage() {
   const { id } = useParams<{ id: string }>();
   const seminarId = Number(id);
@@ -180,6 +194,10 @@ export default function SeminarDetailPage() {
   const myRsvp = seminar?.users.find((u) => u.id === me?.id);
   const myWaitlist = seminar?.waitlist.find((u) => u.id === me?.id);
   const isFull = seminar?.max_capacity != null && seminar.current_rsvp_count >= seminar.max_capacity;
+  const hasStarted = seminar?.start_time != null && new Date(seminar.start_time) <= new Date();
+  const hasEnded = seminar?.end_time != null && new Date(seminar.end_time) <= new Date();
+  const seminarStatus: "upcoming" | "ongoing" | "ended" =
+    hasEnded ? "ended" : hasStarted ? "ongoing" : "upcoming";
   const checkinUrl = activeToken ? `${window.location.origin}/check-in?token=${activeToken.token}` : null;
   const tokenActive = activeToken && new Date(activeToken.expires_at) > new Date();
 
@@ -226,6 +244,10 @@ export default function SeminarDetailPage() {
             )}
             <InfoPanel>
               <TagRow>
+                <DetailStatusBadge status={seminarStatus}>
+                  {seminarStatus === "ongoing" && <DetailLiveDot />}
+                  {seminarStatus === "upcoming" ? "Upcoming" : seminarStatus === "ongoing" ? "Live Now" : "Ended"}
+                </DetailStatusBadge>
                 {seminar.rsvp_enabled && <Badge color="purple">RSVP</Badge>}
                 {seminar.waitlist_enabled && <Badge color="blue">Waitlist</Badge>}
               </TagRow>
@@ -277,17 +299,31 @@ export default function SeminarDetailPage() {
                       {myRsvp.checked_in && (
                         <RsvpSub><CheckIcon size={14} /> Checked in at {formatDate(myRsvp.checked_in_at)}</RsvpSub>
                       )}
-                      <Button variant="danger" size="sm" onClick={() => cancelRsvpMutation.mutate()} disabled={cancelRsvpMutation.isPending}>
-                        {cancelRsvpMutation.isPending ? "Cancelling…" : "Cancel RSVP"}
-                      </Button>
+                      {hasEnded ? (
+                        <RsvpSub style={{ color: "#6b7280", fontSize: 12 }}>
+                          This event has ended — your attendance record has been preserved.
+                        </RsvpSub>
+                      ) : (
+                        <Button variant="danger" size="sm" onClick={() => cancelRsvpMutation.mutate()} disabled={cancelRsvpMutation.isPending}>
+                          {cancelRsvpMutation.isPending ? "Cancelling…" : "Cancel RSVP"}
+                        </Button>
+                      )}
                     </RsvpStatus>
                   ) : myWaitlist ? (
                     <RsvpStatus>
                       <RsvpBadge><ClockIcon size={16} /> Waitlisted — #{myWaitlist.position}</RsvpBadge>
-                      <Button variant="ghost" size="sm" onClick={() => cancelWaitlistMutation.mutate()} disabled={cancelWaitlistMutation.isPending}>
-                        {cancelWaitlistMutation.isPending ? "Cancelling…" : "Cancel Waitlist"}
-                      </Button>
+                      {!hasEnded && (
+                        <Button variant="ghost" size="sm" onClick={() => cancelWaitlistMutation.mutate()} disabled={cancelWaitlistMutation.isPending}>
+                          {cancelWaitlistMutation.isPending ? "Cancelling…" : "Cancel Waitlist"}
+                        </Button>
+                      )}
                     </RsvpStatus>
+                  ) : hasEnded ? (
+                    <AlertBox variant="warning">
+                      RSVP is closed — this event ended {timeAgo(seminar.end_time!)}.
+                    </AlertBox>
+                  ) : hasStarted ? (
+                    <AlertBox variant="warning">RSVP is closed — this event has already started.</AlertBox>
                   ) : isFull && !seminar.waitlist_enabled ? (
                     <AlertBox variant="warning">This seminar is full and waitlist is not available.</AlertBox>
                   ) : (
@@ -914,6 +950,38 @@ const MapFrame = styled.iframe`
   display: block;
 
   @media (min-width: 768px) {
-    height: 340px;
+    height: 360px;
+  }
+`;
+
+// Seminar status badge (detail page)
+const DetailStatusBadge = styled.span<{ status: "upcoming" | "ongoing" | "ended" }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 11px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: ${({ status }) =>
+    status === "ongoing" ? "#fee2e2" :
+    status === "upcoming" ? "#dcfce7" : "#f3f4f6"};
+  color: ${({ status }) =>
+    status === "ongoing" ? "#dc2626" :
+    status === "upcoming" ? "#16a34a" : "#6b7280"};
+`;
+
+const DetailLiveDot = styled.span`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #dc2626;
+  display: inline-block;
+  animation: pulse 1.4s ease-in-out infinite;
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.75); }
   }
 `;

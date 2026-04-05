@@ -24,6 +24,17 @@ import {
 } from "../components/ui";
 import { MicIcon, CalendarIcon, MapPinIcon, UsersIcon, XIcon, PlusIcon } from "../components/icons";
 
+// ── Seminar status ────────────────────────────────────────────────────────────
+
+type SeminarStatus = "upcoming" | "ongoing" | "ended";
+
+function getSeminarStatus(startTime: string | null, endTime: string | null): SeminarStatus {
+  const now = new Date();
+  if (!startTime || new Date(startTime) > now) return "upcoming";
+  if (!endTime || new Date(endTime) > now) return "ongoing";
+  return "ended";
+}
+
 /** Strip markdown syntax for plain-text card previews. */
 function stripMarkdown(md: string): string {
   return md
@@ -56,6 +67,7 @@ export default function SeminarListPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createError, setCreateError] = useState("");
   const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
+  const [statusFilter, setStatusFilter] = useState<"all" | SeminarStatus>("all");
   const [form, setForm] = useState({
     title: "", description: "", start_time: "", end_time: "",
     location: "", max_capacity: "", host: "", cover_image: "",
@@ -111,6 +123,17 @@ export default function SeminarListPage() {
     return sortDir === "desc" ? tb - ta : ta - tb;
   });
 
+  const filteredSeminars = statusFilter === "all"
+    ? sortedSeminars
+    : sortedSeminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === statusFilter);
+
+  const statusCounts = {
+    all: seminars.length,
+    upcoming: seminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === "upcoming").length,
+    ongoing: seminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === "ongoing").length,
+    ended: seminars.filter((s) => getSeminarStatus(s.start_time, s.end_time) === "ended").length,
+  };
+
   if (isLoading) {
     return (
       <LoadingCenter>
@@ -140,6 +163,16 @@ export default function SeminarListPage() {
           )}
         </HeaderActions>
       </PageHeader>
+
+      {/* ── Status filter ── */}
+      <FilterBar>
+        {(["all", "upcoming", "ongoing", "ended"] as const).map((f) => (
+          <FilterBtn key={f} active={statusFilter === f} status={f} onClick={() => setStatusFilter(f)}>
+            {f === "all" ? "All" : f === "upcoming" ? "Upcoming" : f === "ongoing" ? "Live Now" : "Ended"}
+            <FilterCount active={statusFilter === f}>{statusCounts[f]}</FilterCount>
+          </FilterBtn>
+        ))}
+      </FilterBar>
 
       {/* ── Create form ── */}
       {isStaff && showCreateForm && (
@@ -213,17 +246,23 @@ export default function SeminarListPage() {
       )}
 
       {/* ── Seminar cards ── */}
-      {sortedSeminars.length === 0 ? (
-        <EmptyState>No seminars yet.</EmptyState>
+      {filteredSeminars.length === 0 ? (
+        <EmptyState>No seminars match this filter.</EmptyState>
       ) : (
         <Grid>
-          {sortedSeminars.map((s) => (
-            <SeminarCard key={s.id} onClick={() => navigate(`/seminar/${s.id}`)}>
+          {filteredSeminars.map((s) => {
+            const status = getSeminarStatus(s.start_time, s.end_time);
+            return (
+            <SeminarCard key={s.id} ended={status === "ended"} onClick={() => navigate(`/seminar/${s.id}`)}>
               {s.cover_image && (
-                <CoverImg src={s.cover_image} alt="cover" />
+                <CoverImg src={s.cover_image} alt="cover" ended={status === "ended"} />
               )}
               <CardContent>
                 <TagRowTop>
+                  <StatusBadge status={status}>
+                    {status === "ongoing" && <LiveDot />}
+                    {status === "upcoming" ? "Upcoming" : status === "ongoing" ? "Live Now" : "Ended"}
+                  </StatusBadge>
                   {s.rsvp_enabled && <Badge color="purple">RSVP</Badge>}
                   {s.waitlist_enabled && <Badge color="blue">Waitlist</Badge>}
                   {s.max_capacity == null && <Badge color="gray">Unlimited</Badge>}
@@ -261,7 +300,8 @@ export default function SeminarListPage() {
                 </CardActions>
               </CardContent>
             </SeminarCard>
-          ))}
+            );
+          })}
         </Grid>
       )}
     </PageContainer>
@@ -312,26 +352,62 @@ const Grid = styled.div`
   }
 `;
 
-const SeminarCard = styled.div`
+const SeminarCard = styled.div<{ ended?: boolean }>`
   background: #fff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${({ ended }) => ended ? "#e5e7eb" : "#e5e7eb"};
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  opacity: ${({ ended }) => ended ? 0.62 : 1};
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s, opacity 0.2s;
 
   &:hover {
+    opacity: 1;
     box-shadow: 0 8px 28px rgba(108, 92, 231, 0.12);
     transform: translateY(-2px);
     border-color: #c4b5fd;
   }
 `;
 
-const CoverImg = styled.img`
+const CoverImg = styled.img<{ ended?: boolean }>`
   width: 100%;
   height: 160px;
   object-fit: cover;
   display: block;
+  filter: ${({ ended }) => ended ? "grayscale(40%)" : "none"};
+  transition: filter 0.2s;
+`;
+
+// Status badge
+const StatusBadge = styled.span<{ status: SeminarStatus }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: ${({ status }) =>
+    status === "ongoing" ? "#fee2e2" :
+    status === "upcoming" ? "#dcfce7" : "#f3f4f6"};
+  color: ${({ status }) =>
+    status === "ongoing" ? "#dc2626" :
+    status === "upcoming" ? "#16a34a" : "#6b7280"};
+`;
+
+const LiveDot = styled.span`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #dc2626;
+  display: inline-block;
+  animation: pulse 1.4s ease-in-out infinite;
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.75); }
+  }
 `;
 
 const CardContent = styled.div`
@@ -399,6 +475,61 @@ const CardActions = styled.div`
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+`;
+
+const FilterBar = styled.div`
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+`;
+
+const FilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  border: 1.5px solid ${({ active, status }) =>
+    !active ? "#e5e7eb" :
+    status === "ongoing" ? "#dc2626" :
+    status === "upcoming" ? "#16a34a" :
+    status === "ended" ? "#6b7280" : "#6c5ce7"};
+  background: ${({ active, status }) =>
+    !active ? "#fff" :
+    status === "ongoing" ? "#fee2e2" :
+    status === "upcoming" ? "#dcfce7" :
+    status === "ended" ? "#f3f4f6" : "#ede9fe"};
+  color: ${({ active, status }) =>
+    !active ? "#6b7280" :
+    status === "ongoing" ? "#dc2626" :
+    status === "upcoming" ? "#16a34a" :
+    status === "ended" ? "#4b5563" : "#6c5ce7"};
+
+  &:hover {
+    border-color: ${({ status }) =>
+      status === "ongoing" ? "#dc2626" :
+      status === "upcoming" ? "#16a34a" :
+      status === "ended" ? "#6b7280" : "#6c5ce7"};
+    color: ${({ status }) =>
+      status === "ongoing" ? "#dc2626" :
+      status === "upcoming" ? "#16a34a" :
+      status === "ended" ? "#4b5563" : "#6c5ce7"};
+  }
+`;
+
+const FilterCount = styled.span<{ active: boolean }>`
+  background: ${({ active }) => active ? "rgba(0,0,0,0.1)" : "#f3f4f6"};
+  color: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 6px;
+  border-radius: 10px;
+  line-height: 18px;
 `;
 
 const HeaderActions = styled.div`

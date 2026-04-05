@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.config.database import get_db
 from src.service.system_service import SystemService
+from src.schema.seminar import SeminarResponse
 
 router = APIRouter(prefix="/system", tags=["System"])
 
@@ -29,8 +30,8 @@ async def create_user(system_service: SystemService = Depends(get_system_service
 async def get_users(system_service: SystemService = Depends(get_system_service)):
     return await system_service.get_users()
 
-@router.get("/seminars", summary="Get all seminars entry")
-async def get_users(system_service: SystemService = Depends(get_system_service)):
+@router.get("/seminars", summary="Get all seminars entry", response_model=list[SeminarResponse])
+async def get_seminars(system_service: SystemService = Depends(get_system_service)):
     return await system_service.get_seminars()
 
 @router.get("/seminar_rsvps", summary="Get all seminar_rsvps entry")
