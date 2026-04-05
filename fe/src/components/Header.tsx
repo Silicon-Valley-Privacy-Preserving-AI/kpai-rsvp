@@ -63,9 +63,12 @@ export default function Header() {
             <NavLink to={route.admin}>Admin</NavLink>
           )}
           {isLoggedIn ? (
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              Sign Out
-            </Button>
+            <>
+              <NavLink to={route.mypage}>My Page</NavLink>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                Sign Out
+              </Button>
+            </>
           ) : (
             <>
               <NavLink to={route.signin}>Sign In</NavLink>

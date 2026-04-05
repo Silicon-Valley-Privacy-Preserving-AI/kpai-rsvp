@@ -3,6 +3,8 @@ export const api = {
     users: "/api/v1/users",
     usersList: "/api/v1/users/list",
     setPassword: "/api/v1/users/set-password",
+    myProfile: "/api/v1/users/me/profile",
+    myHistory: "/api/v1/users/me/history",
 
     auth: {
       login: "/api/v1/auth/login",

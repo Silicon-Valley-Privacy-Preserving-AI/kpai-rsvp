@@ -7,6 +7,7 @@ import SeminarListPage from "../pages/SeminarListPage";
 import SeminarDetailPage from "../pages/SeminarDetailPage";
 import CheckInPage from "../pages/CheckInPage";
 import AdminPage from "../pages/AdminPage";
+import MyPage from "../pages/MyPage";
 
 export default function Router() {
   return (
@@ -18,6 +19,7 @@ export default function Router() {
       <Route path={route.seminarDetail} element={<SeminarDetailPage />} />
       <Route path={route.checkIn} element={<CheckInPage />} />
       <Route path={route.admin} element={<AdminPage />} />
+      <Route path={route.mypage} element={<MyPage />} />
     </Routes>
   );
 }

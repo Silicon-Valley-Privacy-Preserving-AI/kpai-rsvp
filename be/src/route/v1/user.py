@@ -6,7 +6,7 @@ from src.model.user import User
 from src.route.v1.auth import get_auth_service
 from src.service.auth_service import AuthService
 from src.service.user_service import UserService
-from src.schema.user import UserCreateRequest, UserModifyRequest, UserResponse, SetPasswordRequest, UserAdminResponse
+from src.schema.user import UserCreateRequest, UserModifyRequest, UserResponse, SetPasswordRequest, UserAdminResponse, MyProfileResponse, SeminarHistoryItem
 from src.model.user import UserRole
 from src.util.security import http_bearer
 from fastapi import status
@@ -30,6 +30,29 @@ async def get_user(
         current_user: User = Depends(get_current_user)
 ):
     return current_user
+
+
+@router.get(
+    "/me/profile",
+    summary="Get my full profile (including membership status and join date)",
+    response_model=MyProfileResponse,
+)
+async def get_my_profile(
+        current_user: User = Depends(get_current_user),
+):
+    return current_user
+
+
+@router.get(
+    "/me/history",
+    summary="Get my seminar participation history",
+    response_model=list[SeminarHistoryItem],
+)
+async def get_my_history(
+        current_user: User = Depends(get_current_user),
+        user_service: UserService = Depends(get_user_service),
+):
+    return await user_service.get_my_seminar_history(current_user)
 
 @router.put("", summary="Modify user data")
 async def modify_user(

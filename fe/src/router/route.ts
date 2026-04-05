@@ -6,4 +6,5 @@ export const route = {
   seminarDetail: "/seminar/:id",
   checkIn: "/check-in",
   admin: "/admin",
+  mypage: "/mypage",
 };

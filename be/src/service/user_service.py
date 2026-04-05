@@ -3,8 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from src.config.environments import STAFF_CODE
 from src.model.user import User, UserRole
+from src.model.seminar import Seminar
+from src.model.seminar_rsvp import SeminarRSVP
 from src.schema.user import UserCreateRequest, UserModifyRequest
-from src.util.security import get_password_hash
+from src.util.security import get_password_hash, verify_password
 
 class UserService:
     def __init__(self, db: AsyncSession):
@@ -106,12 +108,55 @@ class UserService:
 
     async def modify_user(self, user: User, user_data: UserModifyRequest):
         if user_data.email is not None:
+            existing = await self.get_user_by_email(user_data.email)
+            if existing and existing.id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="This email is already in use by another account.",
+                )
             user.email = user_data.email
 
         if user_data.username is not None:
             user.username = user_data.username
 
+        if user_data.new_password is not None:
+            if not user_data.current_password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Current password is required to set a new password.",
+                )
+            if not user.password or not verify_password(user_data.current_password, user.password):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Current password is incorrect.",
+                )
+            user.password = get_password_hash(user_data.new_password)
+
         await self.db.commit()
         await self.db.refresh(user)
 
-        return {"message": "User modified successfully"}
+        return {"message": "Profile updated successfully"}
+
+    async def get_my_seminar_history(self, user: User) -> list[dict]:
+        result = await self.db.execute(
+            select(SeminarRSVP, Seminar)
+            .join(Seminar, SeminarRSVP.seminar_id == Seminar.id)
+            .where(SeminarRSVP.user_id == user.id)
+            .order_by(SeminarRSVP.created_at.desc())
+        )
+        rows = result.all()
+        return [
+            {
+                "seminar_id": seminar.id,
+                "seminar_title": seminar.title,
+                "seminar_start_time": seminar.start_time,
+                "seminar_end_time": seminar.end_time,
+                "seminar_location": seminar.location,
+                "seminar_host": seminar.host,
+                "seminar_cover_image": seminar.cover_image,
+                "checked_in": rsvp.checked_in,
+                "checked_in_at": rsvp.checked_in_at,
+                "rsvp_created_at": rsvp.created_at,
+            }
+            for rsvp, seminar in rows
+        ]

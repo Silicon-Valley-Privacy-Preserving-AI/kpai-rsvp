@@ -2,6 +2,7 @@ from typing import Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 from src.model.user import UserRole
+from src.util.datetime_util import UTCDatetime, OptionalUTCDatetime
 
 
 class UserCreateRequest(BaseModel):
@@ -15,6 +16,8 @@ class UserCreateRequest(BaseModel):
 class UserModifyRequest(BaseModel):
     username: Optional[str] = None
     email: Optional[str] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = Field(None, min_length=4)
 
 
 class UserResponse(BaseModel):
@@ -41,3 +44,29 @@ class UserAdminResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class MyProfileResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    role: str
+    is_temporary: bool
+    full_member_email_sent: bool
+    created_at: UTCDatetime
+
+    class Config:
+        from_attributes = True
+
+
+class SeminarHistoryItem(BaseModel):
+    seminar_id: int
+    seminar_title: str
+    seminar_start_time: OptionalUTCDatetime
+    seminar_end_time: OptionalUTCDatetime
+    seminar_location: Optional[str]
+    seminar_host: Optional[str]
+    seminar_cover_image: Optional[str]
+    checked_in: bool
+    checked_in_at: OptionalUTCDatetime
+    rsvp_created_at: UTCDatetime
