@@ -55,6 +55,7 @@ export default function SeminarListPage() {
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [createError, setCreateError] = useState("");
+  const [sortDir, setSortDir] = useState<"desc" | "asc">("desc");
   const [form, setForm] = useState({
     title: "", description: "", start_time: "", end_time: "",
     location: "", max_capacity: "", host: "", cover_image: "",
@@ -104,6 +105,12 @@ export default function SeminarListPage() {
     onError: (e: any) => alert(e.response?.data?.detail ?? "Delete failed"),
   });
 
+  const sortedSeminars = [...seminars].sort((a, b) => {
+    const ta = new Date(a.start_time ?? a.created_at).getTime();
+    const tb = new Date(b.start_time ?? b.created_at).getTime();
+    return sortDir === "desc" ? tb - ta : ta - tb;
+  });
+
   if (isLoading) {
     return (
       <LoadingCenter>
@@ -117,16 +124,21 @@ export default function SeminarListPage() {
     <PageContainer>
       <PageHeader>
         <PageTitle>Seminars</PageTitle>
-        {isStaff && (
-          <Button
-            variant={showCreateForm ? "ghost" : "primary"}
-            onClick={() => { setShowCreateForm((v) => !v); setCreateError(""); }}
-          >
-            {showCreateForm
-            ? <BtnInner><XIcon size={15} /> Cancel</BtnInner>
-            : <BtnInner><PlusIcon size={15} /> New Seminar</BtnInner>}
-          </Button>
-        )}
+        <HeaderActions>
+          <SortDirBtn onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}>
+            {sortDir === "desc" ? "↓ Newest first" : "↑ Oldest first"}
+          </SortDirBtn>
+          {isStaff && (
+            <Button
+              variant={showCreateForm ? "ghost" : "primary"}
+              onClick={() => { setShowCreateForm((v) => !v); setCreateError(""); }}
+            >
+              {showCreateForm
+              ? <BtnInner><XIcon size={15} /> Cancel</BtnInner>
+              : <BtnInner><PlusIcon size={15} /> New Seminar</BtnInner>}
+            </Button>
+          )}
+        </HeaderActions>
       </PageHeader>
 
       {/* ── Create form ── */}
@@ -201,11 +213,11 @@ export default function SeminarListPage() {
       )}
 
       {/* ── Seminar cards ── */}
-      {seminars.length === 0 ? (
+      {sortedSeminars.length === 0 ? (
         <EmptyState>No seminars yet.</EmptyState>
       ) : (
         <Grid>
-          {seminars.map((s) => (
+          {sortedSeminars.map((s) => (
             <SeminarCard key={s.id} onClick={() => navigate(`/seminar/${s.id}`)}>
               {s.cover_image && (
                 <CoverImg src={s.cover_image} alt="cover" />
@@ -387,4 +399,30 @@ const CardActions = styled.div`
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+`;
+
+const SortDirBtn = styled.button`
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: #f5f3ff;
+    border-color: #c4b5fd;
+    color: #6c5ce7;
+  }
 `;

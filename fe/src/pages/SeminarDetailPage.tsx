@@ -363,7 +363,7 @@ export default function SeminarDetailPage() {
               <Input value={editForm.location} onChange={(e) => setEditForm({ ...editForm, location: e.target.value })} />
             </FormGroup>
             <FormGroup>
-              <Label>Max capacity</Label>
+              <Label>Max capacity (Leave it empty for no limit)</Label>
               <Input type="number" value={editForm.max_capacity} onChange={(e) => setEditForm({ ...editForm, max_capacity: e.target.value })} />
             </FormGroup>
           </TwoCol>
@@ -916,4 +916,4 @@ const MapFrame = styled.iframe`
   @media (min-width: 768px) {
     height: 340px;
   }
-`;
+`;

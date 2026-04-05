@@ -264,6 +264,8 @@ export default function AdminPage() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("users");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [seminarSortField, setSeminarSortField] = useState<"date" | "rsvp" | "checkin">("date");
+  const [seminarSortDir, setSeminarSortDir] = useState<"desc" | "asc">("desc");
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -338,10 +340,28 @@ export default function AdminPage() {
   const totalRsvps    = rsvps.length;
   const totalCheckins = rsvps.filter((r) => r.checked_in).length;
 
-  // ── Sort seminars newest first ─────────────────────────────────────────────
-  const sortedSeminars = [...seminars].sort(
-    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  // ── Sort seminars ──────────────────────────────────────────────────────────
+  const rsvpCountMap = Object.fromEntries(
+    seminars.map((s) => [s.id, rsvps.filter((r) => r.seminar_id === s.id).length])
   );
+  const checkinCountMap = Object.fromEntries(
+    seminars.map((s) => [s.id, rsvps.filter((r) => r.seminar_id === s.id && r.checked_in).length])
+  );
+
+  const sortedSeminars = [...seminars].sort((a, b) => {
+    let valA: number, valB: number;
+    if (seminarSortField === "rsvp") {
+      valA = rsvpCountMap[a.id] ?? 0;
+      valB = rsvpCountMap[b.id] ?? 0;
+    } else if (seminarSortField === "checkin") {
+      valA = checkinCountMap[a.id] ?? 0;
+      valB = checkinCountMap[b.id] ?? 0;
+    } else {
+      valA = new Date(a.start_time ?? a.created_at).getTime();
+      valB = new Date(b.start_time ?? b.created_at).getTime();
+    }
+    return seminarSortDir === "desc" ? valB - valA : valA - valB;
+  });
 
   return (
     <PageContainer style={{ maxWidth: 1100 }}>
@@ -557,7 +577,21 @@ export default function AdminPage() {
           ) : sortedSeminars.length === 0 ? (
             <EmptyState>No seminars yet.</EmptyState>
           ) : (
-            <SeminarList>
+            <>
+              <SortBar>
+                <SortGroup>
+                  <SortLabel>Sort by</SortLabel>
+                  <SortBtnGroup>
+                    <SortBtn active={seminarSortField === "date"} onClick={() => setSeminarSortField("date")}>Date</SortBtn>
+                    <SortBtn active={seminarSortField === "rsvp"} onClick={() => setSeminarSortField("rsvp")}>RSVPs</SortBtn>
+                    <SortBtn active={seminarSortField === "checkin"} onClick={() => setSeminarSortField("checkin")}>Check-ins</SortBtn>
+                  </SortBtnGroup>
+                </SortGroup>
+                <SortDirBtn onClick={() => setSeminarSortDir((d) => (d === "desc" ? "asc" : "desc"))}>
+                  {seminarSortDir === "desc" ? "↓ Desc" : "↑ Asc"}
+                </SortDirBtn>
+              </SortBar>
+              <SeminarList>
               {sortedSeminars.map((s) => (
                 <SeminarRow
                   key={s.id}
@@ -570,7 +604,8 @@ export default function AdminPage() {
                   cancelRsvpPending={adminCancelRsvpMutation.isPending}
                 />
               ))}
-            </SeminarList>
+              </SeminarList>
+            </>
           )}
         </>
       )}
@@ -1005,4 +1040,64 @@ const DrawerActions = styled.div`
   background: #fff;
   position: sticky;
   bottom: 0;
+`;
+
+// Seminar sort bar
+const SortBar = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+`;
+
+const SortGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const SortLabel = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const SortBtnGroup = styled.div`
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+`;
+
+const SortBtn = styled.button<{ active: boolean }>`
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-right: 1px solid #e5e7eb;
+  background: ${({ active }) => (active ? "#6c5ce7" : "#fff")};
+  color: ${({ active }) => (active ? "#fff" : "#374151")};
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+
+  &:last-child { border-right: none; }
+  &:hover { background: ${({ active }) => (active ? "#5b4bd6" : "#f5f3ff")}; }
+`;
+
+const SortDirBtn = styled.button`
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: #f9fafb; }
 `;
