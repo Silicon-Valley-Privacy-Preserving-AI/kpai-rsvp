@@ -314,8 +314,12 @@ const CreateForm = styled.div`
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
-  padding: 28px 28px 24px;
+  padding: 18px 16px 16px;
   margin-bottom: 32px;
+
+  @media (min-width: 560px) {
+    padding: 28px 28px 24px;
+  }
 `;
 
 const CreateFormTitle = styled.h2`
@@ -345,10 +349,11 @@ const CheckRow = styled.div`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 16px;
 
-  @media (min-width: 600px) {
+  @media (min-width: 580px) {
     grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 `;
 
@@ -480,8 +485,15 @@ const CardActions = styled.div`
 const FilterBar = styled.div`
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   margin-bottom: 20px;
+  padding-bottom: 2px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const FilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus }>`
@@ -493,6 +505,8 @@ const FilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   border: 1.5px solid ${({ active, status }) =>
     !active ? "#e5e7eb" :
@@ -535,8 +549,9 @@ const FilterCount = styled.span<{ active: boolean }>`
 const HeaderActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 `;
 
 const SortDirBtn = styled.button`

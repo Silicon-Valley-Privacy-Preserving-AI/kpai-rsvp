@@ -694,18 +694,25 @@ const StatLabel = styled.div`
 
 const TabBar = styled.div`
   display: flex;
-  gap: 4px;
+  gap: 0;
   border-bottom: 2px solid #e5e7eb;
   margin-bottom: 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
 `;
 
 const TabBtn = styled.button<{ active?: boolean }>`
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
+  gap: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -713,6 +720,12 @@ const TabBtn = styled.button<{ active?: boolean }>`
   margin-bottom: -2px;
   color: ${({ active }) => (active ? "#6c5ce7" : "#6b7280")};
   transition: color 0.15s;
+
+  @media (min-width: 480px) {
+    padding: 10px 20px;
+    font-size: 14px;
+    gap: 8px;
+  }
 
   &:hover { color: #111827; }
 `;
@@ -731,6 +744,11 @@ const TableWrap = styled.div`
   border-radius: 12px;
   overflow: hidden;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  table {
+    min-width: 600px;
+  }
 `;
 
 // Seminar accordion
@@ -781,12 +799,21 @@ const HeaderInfo = styled.div`
 `;
 
 const SeminarName = styled.div`
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #111827;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  @media (min-width: 480px) {
+    font-size: 15px;
+    white-space: nowrap;
+    -webkit-line-clamp: unset;
+    display: block;
+  }
 `;
 
 const SeminarMeta = styled.div`
@@ -821,8 +848,13 @@ const StatPill = styled.div<{ color?: "green" | "orange" | "purple" | "red" }>`
     color === "purple" ? "#ede9fe" :
     color === "red" ? "#fee2e2" : "#f3f4f6"};
   border-radius: 8px;
-  padding: 6px 12px;
-  min-width: 52px;
+  padding: 5px 10px;
+  min-width: 44px;
+
+  @media (min-width: 480px) {
+    padding: 6px 12px;
+    min-width: 52px;
+  }
 `;
 
 const PillNum = styled.div`
@@ -1079,8 +1111,13 @@ const DrawerActions = styled.div`
 const AdminFilterBar = styled.div`
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   margin-bottom: 12px;
+  padding-bottom: 2px;
+
+  &::-webkit-scrollbar { display: none; }
 `;
 
 const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus }>`
@@ -1092,6 +1129,8 @@ const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarS
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   border: 1.5px solid ${({ active, status }) =>
     !active ? "#e5e7eb" :

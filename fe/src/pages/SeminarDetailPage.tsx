@@ -657,15 +657,18 @@ const HeroLayout = styled.div`
 
 const CoverImg = styled.img`
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  max-height: 220px;
+  object-fit: cover;
   border-radius: 14px;
   display: block;
   background: #f3f0ff;
 
   @media (min-width: 640px) {
     width: 45%;
+    max-height: none;
+    height: auto;
     flex: 0 0 45%;
+    object-fit: contain;
   }
 `;
 
@@ -704,12 +707,14 @@ const TagRow = styled.div`
 `;
 
 const SeminarTitle = styled.h1`
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
   color: #111827;
   letter-spacing: -0.02em;
   margin-bottom: 6px;
 
+  @media (min-width: 480px) { font-size: 26px; }
+  @media (min-width: 640px) { font-size: 28px; }
   @media (min-width: 768px) { font-size: 34px; }
 `;
 
@@ -790,6 +795,7 @@ const CheckRow = styled.div`
 const EditActions = styled.div`
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 `;
 
 const SectionDesc = styled.p`
@@ -937,8 +943,13 @@ const RsvpActionCell = styled.div`
 
 const TableWrap = styled.div`
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
+
+  table {
+    min-width: 520px;
+  }
 `;
 
 const MapFrame = styled.iframe`

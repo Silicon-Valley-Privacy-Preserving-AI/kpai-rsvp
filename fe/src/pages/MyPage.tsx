@@ -425,8 +425,12 @@ const ProfileCard = styled.div`
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 28px;
+  padding: 18px 16px;
   margin-bottom: 20px;
+
+  @media (min-width: 480px) {
+    padding: 28px;
+  }
 `;
 
 const ProfileTop = styled.div`
@@ -557,24 +561,42 @@ const StatRow = styled.div`
 
 const StatBox = styled.div`
   flex: 1;
-  padding: 14px 12px;
+  padding: 10px 4px;
   text-align: center;
+  min-width: 0;
+
+  @media (min-width: 400px) {
+    padding: 14px 12px;
+  }
 `;
 
 const StatNum = styled.div`
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 800;
   color: #111827;
   letter-spacing: -0.02em;
+
+  @media (min-width: 400px) {
+    font-size: 20px;
+  }
 `;
 
 const StatLabel = styled.div`
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 600;
   color: #9ca3af;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (min-width: 400px) {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    white-space: normal;
+  }
 `;
 
 const StatDivider = styled.div`
@@ -588,8 +610,12 @@ const EditCard = styled.div`
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 28px;
+  padding: 18px 16px;
   margin-bottom: 20px;
+
+  @media (min-width: 480px) {
+    padding: 28px;
+  }
 `;
 
 const EditTitle = styled.h2`
@@ -628,6 +654,7 @@ const EditActions = styled.div`
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  flex-wrap: wrap;
 `;
 
 // Seminar history
@@ -635,8 +662,12 @@ const SectionCard = styled.div`
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 28px;
+  padding: 18px 16px;
   margin-bottom: 20px;
+
+  @media (min-width: 480px) {
+    padding: 28px;
+  }
 `;
 
 const SectionHeader = styled.h2`
@@ -654,13 +685,18 @@ const HistoryList = styled.div`
 
 const HistoryItem = styled.div`
   display: flex;
-  gap: 14px;
-  padding: 14px;
+  gap: 12px;
+  padding: 12px;
   border: 1px solid #f3f4f6;
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
   align-items: flex-start;
+
+  @media (min-width: 480px) {
+    gap: 14px;
+    padding: 14px;
+  }
 
   &:hover {
     background: #faf9ff;
@@ -753,7 +789,11 @@ const DangerZone = styled.div`
   background: #fff;
   border: 1px solid #fecaca;
   border-radius: 16px;
-  padding: 24px 28px;
+  padding: 18px 16px;
+
+  @media (min-width: 480px) {
+    padding: 24px 28px;
+  }
 `;
 
 const DangerTitle = styled.div`
@@ -774,4 +814,5 @@ const DeleteConfirm = styled.div`
 const ConfirmActions = styled.div`
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 `;

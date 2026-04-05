@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ export default function Header() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isLoggedIn = !!sessionStorage.getItem("accessToken");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -29,10 +31,12 @@ export default function Header() {
     window.location.reload();
   };
 
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
   return (
     <HeaderWrapper>
       <Inner>
-        <Link to="/" style={{ textDecoration: "none" }}>
+        <Link to="/" style={{ textDecoration: "none" }} onClick={closeMobileMenu}>
           <LogoContainer>
             <LogoImage src="/logo.png" alt="K-PAI Logo" />
             <LogoWrapper>
@@ -57,6 +61,7 @@ export default function Header() {
           </LogoContainer>
         </Link>
 
+        {/* Desktop navigation */}
         <NavRight>
           <NavLink to={route.seminar}>Seminars</NavLink>
           {me?.role === "staff" && (
@@ -83,30 +88,80 @@ export default function Header() {
             </>
           )}
         </NavRight>
+
+        {/* Mobile hamburger button */}
+        <HamburgerBtn
+          onClick={() => setMobileMenuOpen((v) => !v)}
+          aria-label="Toggle navigation"
+          aria-expanded={mobileMenuOpen}
+        >
+          {mobileMenuOpen ? "✕" : "☰"}
+        </HamburgerBtn>
       </Inner>
+
+      {/* Mobile dropdown menu */}
+      {mobileMenuOpen && (
+        <MobileMenu>
+          <MobileNavLink to={route.seminar} onClick={closeMobileMenu}>
+            Seminars
+          </MobileNavLink>
+          {me?.role === "staff" && (
+            <MobileNavLink to={route.admin} onClick={closeMobileMenu}>
+              Admin
+            </MobileNavLink>
+          )}
+          {isLoggedIn ? (
+            <>
+              <MobileNavLink to={route.mypage} onClick={closeMobileMenu}>
+                My Page
+              </MobileNavLink>
+              <MobileActionRow>
+                <Button
+                  variant="ghost"
+                  fullWidth
+                  onClick={() => { handleLogout(); closeMobileMenu(); }}
+                >
+                  Sign Out
+                </Button>
+              </MobileActionRow>
+            </>
+          ) : (
+            <>
+              <MobileNavLink to={route.signin} onClick={closeMobileMenu}>
+                Sign In
+              </MobileNavLink>
+              <MobileActionRow>
+                <Button
+                  as={Link as any}
+                  to={route.signup}
+                  variant="primary"
+                  fullWidth
+                  onClick={closeMobileMenu}
+                >
+                  Sign Up
+                </Button>
+              </MobileActionRow>
+            </>
+          )}
+        </MobileMenu>
+      )}
     </HeaderWrapper>
   );
 }
 
 const HeaderWrapper = styled.header`
-  height: 60px;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
   backdrop-filter: blur(8px);
-
-  @media (min-width: ${BREAKPOINTS.mobile}) {
-    height: 68px;
-  }
 `;
 
 const Inner = styled.div`
   max-width: 1200px;
   width: 100%;
+  height: 60px;
   margin: 0 auto;
   padding: 0 16px;
   display: flex;
@@ -115,6 +170,7 @@ const Inner = styled.div`
   gap: 16px;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
+    height: 68px;
     padding: 0 32px;
   }
 `;
@@ -226,13 +282,73 @@ const ExpandedWord = styled.span`
 `;
 
 const NavRight = styled.nav`
-  display: flex;
+  display: none;
   align-items: center;
   gap: 4px;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
+    display: flex;
     gap: 8px;
   }
+`;
+
+const HamburgerBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 18px;
+  color: #374151;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  @media (min-width: ${BREAKPOINTS.mobile}) {
+    display: none;
+  }
+`;
+
+const MobileMenu = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 8px 0 16px;
+
+  @media (min-width: ${BREAKPOINTS.mobile}) {
+    display: none;
+  }
+`;
+
+const MobileNavLink = styled(Link)`
+  padding: 13px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  text-decoration: none;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.12s, color 0.12s;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f5f3ff;
+    color: #6c5ce7;
+  }
+`;
+
+const MobileActionRow = styled.div`
+  padding: 12px 16px 0;
 `;
 
 const NavLink = styled(Link)`

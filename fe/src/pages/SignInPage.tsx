@@ -129,10 +129,14 @@ const AuthCard = styled.div`
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 40px 36px;
+  padding: 28px 20px;
   width: 100%;
   max-width: 420px;
   box-shadow: 0 4px 24px rgba(108, 92, 231, 0.08);
+
+  @media (min-width: 480px) {
+    padding: 40px 36px;
+  }
 `;
 
 const CardHeader = styled.div`
