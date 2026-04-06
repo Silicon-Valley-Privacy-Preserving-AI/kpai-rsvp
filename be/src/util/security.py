@@ -11,15 +11,17 @@ http_bearer = HTTPBearer(auto_error=False)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def _get_keyed_password(password: str) -> bytes:
+def _get_keyed_password(password: str) -> str:
     """
-    Generate HMAC-SHA256 hash using SECRET_KEY to resolve 72 bytes limit of bcrypt and put some pepper on.
+    Generate HMAC-SHA256 hex digest using SECRET_KEY to resolve the 72-byte bcrypt
+    limit and add pepper. Returns a hex string (never contains NULL bytes, which
+    bcrypt rejects when raw digest bytes are used directly).
     """
     return hmac.new(
         SECRET_KEY.encode(),
         password.encode(),
         hashlib.sha256
-    ).digest()
+    ).hexdigest()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
