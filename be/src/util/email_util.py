@@ -532,4 +532,3 @@ async def send_reminder_email(
         logger.info("Reminder sent to %s", to_email)
     except Exception as exc:
         logger.error("Failed to send reminder to %s: %s", to_email, exc)
-        raise

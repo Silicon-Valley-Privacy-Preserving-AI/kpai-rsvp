@@ -7,6 +7,8 @@ services:
       - ./be/data:/app/data
     env_file:
       - ./be/.env
+    depends_on:
+      - mailpit
     networks:
       - kpai-network
     healthcheck:
@@ -38,16 +40,17 @@ services:
     networks:
       - kpai-network
 
-  mailhog:
-    container_name: kpai-mailhog
+  mailpit:
+    container_name: kpai-mailpit
     image: axllent/mailpit
     restart: unless-stopped
-    ports:
-      - "8025:8025"   # Web UI — http://localhost:8025
-      - "1025:1025"   # SMTP
+    # Ports are intentionally not exposed externally.
+    # FE nginx proxies /mails/ → http://mailpit:8025/mails/ over the internal kpai-network.
+    # BE connects to SMTP at mailpit:1025 over the internal kpai-network.
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: "1"
       MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+      MP_WEBROOT: "/mails"
     networks:
       - kpai-network
 
