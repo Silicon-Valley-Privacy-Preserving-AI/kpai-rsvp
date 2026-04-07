@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 import { route } from "../router/route";
 import { Button, Badge } from "../components/ui";
-import { GraduationCapIcon, KeyIcon, SparklesIcon, SettingsIcon } from "../components/icons";
+import { GraduationCapIcon, KeyIcon, SparklesIcon, SettingsIcon, ArrowRightIcon, CalendarIcon, UsersIcon } from "../components/icons";
 
 type User = {
   id: number;
@@ -37,25 +37,49 @@ export default function MainPage() {
     <Wrapper>
       {/* ── Hero ── */}
       <HeroSection>
-        <HeroBadge>Korean Privacy-Preserving AI Forum</HeroBadge>
-        <HeroTitle>
-          Welcome to <Highlight>K-PAI</Highlight>
-        </HeroTitle>
-        <HeroSub>
-          A community for researchers and practitioners in privacy-preserving AI.
-          Join our seminars, connect with peers, and grow together.
-        </HeroSub>
-
-        <HeroActions>
-          <Button as={Link as any} to={route.seminar} size="lg">
-            Browse Seminars →
-          </Button>
-          {!isLoggedIn && (
-            <Button as={Link as any} to={route.signup} variant="outline" size="lg">
-              Join the Community
+        <HeroContent>
+          <HeroBadge>Korean Privacy-Preserving AI Forum</HeroBadge>
+          <HeroTitle>
+            Research. Connect.<br />Build with Privacy.
+          </HeroTitle>
+          <HeroSub>
+            A community for researchers and practitioners advancing
+            privacy-preserving AI. Join our seminars and grow with peers.
+          </HeroSub>
+          <HeroActions>
+            <Button as={Link as any} to={route.seminar} size="lg">
+              Browse Seminars
+              <ArrowRightIcon size={16} color="currentColor" />
             </Button>
-          )}
-        </HeroActions>
+            {!isLoggedIn && (
+              <Button as={Link as any} to={route.signup} variant="outline" size="lg">
+                Join the Community
+              </Button>
+            )}
+          </HeroActions>
+        </HeroContent>
+
+        <HeroVisual>
+          <VisualOrb />
+          <VisualCard>
+            <VisualCardLabel>
+              <PulseDot />
+              Upcoming Seminar
+            </VisualCardLabel>
+            <VisualCardTitle>Federated Learning in Production Systems</VisualCardTitle>
+            <VisualCardMeta>
+              <CalendarIcon size={13} color="#71717a" />
+              Apr 15, 2026 · San Francisco
+            </VisualCardMeta>
+            <VisualCardMeta>
+              <UsersIcon size={13} color="#71717a" />
+              31 attending
+            </VisualCardMeta>
+            <VisualCardFooter>
+              <VisualRsvpBtn>RSVP Now</VisualRsvpBtn>
+            </VisualCardFooter>
+          </VisualCard>
+        </HeroVisual>
       </HeroSection>
 
       {/* ── User card ── */}
@@ -87,28 +111,31 @@ export default function MainPage() {
 
       {/* ── Feature tiles ── */}
       <TileGrid>
-        <Tile to={route.seminar}>
-          <TileIcon><GraduationCapIcon size={28} color="#6c5ce7" /></TileIcon>
+        <FeaturedTile to={route.seminar}>
+          <TileIconWrap><GraduationCapIcon size={24} color="#0e7490" /></TileIconWrap>
           <TileTitle>Seminars</TileTitle>
-          <TileDesc>Browse and RSVP for upcoming K-PAI seminars and events.</TileDesc>
-        </Tile>
+          <TileDesc>Browse and RSVP for upcoming K-PAI events and research talks.</TileDesc>
+          <TileArrow><ArrowRightIcon size={16} color="#0e7490" /></TileArrow>
+        </FeaturedTile>
+
         {!isLoggedIn && (
           <>
             <Tile to={route.signin}>
-              <TileIcon><KeyIcon size={28} color="#6c5ce7" /></TileIcon>
+              <TileIconWrap small><KeyIcon size={20} color="#0e7490" /></TileIconWrap>
               <TileTitle>Sign In</TileTitle>
-              <TileDesc>Already a member? Sign in to manage your RSVPs.</TileDesc>
+              <TileDesc>Already a member? Access your RSVPs and profile.</TileDesc>
             </Tile>
             <Tile to={route.signup}>
-              <TileIcon><SparklesIcon size={28} color="#6c5ce7" /></TileIcon>
+              <TileIconWrap small><SparklesIcon size={20} color="#0e7490" /></TileIconWrap>
               <TileTitle>Sign Up</TileTitle>
               <TileDesc>Create an account to participate in seminars.</TileDesc>
             </Tile>
           </>
         )}
+
         {data?.role === "staff" && (
           <Tile to={route.admin}>
-            <TileIcon><SettingsIcon size={28} color="#6c5ce7" /></TileIcon>
+            <TileIconWrap small><SettingsIcon size={20} color="#0e7490" /></TileIconWrap>
             <TileTitle>Admin</TileTitle>
             <TileDesc>Manage users, seminars, and attendance records.</TileDesc>
           </Tile>
@@ -118,171 +145,319 @@ export default function MainPage() {
   );
 }
 
+// ── Animations ────────────────────────────────────────────────────────────────
+
+const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.88); }
+`;
+
 // ── Styled components ─────────────────────────────────────────────────────────
 
 const Wrapper = styled.div`
-  max-width: 860px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 0 20px 80px;
 
   @media (min-width: 768px) {
-    padding: 72px 32px 100px;
+    padding: 0 40px 100px;
   }
 `;
 
 const HeroSection = styled.section`
-  text-align: center;
-  margin-bottom: 48px;
-`;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  padding: 56px 0 64px;
+  align-items: center;
 
-const HeroBadge = styled.span`
-  display: inline-block;
-  padding: 5px 16px;
-  background: #ede9fe;
-  color: #6c5ce7;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  margin-bottom: 20px;
-`;
-
-const HeroTitle = styled.h1`
-  font-size: 40px;
-  font-weight: 900;
-  color: #111827;
-  letter-spacing: -0.03em;
-  margin-bottom: 16px;
-
-  @media (min-width: 768px) {
-    font-size: 56px;
+  @media (min-width: 900px) {
+    grid-template-columns: 55fr 45fr;
+    gap: 48px;
+    padding: 80px 0 88px;
   }
 `;
 
-const Highlight = styled.span`
-  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+const HeroContent = styled.div`
+  animation: ${fadeUp} 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+`;
+
+const HeroBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: #f0fdff;
+  color: #0e7490;
+  border: 1px solid rgba(14, 116, 144, 0.2);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+`;
+
+const HeroTitle = styled.h1`
+  font-size: 38px;
+  font-weight: 900;
+  color: #18181b;
+  letter-spacing: -0.04em;
+  line-height: 1.07;
+  margin-bottom: 20px;
+  animation: ${fadeUp} 0.7s 0.08s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @media (min-width: 768px) {
+    font-size: 52px;
+  }
 `;
 
 const HeroSub = styled.p`
-  font-size: 17px;
-  color: #6b7280;
-  max-width: 520px;
-  margin: 0 auto 32px;
+  font-size: 16px;
+  color: #71717a;
+  max-width: 480px;
+  margin: 0 0 32px;
   line-height: 1.7;
+  animation: ${fadeUp} 0.7s 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
 
 const HeroActions = styled.div`
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  gap: 10px;
   flex-wrap: wrap;
+  animation: ${fadeUp} 0.7s 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
 `;
+
+// ── Hero Visual ───────────────────────────────────────────────────────────────
+
+const HeroVisual = styled.div`
+  display: none;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  height: 340px;
+
+  @media (min-width: 900px) {
+    display: flex;
+  }
+`;
+
+const VisualOrb = styled.div`
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, rgba(14, 116, 144, 0.13) 0%, transparent 65%);
+  pointer-events: none;
+`;
+
+const VisualCard = styled.div`
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 20px;
+  padding: 24px 28px;
+  width: 296px;
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(228,228,231,0.4);
+  animation: ${float} 7s ease-in-out infinite;
+`;
+
+const VisualCardLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #0e7490;
+  margin-bottom: 12px;
+`;
+
+const PulseDot = styled.span`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0e7490;
+  display: inline-block;
+  animation: ${pulse} 2s ease-in-out infinite;
+`;
+
+const VisualCardTitle = styled.div`
+  font-size: 15px;
+  font-weight: 700;
+  color: #18181b;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  margin-bottom: 14px;
+`;
+
+const VisualCardMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #71717a;
+  margin-bottom: 5px;
+`;
+
+const VisualCardFooter = styled.div`
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f4f4f5;
+`;
+
+const VisualRsvpBtn = styled.div`
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 16px;
+  background: #0e7490;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+`;
+
+// ── User card ─────────────────────────────────────────────────────────────────
 
 const UserCard = styled.div`
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 20px 24px;
+  border: 1px solid #e4e4e7;
+  border-radius: 16px;
+  padding: 18px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 40px;
-  box-shadow: 0 2px 12px rgba(108, 92, 231, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 `;
 
 const UserInfo = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 `;
 
 const Avatar = styled.div`
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  background: #0e7490;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   flex-shrink: 0;
+  letter-spacing: -0.01em;
 `;
 
 const UserName = styled.div`
   font-weight: 700;
   font-size: 15px;
-  color: #111827;
+  color: #18181b;
+  letter-spacing: -0.02em;
 `;
 
 const UserEmail = styled.div`
   font-size: 13px;
-  color: #6b7280;
-  margin-top: 2px;
+  color: #71717a;
+  margin-top: 1px;
 `;
 
 const LoadingDots = styled.p`
-  color: #9ca3af;
+  color: #a1a1aa;
   font-size: 14px;
 `;
+
+// ── Tile grid ─────────────────────────────────────────────────────────────────
 
 const TileGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 14px;
 
-  @media (min-width: 560px) {
+  @media (min-width: 580px) {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
   }
 `;
 
-const Tile = styled(Link)`
+const baseTileStyles = `
   display: flex;
   flex-direction: column;
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 24px;
+  border: 1px solid #e4e4e7;
+  border-radius: 18px;
   text-decoration: none;
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
 
   &:hover {
-    box-shadow: 0 8px 28px rgba(108, 92, 231, 0.12);
-    transform: translateY(-2px);
-    border-color: #c4b5fd;
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.09);
+    transform: translateY(-3px);
+    border-color: #d1d5db;
     text-decoration: none;
   }
 `;
 
-const TileIcon = styled.div`
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #ede9fe;
+const FeaturedTile = styled(Link)`
+  ${baseTileStyles}
+  padding: 28px 28px 24px;
+  grid-column: 1 / -1;
+
+  @media (min-width: 580px) {
+    grid-column: auto;
+    grid-row: span 2;
+    padding: 32px;
+  }
+`;
+
+const Tile = styled(Link)`
+  ${baseTileStyles}
+  padding: 22px 24px;
+`;
+
+const TileIconWrap = styled.div<{ small?: boolean }>`
+  width: ${({ small }) => small ? "38px" : "44px"};
+  height: ${({ small }) => small ? "38px" : "44px"};
+  border-radius: ${({ small }) => small ? "10px" : "12px"};
+  background: #f0fdff;
+  border: 1px solid rgba(14, 116, 144, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: ${({ small }) => small ? "12px" : "16px"};
 `;
 
 const TileTitle = styled.div`
   font-size: 16px;
   font-weight: 700;
-  color: #111827;
+  color: #18181b;
   margin-bottom: 6px;
+  letter-spacing: -0.02em;
 `;
 
 const TileDesc = styled.div`
   font-size: 13px;
-  color: #6b7280;
-  line-height: 1.5;
+  color: #71717a;
+  line-height: 1.55;
+  flex: 1;
+`;
+
+const TileArrow = styled.div`
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
 `;

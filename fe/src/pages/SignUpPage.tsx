@@ -278,12 +278,12 @@ const PageWrap = styled.div`
 
 const AuthCard = styled.div`
   background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 20px;
   padding: 28px 20px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 4px 24px rgba(108, 92, 231, 0.08);
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.08);
 
   @media (min-width: 480px) {
     padding: 40px 36px;
@@ -297,30 +297,32 @@ const CardHeader = styled.div`
 const CardTitle = styled.h1`
   font-size: 26px;
   font-weight: 800;
-  color: #111827;
-  letter-spacing: -0.02em;
+  color: #18181b;
+  letter-spacing: -0.03em;
   margin-bottom: 4px;
 `;
 
 const CardSub = styled.p`
   font-size: 14px;
-  color: #6b7280;
+  color: #71717a;
 `;
 
 const Divider = styled.hr`
   border: none;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid #f4f4f5;
   margin: 24px 0;
 `;
 
 const FooterText = styled.p`
   text-align: center;
   font-size: 14px;
-  color: #6b7280;
+  color: #71717a;
 
   a {
-    color: #6c5ce7;
+    color: #0e7490;
     font-weight: 600;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
   }
 `;
 
@@ -328,20 +330,21 @@ const FooterText = styled.p`
 const ModalTitle = styled.h2`
   font-size: 20px;
   font-weight: 800;
-  color: #111827;
+  color: #18181b;
   margin-bottom: 10px;
+  letter-spacing: -0.02em;
 `;
 
 const ModalDesc = styled.p`
   font-size: 14px;
-  color: #6b7280;
+  color: #71717a;
   margin-bottom: 20px;
   line-height: 1.6;
 `;
 
 const TempInfoBox = styled.div`
-  background: #f8f7ff;
-  border: 1px solid #e5e7eb;
+  background: #f0fdff;
+  border: 1px solid rgba(14, 116, 144, 0.2);
   border-radius: 10px;
   padding: 14px 18px;
   margin-bottom: 16px;

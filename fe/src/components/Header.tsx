@@ -7,6 +7,7 @@ import { api } from "../apis/endpoints";
 import { route } from "../router/route";
 import { BREAKPOINTS } from "../utils/constants";
 import { Button } from "./ui";
+import { MenuIcon, XIcon } from "./icons";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -95,7 +96,10 @@ export default function Header() {
           aria-label="Toggle navigation"
           aria-expanded={mobileMenuOpen}
         >
-          {mobileMenuOpen ? "✕" : "☰"}
+          {mobileMenuOpen
+            ? <XIcon size={18} color="currentColor" />
+            : <MenuIcon size={18} color="currentColor" />
+          }
         </HamburgerBtn>
       </Inner>
 
@@ -150,20 +154,21 @@ export default function Header() {
 }
 
 const HeaderWrapper = styled.header`
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid rgba(228, 228, 231, 0.7);
   position: sticky;
   top: 0;
   z-index: 100;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 `;
 
 const Inner = styled.div`
-  max-width: 1200px;
+  max-width: 1280px;
   width: 100%;
-  height: 60px;
+  height: 62px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,7 +176,7 @@ const Inner = styled.div`
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
     height: 68px;
-    padding: 0 32px;
+    padding: 0 40px;
   }
 `;
 
@@ -208,12 +213,12 @@ const LogoWrapper = styled.div`
   display: inline-flex;
   align-items: flex-end;
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #111827;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #18181b;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
-    font-size: 26px;
+    font-size: 24px;
   }
 `;
 
@@ -281,34 +286,24 @@ const ExpandedWord = styled.span`
   }
 `;
 
-const NavRight = styled.nav`
-  display: none;
-  align-items: center;
-  gap: 4px;
-
-  @media (min-width: ${BREAKPOINTS.mobile}) {
-    display: flex;
-    gap: 8px;
-  }
-`;
 
 const HamburgerBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
   background: transparent;
-  font-size: 18px;
-  color: #374151;
+  color: #52525b;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 
   &:hover {
-    background: #f3f4f6;
+    background: #f4f4f5;
+    color: #18181b;
   }
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
@@ -319,8 +314,8 @@ const HamburgerBtn = styled.button`
 const MobileMenu = styled.div`
   display: flex;
   flex-direction: column;
-  border-top: 1px solid #e5e7eb;
-  background: #ffffff;
+  border-top: 1px solid rgba(228, 228, 231, 0.7);
+  background: rgba(255, 255, 255, 0.96);
   padding: 8px 0 16px;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
@@ -329,40 +324,66 @@ const MobileMenu = styled.div`
 `;
 
 const MobileNavLink = styled(Link)`
-  padding: 13px 20px;
+  padding: 13px 24px;
   font-size: 15px;
   font-weight: 600;
-  color: #374151;
+  color: #3f3f46;
   text-decoration: none;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f4f4f5;
   transition: background 0.12s, color 0.12s;
+  letter-spacing: -0.01em;
 
   &:last-of-type {
     border-bottom: none;
   }
 
   &:hover {
-    background: #f5f3ff;
-    color: #6c5ce7;
+    background: #f0fdff;
+    color: #0e7490;
   }
 `;
 
 const MobileActionRow = styled.div`
-  padding: 12px 16px 0;
+  padding: 12px 24px 0;
 `;
 
 const NavLink = styled(Link)`
-  padding: 6px 12px;
+  padding: 6px 4px;
   font-size: 14px;
   font-weight: 500;
-  color: #6b7280;
+  color: #71717a;
   text-decoration: none;
-  border-radius: 8px;
-  transition: color 0.15s, background 0.15s;
+  position: relative;
+  letter-spacing: -0.01em;
+  transition: color 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: #0e7490;
+    border-radius: 2px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 
   &:hover {
-    color: #111827;
-    background: #f3f4f6;
+    color: #18181b;
     text-decoration: none;
+    &::after { transform: scaleX(1); }
+  }
+`;
+
+const NavRight = styled.nav`
+  display: none;
+  align-items: center;
+  gap: 20px;
+
+  @media (min-width: ${BREAKPOINTS.mobile}) {
+    display: flex;
   }
 `;

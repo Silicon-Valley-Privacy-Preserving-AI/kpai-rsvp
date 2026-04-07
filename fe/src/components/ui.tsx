@@ -2,23 +2,23 @@ import styled, { css } from "styled-components";
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 export const colors = {
-  primary: "#6c5ce7",
-  primaryLight: "#a29bfe",
-  primaryDark: "#5849e8",
-  primaryBg: "#f0eeff",
-  success: "#10b981",
+  primary: "#0e7490",
+  primaryLight: "#22d3ee",
+  primaryDark: "#0c6078",
+  primaryBg: "#f0fdff",
+  success: "#059669",
   successBg: "#ecfdf5",
-  danger: "#ef4444",
+  danger: "#dc2626",
   dangerBg: "#fef2f2",
-  warning: "#f59e0b",
+  warning: "#d97706",
   warningBg: "#fffbeb",
   surface: "#ffffff",
-  background: "#f8f7ff",
-  border: "#e5e7eb",
-  borderLight: "#f0eeff",
-  text: "#111827",
-  textSecondary: "#6b7280",
-  textMuted: "#9ca3af",
+  background: "#f8fafc",
+  border: "#e4e4e7",
+  borderLight: "#f4f4f5",
+  text: "#18181b",
+  textSecondary: "#71717a",
+  textMuted: "#a1a1aa",
 };
 
 // ── Button ────────────────────────────────────────────────────────────────────
@@ -35,19 +35,21 @@ export const Button = styled.button<{
   justify-content: center;
   gap: 6px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   text-decoration: none;
+  letter-spacing: -0.01em;
 
   ${({ size = "md" }) =>
     size === "sm"
-      ? css`font-size: 13px; padding: 6px 14px;`
+      ? css`font-size: 13px; padding: 7px 15px;`
       : size === "lg"
-      ? css`font-size: 16px; padding: 14px 28px;`
-      : css`font-size: 14px; padding: 10px 20px;`}
+      ? css`font-size: 15px; padding: 13px 28px;`
+      : css`font-size: 14px; padding: 9px 20px;`}
 
   ${({ fullWidth }) => fullWidth && css`width: 100%;`}
 
@@ -57,19 +59,24 @@ export const Button = styled.button<{
         return css`
           background: ${colors.primaryBg};
           color: ${colors.primary};
-          &:hover:not(:disabled) { background: #e4ddff; }
+          border: 1px solid rgba(14, 116, 144, 0.15);
+          &:hover:not(:disabled) { background: #ccf7fe; border-color: rgba(14, 116, 144, 0.3); }
+          &:active:not(:disabled) { transform: scale(0.98); }
         `;
       case "danger":
         return css`
           background: ${colors.dangerBg};
           color: ${colors.danger};
+          border: 1px solid rgba(220, 38, 38, 0.15);
           &:hover:not(:disabled) { background: #fee2e2; }
+          &:active:not(:disabled) { transform: scale(0.98); }
         `;
       case "ghost":
         return css`
           background: transparent;
           color: ${colors.textSecondary};
-          &:hover:not(:disabled) { background: #f3f4f6; color: ${colors.text}; }
+          &:hover:not(:disabled) { background: ${colors.borderLight}; color: ${colors.text}; }
+          &:active:not(:disabled) { transform: scale(0.98); }
         `;
       case "outline":
         return css`
@@ -77,23 +84,25 @@ export const Button = styled.button<{
           color: ${colors.primary};
           border: 1.5px solid ${colors.primary};
           &:hover:not(:disabled) { background: ${colors.primaryBg}; }
+          &:active:not(:disabled) { transform: scale(0.98); }
         `;
       default: // primary
         return css`
-          background: linear-gradient(135deg, ${colors.primary}, ${colors.primaryLight});
+          background: ${colors.primary};
           color: #fff;
-          box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          box-shadow: 0 1px 3px rgba(14, 116, 144, 0.25), 0 4px 12px rgba(14, 116, 144, 0.15);
           &:hover:not(:disabled) {
+            background: ${colors.primaryDark};
+            box-shadow: 0 2px 6px rgba(14, 116, 144, 0.3), 0 6px 16px rgba(14, 116, 144, 0.2);
             transform: translateY(-1px);
-            box-shadow: 0 4px 14px rgba(108, 92, 231, 0.4);
           }
-          &:active:not(:disabled) { transform: translateY(0); }
+          &:active:not(:disabled) { transform: translateY(0) scale(0.98); box-shadow: 0 1px 3px rgba(14, 116, 144, 0.2); }
         `;
     }
   }}
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
   }
 `;
@@ -102,16 +111,17 @@ export const Button = styled.button<{
 export const Card = styled.div<{ hoverable?: boolean }>`
   background: ${colors.surface};
   border: 1px solid ${colors.border};
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
   ${({ hoverable }) =>
     hoverable &&
     css`
       cursor: pointer;
-      transition: box-shadow 0.2s, transform 0.2s;
+      transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s;
       &:hover {
-        box-shadow: 0 8px 28px rgba(108, 92, 231, 0.12);
-        transform: translateY(-2px);
+        box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+        border-color: #d1d5db;
       }
     `}
 `;
@@ -126,10 +136,11 @@ export const Input = styled.input`
   box-sizing: border-box;
   padding: 10px 14px;
   font-size: 14px;
+  font-family: inherit;
   border: 1.5px solid ${colors.border};
-  border-radius: 8px;
+  border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.18s, box-shadow 0.18s;
   background: #fff;
   color: ${colors.text};
 
@@ -137,7 +148,7 @@ export const Input = styled.input`
 
   &:focus {
     border-color: ${colors.primary};
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+    box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.12);
   }
 `;
 
@@ -146,21 +157,21 @@ export const Textarea = styled.textarea`
   box-sizing: border-box;
   padding: 10px 14px;
   font-size: 14px;
+  font-family: inherit;
   border: 1.5px solid ${colors.border};
-  border-radius: 8px;
+  border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.18s, box-shadow 0.18s;
   background: #fff;
   color: ${colors.text};
   resize: vertical;
   min-height: 90px;
-  font-family: inherit;
 
   &::placeholder { color: ${colors.textMuted}; }
 
   &:focus {
     border-color: ${colors.primary};
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+    box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.12);
   }
 `;
 
@@ -169,27 +180,28 @@ export const Select = styled.select`
   box-sizing: border-box;
   padding: 10px 14px;
   font-size: 14px;
+  font-family: inherit;
   border: 1.5px solid ${colors.border};
-  border-radius: 8px;
+  border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.18s, box-shadow 0.18s;
   background: #fff;
   color: ${colors.text};
   cursor: pointer;
 
   &:focus {
     border-color: ${colors.primary};
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+    box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.12);
   }
 `;
 
 export const Label = styled.label`
   display: block;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: ${colors.textSecondary};
   margin-bottom: 6px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 `;
 
@@ -231,24 +243,24 @@ export const Badge = styled.span<{ color?: BadgeColor }>`
 
   ${({ color = "gray" }) => {
     switch (color) {
-      case "purple": return css`background: #ede9fe; color: #6c5ce7;`;
-      case "green":  return css`background: #d1fae5; color: #059669;`;
+      case "purple": return css`background: ${colors.primaryBg}; color: ${colors.primary};`;
+      case "green":  return css`background: #dcfce7; color: #16a34a;`;
       case "red":    return css`background: #fee2e2; color: #dc2626;`;
-      case "blue":   return css`background: #dbeafe; color: #2563eb;`;
+      case "blue":   return css`background: #dbeafe; color: #1d4ed8;`;
       case "orange": return css`background: #ffedd5; color: #c2410c;`;
-      default:       return css`background: #f3f4f6; color: #6b7280;`;
+      default:       return css`background: ${colors.borderLight}; color: ${colors.textSecondary};`;
     }
   }}
 `;
 
 // ── Page layout ───────────────────────────────────────────────────────────────
 export const PageContainer = styled.div`
-  max-width: 860px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 32px 20px 60px;
+  padding: 36px 20px 64px;
 
   @media (min-width: 768px) {
-    padding: 40px 32px 80px;
+    padding: 48px 32px 88px;
   }
 `;
 
@@ -262,11 +274,11 @@ export const PageHeader = styled.div`
 `;
 
 export const PageTitle = styled.h1`
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 800;
   color: ${colors.text};
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 `;
 
 export const SectionTitle = styled.h3`
@@ -283,7 +295,7 @@ export const SectionTitle = styled.h3`
 export const SectionBlock = styled.section`
   background: ${colors.surface};
   border: 1px solid ${colors.border};
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px 24px;
   margin-top: 20px;
 `;
@@ -298,7 +310,7 @@ export const Divider = styled.hr`
 // ── Status / alert boxes ──────────────────────────────────────────────────────
 export const AlertBox = styled.div<{ variant?: "success" | "error" | "info" | "warning" }>`
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   display: flex;
   align-items: flex-start;
@@ -306,10 +318,10 @@ export const AlertBox = styled.div<{ variant?: "success" | "error" | "info" | "w
 
   ${({ variant = "info" }) => {
     switch (variant) {
-      case "success": return css`background: ${colors.successBg}; color: #065f46; border: 1px solid #6ee7b7;`;
+      case "success": return css`background: ${colors.successBg}; color: #065f46; border: 1px solid #a7f3d0;`;
       case "error":   return css`background: ${colors.dangerBg}; color: #991b1b; border: 1px solid #fca5a5;`;
       case "warning": return css`background: ${colors.warningBg}; color: #92400e; border: 1px solid #fcd34d;`;
-      default:        return css`background: ${colors.primaryBg}; color: #4338ca; border: 1px solid #c4b5fd;`;
+      default:        return css`background: ${colors.primaryBg}; color: ${colors.primaryDark}; border: 1px solid rgba(14, 116, 144, 0.25);`;
     }
   }}
 `;
@@ -328,11 +340,11 @@ export const Thead = styled.thead`
 export const Th = styled.th`
   padding: 10px 14px;
   text-align: left;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: ${colors.textSecondary};
+  color: ${colors.textMuted};
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   white-space: nowrap;
   border-bottom: 1px solid ${colors.border};
 `;
@@ -353,22 +365,23 @@ export const Tr = styled.tr`
 export const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 16px;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 `;
 
 export const ModalCard = styled.div`
   background: ${colors.surface};
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 32px;
   max-width: 440px;
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  border: 1px solid ${colors.border};
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.18);
 `;
 
 // ── Empty state ───────────────────────────────────────────────────────────────
@@ -382,12 +395,12 @@ export const EmptyState = styled.div`
 // ── Loading spinner ───────────────────────────────────────────────────────────
 export const Spinner = styled.div`
   display: inline-block;
-  width: 36px;
-  height: 36px;
-  border: 3px solid ${colors.border};
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid ${colors.borderLight};
   border-top-color: ${colors.primary};
   border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  animation: spin 0.65s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 
   @keyframes spin {
     to { transform: rotate(360deg); }
