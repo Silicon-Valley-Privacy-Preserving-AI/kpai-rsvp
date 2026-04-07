@@ -1,7 +1,32 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 from src.util.datetime_util import UTCDatetime, OptionalUTCDatetime
+
+
+# ── Luma import ───────────────────────────────────────────────────────────────
+
+class LumaPreviewRequest(BaseModel):
+    url: str   # e.g. "https://lu.ma/9xuuhnpq"
+
+
+class LumaPreviewResponse(BaseModel):
+    """
+    Pre-filled seminar fields extracted from a Luma event page.
+    All fields are Optional — partial extraction is acceptable.
+    The caller (staff) must review and submit via the normal Create endpoint.
+    """
+    title: Optional[str] = None
+    description: Optional[str] = None
+    start_time: Optional[str] = None   # ISO 8601 UTC string, e.g. "2026-04-10T18:00:00Z"
+    end_time: Optional[str] = None
+    location: Optional[str] = None
+    host: Optional[str] = None
+    cover_image: Optional[str] = None
+    # Extraction metadata
+    source_url: str
+    extracted_fields: list[str]        # which fields were successfully extracted
+    warnings: list[str]                # e.g. "capacity not found", "description was HTML-converted"
 
 
 # ── Seminar CRUD (Request) ────────────────────────────────────────────────────

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 import type { SeminarResponse } from "../types/seminar";
-import { toUtcIso } from "../utils/datetime";
+import { toUtcIso, toLocalInput } from "../utils/datetime";
 import {
   Button,
   Input,
@@ -22,7 +22,7 @@ import {
   EmptyState,
   AlertBox,
 } from "../components/ui";
-import { MicIcon, CalendarIcon, MapPinIcon, UsersIcon, XIcon, PlusIcon } from "../components/icons";
+import { MicIcon, CalendarIcon, MapPinIcon, UsersIcon, XIcon, PlusIcon, SparklesIcon } from "../components/icons";
 
 // ── Seminar status ────────────────────────────────────────────────────────────
 
@@ -74,6 +74,11 @@ export default function SeminarListPage() {
     rsvp_enabled: true, waitlist_enabled: false,
   });
 
+  // ── Luma import state ─────────────────────────────────────────────────────
+  const [lumaUrl, setLumaUrl] = useState("");
+  const [lumaWarnings, setLumaWarnings] = useState<string[]>([]);
+  const [lumaExtracted, setLumaExtracted] = useState<string[]>([]);
+
   const { data: me } = useQuery({
     queryKey: ["me"],
     queryFn: async () => { const res = await axiosInstance.get(api.v1.users); return res.data; },
@@ -107,8 +112,36 @@ export default function SeminarListPage() {
       setShowCreateForm(false);
       setCreateError("");
       setForm({ title: "", description: "", start_time: "", end_time: "", location: "", max_capacity: "", host: "", cover_image: "", rsvp_enabled: true, waitlist_enabled: false });
+      setLumaUrl("");
+      setLumaWarnings([]);
+      setLumaExtracted([]);
     },
     onError: (e: any) => setCreateError(e.response?.data?.detail ?? "Failed to create seminar"),
+  });
+
+  const lumaMutation = useMutation({
+    mutationFn: async () => {
+      const res = await axiosInstance.post(api.v1.seminarPreviewFromLuma, { url: lumaUrl });
+      return res.data;
+    },
+    onSuccess: (data) => {
+      setLumaWarnings(data.warnings ?? []);
+      setLumaExtracted(data.extracted_fields ?? []);
+      setForm((prev) => ({
+        ...prev,
+        title:       data.title       ?? prev.title,
+        description: data.description ?? prev.description,
+        host:        data.host        ?? prev.host,
+        location:    data.location    ?? prev.location,
+        cover_image: data.cover_image ?? prev.cover_image,
+        start_time:  data.start_time  ? toLocalInput(data.start_time) : prev.start_time,
+        end_time:    data.end_time    ? toLocalInput(data.end_time)   : prev.end_time,
+      }));
+    },
+    onError: (e: any) => {
+      setLumaWarnings([e.response?.data?.detail ?? "Failed to fetch Luma page"]);
+      setLumaExtracted([]);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -178,6 +211,36 @@ export default function SeminarListPage() {
       {isStaff && showCreateForm && (
         <CreateForm>
           <CreateFormTitle>New Seminar</CreateFormTitle>
+
+          {/* ── Luma import ── */}
+          <LumaSection>
+            <LumaSectionTitle>
+              <SparklesIcon size={14} />
+              Import from Luma
+            </LumaSectionTitle>
+            <LumaRow>
+              <Input
+                placeholder="https://lu.ma/…"
+                value={lumaUrl}
+                onChange={(e) => { setLumaUrl(e.target.value); setLumaWarnings([]); setLumaExtracted([]); }}
+                style={{ flex: 1 }}
+              />
+              <LumaFetchBtn
+                onClick={() => lumaMutation.mutate()}
+                disabled={!lumaUrl.trim() || lumaMutation.isPending}
+              >
+                {lumaMutation.isPending ? "Fetching…" : "Fetch"}
+              </LumaFetchBtn>
+            </LumaRow>
+            {lumaExtracted.length > 0 && (
+              <LumaSuccessRow>
+                Filled: {lumaExtracted.join(", ")}
+              </LumaSuccessRow>
+            )}
+            {lumaWarnings.map((w, i) => (
+              <LumaWarning key={i}>{w}</LumaWarning>
+            ))}
+          </LumaSection>
 
           {createError && (
             <AlertBox variant="error" style={{ marginBottom: 16 }}>
@@ -309,6 +372,63 @@ export default function SeminarListPage() {
 }
 
 // ── Styled components ─────────────────────────────────────────────────────────
+
+const LumaSection = styled.div`
+  background: #f0f7ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 22px;
+`;
+
+const LumaSectionTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #3b82f6;
+  margin-bottom: 10px;
+`;
+
+const LumaRow = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
+const LumaFetchBtn = styled.button`
+  flex-shrink: 0;
+  padding: 0 18px;
+  height: 38px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) { background: #2563eb; }
+  &:disabled { background: #93c5fd; cursor: not-allowed; }
+`;
+
+const LumaSuccessRow = styled.div`
+  margin-top: 8px;
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 500;
+`;
+
+const LumaWarning = styled.div`
+  margin-top: 6px;
+  font-size: 12px;
+  color: #b45309;
+`;
 
 const CreateForm = styled.div`
   background: #fff;

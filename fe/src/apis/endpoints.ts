@@ -22,6 +22,7 @@ export const api = {
 
     adminDeleteUser: (userId: number) => `/api/v1/users/${userId}`,
 
+    seminarPreviewFromLuma: "/api/v1/seminars/preview-from-luma",
     importCsv: (seminarId: number) => `/api/v1/import/${seminarId}`,
     seminarReminder: (seminarId: number) => `/api/v1/seminars/${seminarId}/reminder`,
 

@@ -6,6 +6,7 @@ from src.model import User
 from src.model.user import UserRole
 from src.route.v1.user import get_current_user
 from src.service.seminar_service import SeminarService
+from src.service.luma_service import LumaService
 from src.schema.seminar import (
     SeminarCreateRequest,
     SeminarModifyRequest,
@@ -14,6 +15,8 @@ from src.schema.seminar import (
     CheckInTokenCreateRequest,
     CheckInTokenResponse,
     ModifyUserCheckInRequest,
+    LumaPreviewRequest,
+    LumaPreviewResponse,
 )
 
 router = APIRouter(prefix="/seminars", tags=["Seminar"])
@@ -27,6 +30,27 @@ async def get_current_staff(current_user: User = Depends(get_current_user)):
     if current_user.role != UserRole.STAFF:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Staff only")
     return current_user
+
+
+# ── Luma import (preview only — does NOT save to DB) ─────────────────────────
+
+@router.post(
+    "/preview-from-luma",
+    summary="(Staff) Preview seminar data from a Luma event URL",
+    response_model=LumaPreviewResponse,
+    description=(
+        "Fetches the public Luma event page and extracts structured fields "
+        "(title, host, times, location, description, cover image) to pre-fill "
+        "the seminar creation form.  **Does not create or modify any seminar.** "
+        "Staff must review the returned data and submit via the normal Create endpoint."
+    ),
+)
+async def preview_from_luma(
+    body: LumaPreviewRequest,
+    staff_user: User = Depends(get_current_staff),
+) -> LumaPreviewResponse:
+    service = LumaService()
+    return await service.preview(body.url)
 
 
 # ── Seminar CRUD ──────────────────────────────────────────────────────────────

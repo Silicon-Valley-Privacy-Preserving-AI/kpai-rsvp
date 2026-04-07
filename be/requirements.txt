@@ -20,3 +20,8 @@ PyJWT
 
 # Markdown → HTML (for email rendering)
 markdown
+
+# Luma page crawling
+httpx
+beautifulsoup4
+markdownify
