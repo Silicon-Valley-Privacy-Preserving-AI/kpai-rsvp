@@ -11,6 +11,8 @@ export interface SeminarResponse {
   cover_image: string | null;
   rsvp_enabled: boolean;
   waitlist_enabled: boolean;
+  /** IANA timezone the organiser selected when creating the seminar, e.g. "America/Los_Angeles". */
+  display_timezone: string | null;
 }
 
 export interface SeminarUserResponse {
@@ -30,6 +32,7 @@ export interface SeminarWaitlistUserResponse {
 }
 
 export interface SeminarDetailResponse extends SeminarResponse {
+  display_timezone: string | null;
   current_rsvp_count: number;
   waitlist_count: number;
   users: SeminarUserResponse[];

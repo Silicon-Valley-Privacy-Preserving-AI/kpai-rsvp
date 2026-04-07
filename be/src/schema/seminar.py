@@ -23,6 +23,10 @@ class LumaPreviewResponse(BaseModel):
     location: Optional[str] = None
     host: Optional[str] = None
     cover_image: Optional[str] = None
+    # Timezone of the original event (IANA name, e.g. "America/Los_Angeles").
+    # Frontend uses this to pre-select the timezone selector so times are
+    # displayed in the event's local timezone rather than the browser's timezone.
+    event_timezone: Optional[str] = None
     # Extraction metadata
     source_url: str
     extracted_fields: list[str]        # which fields were successfully extracted
@@ -43,6 +47,9 @@ class SeminarCreateRequest(BaseModel):
     cover_image: Optional[str] = None
     rsvp_enabled: bool = True
     waitlist_enabled: bool = False
+    # IANA timezone selected by the organiser when entering event times.
+    # e.g. "America/Los_Angeles" or "Asia/Seoul".  Stored for display purposes only.
+    display_timezone: Optional[str] = None
 
 
 class SeminarModifyRequest(BaseModel):
@@ -56,6 +63,7 @@ class SeminarModifyRequest(BaseModel):
     cover_image: Optional[str] = None
     rsvp_enabled: Optional[bool] = None
     waitlist_enabled: Optional[bool] = None
+    display_timezone: Optional[str] = None
 
 
 # ── Seminar Response ──────────────────────────────────────────────────────────
@@ -75,6 +83,7 @@ class SeminarResponse(BaseModel):
     cover_image: Optional[str]
     rsvp_enabled: bool
     waitlist_enabled: bool
+    display_timezone: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -111,6 +120,7 @@ class SeminarDetailResponse(BaseModel):
     cover_image: Optional[str]
     rsvp_enabled: bool
     waitlist_enabled: bool
+    display_timezone: Optional[str] = None
     current_rsvp_count: int
     waitlist_count: int
     users: list[SeminarUserResponse]

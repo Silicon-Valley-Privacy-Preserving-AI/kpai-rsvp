@@ -20,6 +20,9 @@ class Seminar(Base):
     cover_image: Mapped[Optional[str]] = mapped_column(nullable=True)
     rsvp_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     waitlist_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    # IANA timezone used when creating the event (e.g. "America/Los_Angeles").
+    # Stored so the frontend can display times back in the organiser's intended timezone.
+    display_timezone: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
     rsvps = relationship(
         "SeminarRSVP",

@@ -50,6 +50,7 @@ class SeminarService:
             cover_image=seminar_data.cover_image,
             rsvp_enabled=seminar_data.rsvp_enabled,
             waitlist_enabled=seminar_data.waitlist_enabled,
+            display_timezone=seminar_data.display_timezone,
         )
         self.db.add(seminar)
         await self.db.commit()
@@ -113,6 +114,7 @@ class SeminarService:
             "cover_image": seminar.cover_image,
             "rsvp_enabled": seminar.rsvp_enabled,
             "waitlist_enabled": seminar.waitlist_enabled,
+            "display_timezone": seminar.display_timezone,
             "current_rsvp_count": len(users),
             "waitlist_count": len(waitlist),
             "users": users,

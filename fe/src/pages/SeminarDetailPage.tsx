@@ -5,7 +5,8 @@ import { QRCodeSVG } from "qrcode.react";
 import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
-import { toLocalInput, toUtcIso } from "../utils/datetime";
+import { toTzInput, tzToUtcIso, formatInTz, tzAbbr } from "../utils/datetime";
+import { TIMEZONE_OPTIONS, BROWSER_TZ } from "../utils/constants";
 import type { SeminarDetailResponse, CheckInTokenResponse } from "../types/seminar";
 import MarkdownContent from "../components/MarkdownContent";
 import {
@@ -35,12 +36,10 @@ import {
   EmptyState,
 } from "../components/ui";
 
-function formatDate(iso: string | null) {
+function formatDate(iso: string | null, tz?: string) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString("en-US", {
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
+  const t = tz ?? BROWSER_TZ;
+  return `${formatInTz(iso, t)} ${tzAbbr(t, new Date(iso))}`;
 }
 
 function timeAgo(iso: string): string {
@@ -65,6 +64,8 @@ export default function SeminarDetailPage() {
 
   const [editMode, setEditMode] = useState(false);
   const [editForm, setEditForm] = useState<Record<string, any>>({});
+  // "event" = use seminar's display_timezone; "local" = browser timezone
+  const [tzView, setTzView] = useState<"event" | "local">("event");
   const [tokenDuration, setTokenDuration] = useState(60);
   const [showQR, setShowQR] = useState(false);
   const [importResult, setImportResult] = useState<Record<string, any> | null>(null);
@@ -98,10 +99,12 @@ export default function SeminarDetailPage() {
   const modifyMutation = useMutation({
     mutationFn: async () => {
       const datetimeFields = new Set(["start_time", "end_time"]);
-      const payload: Record<string, any> = {};
+      const tz: string = editForm.timezone ?? BROWSER_TZ;
+      const payload: Record<string, any> = { display_timezone: tz };
       for (const key of Object.keys(editForm)) {
+        if (key === "timezone") continue;  // mapped to display_timezone above
         const v = editForm[key];
-        payload[key] = datetimeFields.has(key) ? (v ? toUtcIso(v) : null) : (v === "" ? null : v);
+        payload[key] = datetimeFields.has(key) ? (v ? tzToUtcIso(v, tz) : null) : (v === "" ? null : v);
       }
       await axiosInstance.put(api.v1.seminarDetail(seminarId), payload);
     },
@@ -202,17 +205,20 @@ export default function SeminarDetailPage() {
   const tokenActive = activeToken && new Date(activeToken.expires_at) > new Date();
 
   const startEditForm = () => {
+    // Restore the organiser's original timezone if stored; otherwise use browser tz
+    const tz = seminar!.display_timezone ?? BROWSER_TZ;
     setEditForm({
       title: seminar!.title,
       description: seminar!.description ?? "",
-      start_time: seminar!.start_time ? toLocalInput(seminar!.start_time) : "",
-      end_time: seminar!.end_time ? toLocalInput(seminar!.end_time) : "",
+      start_time: seminar!.start_time ? toTzInput(seminar!.start_time, tz) : "",
+      end_time: seminar!.end_time ? toTzInput(seminar!.end_time, tz) : "",
       location: seminar!.location ?? "",
       max_capacity: seminar!.max_capacity ?? "",
       host: seminar!.host ?? "",
       cover_image: seminar!.cover_image ?? "",
       rsvp_enabled: seminar!.rsvp_enabled,
       waitlist_enabled: seminar!.waitlist_enabled,
+      timezone: tz,
     });
     setEditMode(true);
   };
@@ -238,6 +244,25 @@ export default function SeminarDetailPage() {
       {/* ── Hero layout / Edit form ── */}
       {!editMode ? (
         <>
+          {/* Timezone toggle */}
+          {seminar.start_time && (
+            <TzToggleBar>
+              <TzToggleBtn
+                active={tzView === "event"}
+                onClick={() => setTzView("event")}
+                title={seminar.display_timezone ?? BROWSER_TZ}
+              >
+                🌍 Event TZ{seminar.display_timezone ? ` (${tzAbbr(seminar.display_timezone, new Date(seminar.start_time))})` : ""}
+              </TzToggleBtn>
+              <TzToggleBtn
+                active={tzView === "local"}
+                onClick={() => setTzView("local")}
+              >
+                🖥 Local ({tzAbbr(BROWSER_TZ)})
+              </TzToggleBtn>
+            </TzToggleBar>
+          )}
+
           <HeroLayout>
             {seminar.cover_image && (
               <CoverImg src={seminar.cover_image} alt="cover" />
@@ -255,15 +280,20 @@ export default function SeminarDetailPage() {
               {seminar.host && <HostLine><MicIcon size={14} />{seminar.host}</HostLine>}
 
               <MetaGrid>
-                {seminar.start_time && (
+                {seminar.start_time && (() => {
+                  const etz = tzView === "event"
+                    ? (seminar.display_timezone ?? BROWSER_TZ)
+                    : BROWSER_TZ;
+                  return (
                   <MetaItem>
                     <MetaIcon><CalendarIcon size={16} color="#6c5ce7" /></MetaIcon>
                     <div>
                       <MetaLabel>Date & Time</MetaLabel>
-                      <MetaValue>{formatDate(seminar.start_time)}{seminar.end_time && ` — ${formatDate(seminar.end_time)}`}</MetaValue>
+                      <MetaValue>{formatDate(seminar.start_time, etz)}{seminar.end_time && ` — ${formatDate(seminar.end_time, etz)}`}</MetaValue>
                     </div>
                   </MetaItem>
-                )}
+                  );
+                })()}
                 {seminar.location && (
                   <MetaItem>
                     <MetaIcon><MapPinIcon size={16} color="#6c5ce7" /></MetaIcon>
@@ -383,6 +413,31 @@ export default function SeminarDetailPage() {
             <Label>Description</Label>
             <Textarea value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} />
           </FormGroup>
+          <FormGroup>
+            <Label>Timezone</Label>
+            <TimezoneSelect
+              value={editForm.timezone ?? BROWSER_TZ}
+              onChange={(e) => {
+                const tz = e.target.value;
+                const prevTz = editForm.timezone ?? BROWSER_TZ;
+                setEditForm((prev: Record<string, any>) => ({
+                  ...prev,
+                  timezone: tz,
+                  start_time: prev.start_time
+                    ? toTzInput(tzToUtcIso(prev.start_time, prevTz), tz)
+                    : "",
+                  end_time: prev.end_time
+                    ? toTzInput(tzToUtcIso(prev.end_time, prevTz), tz)
+                    : "",
+                }));
+              }}
+            >
+              {TIMEZONE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </TimezoneSelect>
+          </FormGroup>
+
           <TwoCol>
             <FormGroup>
               <Label>Start time</Label>
@@ -775,6 +830,47 @@ const StaffActions = styled.div`
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+`;
+
+const TzToggleBar = styled.div`
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+`;
+
+const TzToggleBtn = styled.button<{ active: boolean }>`
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  border: 1.5px solid ${({ active }) => active ? "#6c5ce7" : "#e5e7eb"};
+  background: ${({ active }) => active ? "#ede9fe" : "#fff"};
+  color: ${({ active }) => active ? "#6c5ce7" : "#6b7280"};
+
+  &:hover {
+    border-color: #6c5ce7;
+    color: #6c5ce7;
+  }
+`;
+
+const TimezoneSelect = styled.select`
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+  }
 `;
 
 const TwoCol = styled.div`

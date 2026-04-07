@@ -1,5 +1,4 @@
 from typing import Optional
-from datetime import datetime
 from pydantic import BaseModel, Field
 from src.model.user import UserRole
 from src.util.datetime_util import UTCDatetime, OptionalUTCDatetime
@@ -35,7 +34,7 @@ class SetPasswordRequest(BaseModel):
 
 class UserAdminResponse(BaseModel):
     id: int
-    created_at: datetime
+    created_at: UTCDatetime
     email: str
     username: str
     role: str

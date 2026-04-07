@@ -533,15 +533,9 @@ def _build_response(
             )
         result["description"] = description.strip() or None
 
-    # Timezone warning: times are normalised to UTC; frontend converts to KST (UTC+9).
-    # Alert staff so they know the date may shift by ±1 day vs. the original timezone.
-    event_tz = result.pop("_event_timezone", None)
-    if event_tz and event_tz not in ("UTC", "Etc/UTC"):
-        warnings.append(
-            f"Event timezone: {event_tz}. "
-            "Times above are in UTC — your browser will display them in KST (UTC+9). "
-            "Verify the date has not shifted unexpectedly."
-        )
+    # Extract timezone — surfaced to the frontend so it can pre-select the
+    # timezone selector, showing the staff the times in the event's local tz.
+    event_tz = result.pop("_event_timezone", None) or None
 
     field_keys = ["title", "description", "start_time", "end_time",
                   "location", "host", "cover_image"]
@@ -551,6 +545,7 @@ def _build_response(
         source_url=source_url,
         extracted_fields=extracted,
         warnings=warnings,
+        event_timezone=event_tz,
         **{k: result.get(k) for k in field_keys},
     )
 

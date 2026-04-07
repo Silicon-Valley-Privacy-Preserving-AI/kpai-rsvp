@@ -5,7 +5,8 @@ import styled from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 import type { SeminarResponse } from "../types/seminar";
-import { toUtcIso, toLocalInput } from "../utils/datetime";
+import { toTzInput, tzToUtcIso, formatInTz, tzAbbr } from "../utils/datetime";
+import { TIMEZONE_OPTIONS, BROWSER_TZ } from "../utils/constants";
 import {
   Button,
   Input,
@@ -53,12 +54,9 @@ function stripMarkdown(md: string): string {
     .trim();
 }
 
-function formatDate(iso: string | null) {
+function formatDate(iso: string | null, tz: string) {
   if (!iso) return null;
-  return new Date(iso).toLocaleString("en-US", {
-    year: "numeric", month: "short", day: "numeric",
-    hour: "2-digit", minute: "2-digit",
-  });
+  return `${formatInTz(iso, tz)} ${tzAbbr(tz, new Date(iso))}`;
 }
 
 export default function SeminarListPage() {
@@ -72,7 +70,12 @@ export default function SeminarListPage() {
     title: "", description: "", start_time: "", end_time: "",
     location: "", max_capacity: "", host: "", cover_image: "",
     rsvp_enabled: true, waitlist_enabled: false,
+    timezone: BROWSER_TZ,
   });
+
+  // ── Timezone display toggle ───────────────────────────────────────────────
+  // "event" = use seminar's display_timezone; "local" = browser timezone
+  const [tzView, setTzView] = useState<"event" | "local">("event");
 
   // ── Luma import state ─────────────────────────────────────────────────────
   const [lumaUrl, setLumaUrl] = useState("");
@@ -97,21 +100,22 @@ export default function SeminarListPage() {
       await axiosInstance.post(api.v1.seminars, {
         title: form.title,
         description: form.description || null,
-        start_time: form.start_time ? toUtcIso(form.start_time) : null,
-        end_time: form.end_time ? toUtcIso(form.end_time) : null,
+        start_time: form.start_time ? tzToUtcIso(form.start_time, form.timezone) : null,
+        end_time: form.end_time ? tzToUtcIso(form.end_time, form.timezone) : null,
         location: form.location || null,
         max_capacity: form.max_capacity ? Number(form.max_capacity) : null,
         host: form.host || null,
         cover_image: form.cover_image || null,
         rsvp_enabled: form.rsvp_enabled,
         waitlist_enabled: form.waitlist_enabled,
+        display_timezone: form.timezone || null,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["seminars"] });
       setShowCreateForm(false);
       setCreateError("");
-      setForm({ title: "", description: "", start_time: "", end_time: "", location: "", max_capacity: "", host: "", cover_image: "", rsvp_enabled: true, waitlist_enabled: false });
+      setForm({ title: "", description: "", start_time: "", end_time: "", location: "", max_capacity: "", host: "", cover_image: "", rsvp_enabled: true, waitlist_enabled: false, timezone: BROWSER_TZ });
       setLumaUrl("");
       setLumaWarnings([]);
       setLumaExtracted([]);
@@ -127,6 +131,9 @@ export default function SeminarListPage() {
     onSuccess: (data) => {
       setLumaWarnings(data.warnings ?? []);
       setLumaExtracted(data.extracted_fields ?? []);
+      // Use the event's original timezone when available so times are
+      // displayed in the event's local timezone, not the browser timezone.
+      const tz = data.event_timezone ?? BROWSER_TZ;
       setForm((prev) => ({
         ...prev,
         title:       data.title       ?? prev.title,
@@ -134,8 +141,9 @@ export default function SeminarListPage() {
         host:        data.host        ?? prev.host,
         location:    data.location    ?? prev.location,
         cover_image: data.cover_image ?? prev.cover_image,
-        start_time:  data.start_time  ? toLocalInput(data.start_time) : prev.start_time,
-        end_time:    data.end_time    ? toLocalInput(data.end_time)   : prev.end_time,
+        timezone:    tz,
+        start_time:  data.start_time  ? toTzInput(data.start_time, tz) : prev.start_time,
+        end_time:    data.end_time    ? toTzInput(data.end_time, tz)   : prev.end_time,
       }));
     },
     onError: (e: any) => {
@@ -181,6 +189,9 @@ export default function SeminarListPage() {
       <PageHeader>
         <PageTitle>Seminars</PageTitle>
         <HeaderActions>
+          <TzToggle onClick={() => setTzView((v) => v === "event" ? "local" : "event")} title="Toggle timezone display">
+            {tzView === "event" ? `🌍 Event TZ` : `🖥 Local (${tzAbbr(BROWSER_TZ)})`}
+          </TzToggle>
           <SortDirBtn onClick={() => setSortDir((d) => (d === "desc" ? "asc" : "desc"))}>
             {sortDir === "desc" ? "↓ Newest first" : "↑ Oldest first"}
           </SortDirBtn>
@@ -264,6 +275,31 @@ export default function SeminarListPage() {
             <Textarea placeholder="What is this seminar about?" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
           </FormGroup>
 
+          <FormGroup>
+            <Label>Timezone</Label>
+            <TimezoneSelect
+              value={form.timezone}
+              onChange={(e) => {
+                const tz = e.target.value;
+                // Re-convert existing times into the newly selected timezone
+                setForm((prev) => ({
+                  ...prev,
+                  timezone: tz,
+                  start_time: prev.start_time
+                    ? toTzInput(tzToUtcIso(prev.start_time, prev.timezone), tz)
+                    : "",
+                  end_time: prev.end_time
+                    ? toTzInput(tzToUtcIso(prev.end_time, prev.timezone), tz)
+                    : "",
+                }));
+              }}
+            >
+              {TIMEZONE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </TimezoneSelect>
+          </FormGroup>
+
           <TwoCol>
             <FormGroup>
               <Label>Start time</Label>
@@ -315,6 +351,9 @@ export default function SeminarListPage() {
         <Grid>
           {filteredSeminars.map((s) => {
             const status = getSeminarStatus(s.start_time, s.end_time);
+            const effectiveTz = tzView === "event"
+              ? (s.display_timezone ?? BROWSER_TZ)
+              : BROWSER_TZ;
             return (
             <SeminarCard key={s.id} ended={status === "ended"} onClick={() => navigate(`/seminar/${s.id}`)}>
               {s.cover_image && (
@@ -337,7 +376,7 @@ export default function SeminarListPage() {
 
                 <MetaBlock>
                   {s.start_time && (
-                    <MetaItem><CalendarIcon size={13} />{formatDate(s.start_time)}{s.end_time && ` — ${formatDate(s.end_time)}`}</MetaItem>
+                    <MetaItem><CalendarIcon size={13} />{formatDate(s.start_time, effectiveTz)}{s.end_time && ` — ${formatDate(s.end_time, effectiveTz)}`}</MetaItem>
                   )}
                   {s.location && <MetaItem><MapPinIcon size={13} />{s.location}</MetaItem>}
                   {s.max_capacity != null && (
@@ -428,6 +467,23 @@ const LumaWarning = styled.div`
   margin-top: 6px;
   font-size: 12px;
   color: #b45309;
+`;
+
+const TimezoneSelect = styled.select`
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #6c5ce7;
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+  }
 `;
 
 const CreateForm = styled.div`
@@ -672,6 +728,24 @@ const HeaderActions = styled.div`
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+`;
+
+const TzToggle = styled.button`
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid #c4b5fd;
+  border-radius: 8px;
+  background: #f5f3ff;
+  color: #6c5ce7;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: #ede9fe;
+    border-color: #6c5ce7;
+  }
 `;
 
 const SortDirBtn = styled.button`

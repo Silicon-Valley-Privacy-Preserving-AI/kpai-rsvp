@@ -661,6 +661,28 @@ See you inside! 🎉
 """,
         }
 
+        # ── Timezone per seminar ──────────────────────────────────────────────
+        # Physical Silicon Valley venues → America/Los_Angeles.
+        # Online sessions get varied timezones so the timezone toggle can be
+        # meaningfully tested (KST, ET, UTC show visibly different dates/times).
+        MOCK_TIMEZONES: dict[str, str] = {
+            "Introduction to Python":           "America/Los_Angeles",
+            "Web Development Basics":           "America/Los_Angeles",
+            "Data Structures & Algorithms":     "Asia/Seoul",          # online → KST host
+            "Machine Learning Fundamentals":    "America/Los_Angeles",
+            "Database Design":                  "America/Los_Angeles",
+            "Cloud Computing Overview":         "America/Los_Angeles",
+            "React & Frontend Frameworks":      "America/New_York",    # online → ET host
+            "API Design & REST":                "America/Los_Angeles",
+            "DevOps & CI/CD":                   "America/Los_Angeles",
+            "Security Best Practices":          "America/Los_Angeles",
+            "System Design Interview Prep":     "UTC",                 # online → UTC host
+            "AI & Ethics in Tech":              "America/Los_Angeles",
+            "Blockchain & Web3 Dev":            "America/Los_Angeles",
+            "Open Source Contribution Workshop":"America/Los_Angeles",
+            "Tech Networking Night":            "America/Los_Angeles",
+        }
+
         seminars: list[tuple[Seminar, int, float]] = []
         for title, host, location, days_ago, max_cap, n_rsvp, ci_rate, cover_image in seminar_specs:
             start = now - timedelta(days=days_ago)
@@ -675,6 +697,7 @@ See you inside! 🎉
                 waitlist_enabled=(max_cap is not None),
                 cover_image=cover_image,
                 description=MOCK_DESCRIPTIONS.get(title, f"A practical session on {title}."),
+                display_timezone=MOCK_TIMEZONES.get(title, "America/Los_Angeles"),
             )
             self.db.add(seminar)
             seminars.append((seminar, n_rsvp, ci_rate))
@@ -703,6 +726,7 @@ See you inside! 🎉
                 waitlist_enabled=(max_cap is not None),
                 cover_image=cover_image,
                 description=MOCK_DESCRIPTIONS.get(title, f"An upcoming session on {title}."),
+                display_timezone=MOCK_TIMEZONES.get(title, "America/Los_Angeles"),
             )
             self.db.add(s)
             seminars.append((s, 5, 0.0))   # a few RSVPs, no check-ins yet
@@ -720,6 +744,7 @@ See you inside! 🎉
             waitlist_enabled=True,
             cover_image="https://picsum.photos/seed/networking/800/450",
             description=MOCK_DESCRIPTIONS["Tech Networking Night"],
+            display_timezone=MOCK_TIMEZONES["Tech Networking Night"],
         )
         self.db.add(live_seminar)
         seminars.append((live_seminar, 12, 0.0))   # 12 RSVPs, event in progress
