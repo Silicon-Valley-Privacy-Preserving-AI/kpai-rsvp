@@ -9,6 +9,16 @@ router = APIRouter(prefix="/system", tags=["System"])
 async def get_system_service(db: AsyncSession = Depends(get_db)):
     return SystemService(db)
 
+@router.get(
+    "/stats",
+    summary="Public platform statistics",
+    description="Returns total seminar count and member count. No authentication required.",
+    response_model=dict,
+)
+async def get_stats(system_service: SystemService = Depends(get_system_service)):
+    return await system_service.get_stats()
+
+
 @router.get("/healthcheck",
              summary="Health Check",
              description="Return data about whether server is live",

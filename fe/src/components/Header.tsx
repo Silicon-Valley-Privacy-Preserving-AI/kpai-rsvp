@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +14,41 @@ export default function Header() {
   const queryClient = useQueryClient();
   const isLoggedIn = !!sessionStorage.getItem("accessToken");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // ── Logo expand animation ────────────────────────────────────────────────
+  const [logoExpanded, setLogoExpanded] = useState(false);
+  const isHovering = useRef(false);
+  const collapseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const INTERVAL_MS = 10_000;
+    const HOLD_MS     = 2_400;
+
+    const play = () => {
+      if (isHovering.current) return;
+      setLogoExpanded(true);
+      collapseTimer.current = setTimeout(() => {
+        if (!isHovering.current) setLogoExpanded(false);
+      }, HOLD_MS);
+    };
+
+    const id = setInterval(play, INTERVAL_MS);
+    return () => {
+      clearInterval(id);
+      if (collapseTimer.current) clearTimeout(collapseTimer.current);
+    };
+  }, []);
+
+  const handleLogoEnter = () => {
+    isHovering.current = true;
+    if (collapseTimer.current) clearTimeout(collapseTimer.current);
+    setLogoExpanded(true);
+  };
+
+  const handleLogoLeave = () => {
+    isHovering.current = false;
+    setLogoExpanded(false);
+  };
 
   const { data: me } = useQuery({
     queryKey: ["me"],
@@ -38,10 +73,25 @@ export default function Header() {
     <HeaderWrapper>
       <Inner>
         <Link to="/" style={{ textDecoration: "none" }} onClick={closeMobileMenu}>
-          <LogoContainer>
+          <LogoContainer
+            onMouseEnter={handleLogoEnter}
+            onMouseLeave={handleLogoLeave}
+          >
             <LogoImage src="/logo.png" alt="K-PAI Logo" />
             <LogoText>
-              <LogoAccent>SVAIN</LogoAccent>
+              {LOGO_PARTS.map(({ init, rest }, i) => (
+                <LogoWord key={i}>
+                  <LogoInit>{init}</LogoInit>
+                  {rest && (
+                    <LogoSuffix
+                      $expanded={logoExpanded}
+                      style={{ transitionDelay: logoExpanded ? `${i * 38}ms` : "0ms" }}
+                    >
+                      {rest}
+                    </LogoSuffix>
+                  )}
+                </LogoWord>
+              ))}
             </LogoText>
           </LogoContainer>
         </Link>
@@ -119,6 +169,16 @@ export default function Header() {
   );
 }
 
+// ── Logo word parts ───────────────────────────────────────────────────────────
+// Each entry: init = always-visible initial letter(s), rest = suffix that expands
+// Collapsed → "SVAIN"  |  Expanded → "Silicon Valley AI Nexus"
+const LOGO_PARTS = [
+  { init: "S", rest: "ilicon\u00A0" },  // trailing nbsp = word space
+  { init: "V", rest: "alley\u00A0" },
+  { init: "AI", rest: "\u00A0" },        // AI itself is the abbreviation; space only
+  { init: "N", rest: "exus" },
+] as const;
+
 // ── Styled components ─────────────────────────────────────────────────────────
 
 const HeaderWrapper = styled.header`
@@ -170,19 +230,43 @@ const LogoImage = styled.img`
 
 const LogoText = styled.div`
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.04em;
   color: #F4F4F5;
+  overflow: hidden; /* clips suffixes during animation */
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
     font-size: 22px;
   }
 `;
 
-const LogoAccent = styled.span`
+/** One word group, e.g. <LogoInit>S</LogoInit><LogoSuffix>ilicon</LogoSuffix> */
+const LogoWord = styled.span`
+  display: inline-flex;
+  align-items: baseline;
+`;
+
+/** Always-visible initial letter(s) — keeps the brand orange */
+const LogoInit = styled.span`
   color: #F97316;
+  flex-shrink: 0;
+`;
+
+/** Suffix that slides in to the right on expand */
+const LogoSuffix = styled.span<{ $expanded: boolean }>`
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #F4F4F5;
+  /* max-width drives the layout expansion; clip keeps it tidy at width:0 */
+  max-width: ${({ $expanded }) => ($expanded ? "200px" : "0px")};
+  opacity: ${({ $expanded }) => ($expanded ? 1 : 0)};
+  transition:
+    max-width 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity   0.32s ease;
+  vertical-align: baseline;
 `;
 
 const NavRight = styled.nav`

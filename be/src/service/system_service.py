@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from src.model.user import User, UserRole
 from src.model.seminar import Seminar
 from src.model.seminar_rsvp import SeminarRSVP
@@ -12,6 +12,14 @@ class SystemService:
 
     async def healthcheck(self):
         return {"message": "yes"}
+
+    async def get_stats(self) -> dict:
+        seminar_count = await self.db.scalar(select(func.count(Seminar.id)))
+        member_count = await self.db.scalar(select(func.count(User.id)))
+        return {
+            "seminar_count": seminar_count or 0,
+            "member_count": member_count or 0,
+        }
 
     async def get_users(self):
         result = await self.db.execute(select(User))

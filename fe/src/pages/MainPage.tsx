@@ -118,6 +118,13 @@ export default function MainPage() {
     enabled: isLoggedIn,
   });
 
+  // ── Public platform stats ────────────────────────────────────────────────
+  const { data: stats } = useQuery<{ seminar_count: number; member_count: number }>({
+    queryKey: ["stats"],
+    queryFn: async () => { const { data } = await axiosInstance.get(api.v1.stats); return data; },
+    staleTime: 5 * 60_000,
+  });
+
   // ── Next seminar: list → nearest upcoming ────────────────────────────────
   const { data: seminars = [], isLoading: seminarsLoading } = useQuery<SeminarResponse[]>({
     queryKey: ["seminars"],
@@ -173,12 +180,12 @@ export default function MainPage() {
           {/* Live stat strip */}
           <StatStrip>
             <Stat>
-              <StatNumber>47</StatNumber>
+              <StatNumber>{stats?.seminar_count ?? "—"}</StatNumber>
               <StatLabel>Seminars hosted</StatLabel>
             </Stat>
             <StatDiv />
             <Stat>
-              <StatNumber>312</StatNumber>
+              <StatNumber>{stats?.member_count ?? "—"}</StatNumber>
               <StatLabel>Members</StatLabel>
             </Stat>
             <StatDiv />

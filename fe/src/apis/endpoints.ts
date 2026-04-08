@@ -35,5 +35,8 @@ export const api = {
     // System (admin raw data)
     systemSeminars: "/api/v1/system/seminars",
     systemRsvps: "/api/v1/system/seminar_rsvps",
+
+    // Public platform stats (no auth required)
+    stats: "/api/v1/system/stats",
   },
 };
