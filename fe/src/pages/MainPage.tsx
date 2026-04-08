@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import styled, { keyframes } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { axiosInstance } from "../apis/axiosInstance";
 import { api } from "../apis/endpoints";
 import { route } from "../router/route";
@@ -9,8 +9,35 @@ import {
   GraduationCapIcon, KeyIcon, SparklesIcon, SettingsIcon,
   ArrowRightIcon, CalendarIcon, UsersIcon,
 } from "../components/icons";
+import type { SeminarResponse, SeminarDetailResponse } from "../types/seminar";
+import { tzAbbr } from "../utils/datetime";
+import { BROWSER_TZ } from "../utils/constants";
 
 type User = { id: number; username: string; email: string; role: string; };
+
+/** Find the soonest seminar whose start_time is in the future. */
+function findNextSeminar(seminars: SeminarResponse[]): SeminarResponse | null {
+  const now = new Date();
+  return (
+    [...seminars]
+      .filter((s) => s.start_time && new Date(s.start_time) > now)
+      .sort((a, b) => new Date(a.start_time!).getTime() - new Date(b.start_time!).getTime())[0]
+    ?? null
+  );
+}
+
+/** Compact date + optional location line for the preview card. */
+function formatPreviewDate(seminar: SeminarResponse): string {
+  const tz = seminar.display_timezone ?? BROWSER_TZ;
+  const d = new Date(seminar.start_time!);
+  const dateStr = d.toLocaleDateString("en-US", {
+    timeZone: tz, month: "short", day: "numeric", year: "numeric",
+  });
+  const abbr = tzAbbr(tz, d);
+  return seminar.location
+    ? `${dateStr} · ${seminar.location}`
+    : `${dateStr} · ${abbr}`;
+}
 
 // ── Orbital SVG hero visual ───────────────────────────────────────────────────
 
@@ -91,6 +118,26 @@ export default function MainPage() {
     enabled: isLoggedIn,
   });
 
+  // ── Next seminar: list → nearest upcoming ────────────────────────────────
+  const { data: seminars = [], isLoading: seminarsLoading } = useQuery<SeminarResponse[]>({
+    queryKey: ["seminars"],
+    queryFn: async () => { const { data } = await axiosInstance.get(api.v1.seminars); return data; },
+    staleTime: 60_000,
+  });
+
+  const nextSeminar = findNextSeminar(seminars);
+
+  // Fetch detail only when we know which seminar is next (for RSVP count)
+  const { data: nextDetail } = useQuery<SeminarDetailResponse>({
+    queryKey: ["seminar", nextSeminar?.id],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(api.v1.seminarDetail(nextSeminar!.id));
+      return data;
+    },
+    enabled: !!nextSeminar,
+    staleTime: 60_000,
+  });
+
   const handleLogout = () => {
     sessionStorage.removeItem("accessToken");
     queryClient.removeQueries({ queryKey: ["me"] });
@@ -147,22 +194,45 @@ export default function MainPage() {
             <OrbitalSystem />
           </OrbitalWrap>
 
-          {/* Floating preview card */}
+          {/* Floating preview card — real data */}
           <PreviewCard>
             <PreviewLabel>
               <PulseDot />
               Next Seminar
             </PreviewLabel>
-            <PreviewTitle>Differential Privacy in LLM Fine-Tuning</PreviewTitle>
-            <PreviewMeta>
-              <CalendarIcon size={12} color="#71717A" />
-              Apr 22, 2026 · Palo Alto
-            </PreviewMeta>
-            <PreviewMeta>
-              <UsersIcon size={12} color="#71717A" />
-              28 attending
-            </PreviewMeta>
-            <PreviewRsvp>RSVP Now</PreviewRsvp>
+
+            {seminarsLoading ? (
+              <>
+                <PreviewSkeleton style={{ width: "90%", marginBottom: 6 }} />
+                <PreviewSkeleton style={{ width: "70%" }} />
+                <PreviewSkeletonMeta />
+                <PreviewSkeletonMeta />
+                <PreviewSkeletonBtn />
+              </>
+            ) : !nextSeminar ? (
+              <PreviewEmpty>No upcoming seminars scheduled.</PreviewEmpty>
+            ) : (
+              <>
+                <PreviewTitle>{nextSeminar.title}</PreviewTitle>
+                <PreviewMeta>
+                  <CalendarIcon size={12} color="#A1A1AA" />
+                  {formatPreviewDate(nextSeminar)}
+                </PreviewMeta>
+                {nextDetail != null && (
+                  <PreviewMeta>
+                    <UsersIcon size={12} color="#A1A1AA" />
+                    {nextDetail.current_rsvp_count} attending
+                    {nextSeminar.max_capacity != null && ` / ${nextSeminar.max_capacity}`}
+                  </PreviewMeta>
+                )}
+                <PreviewRsvp
+                  as={Link as any}
+                  to={`/seminar/${nextSeminar.id}`}
+                >
+                  RSVP Now
+                </PreviewRsvp>
+              </>
+            )}
           </PreviewCard>
         </HeroVisual>
       </HeroSection>
@@ -248,6 +318,11 @@ export default function MainPage() {
 const fadeUp = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
+`;
+
+const shimmer = keyframes`
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
 `;
 
 const float = keyframes`
@@ -458,6 +533,47 @@ const PreviewRsvp = styled.div`
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.01em;
+`;
+
+const shimmerBase = css`
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: ${shimmer} 1.6s linear infinite;
+  border-radius: 5px;
+`;
+
+const PreviewSkeleton = styled.div`
+  ${shimmerBase}
+  height: 13px;
+  margin-bottom: 8px;
+  width: 100%;
+`;
+
+const PreviewSkeletonMeta = styled.div`
+  ${shimmerBase}
+  height: 10px;
+  width: 65%;
+  margin-bottom: 6px;
+`;
+
+const PreviewSkeletonBtn = styled.div`
+  ${shimmerBase}
+  height: 28px;
+  width: 80px;
+  margin-top: 14px;
+  border-radius: 7px;
+`;
+
+const PreviewEmpty = styled.p`
+  font-size: 12px;
+  color: #71717A;
+  margin: 4px 0 0;
+  line-height: 1.5;
 `;
 
 // ── User card ─────────────────────────────────────────────────────────────────
