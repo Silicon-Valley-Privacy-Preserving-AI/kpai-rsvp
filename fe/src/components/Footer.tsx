@@ -6,8 +6,7 @@ export default function Footer() {
     <FooterWrapper>
       <Inner>
         <Copyright>
-          © {new Date().getFullYear()} Silicon Valley Privacy-Preserving AI
-          Forum
+          © {new Date().getFullYear()} Silicon Valley AI Nexus Forum
         </Copyright>
 
         <LinkGroup>
