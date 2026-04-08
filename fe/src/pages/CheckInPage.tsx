@@ -62,7 +62,7 @@ const Wrap = styled.div`
 `;
 
 const Card = styled.div`
-  background: #111113;
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 48px 40px;
@@ -78,11 +78,11 @@ const Card = styled.div`
 const Title = styled.h2`
   font-size: 20px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
 `;
 
 const Sub = styled.p`
   font-size: 14px;
-  color: #A1A1AA;
+  color: var(--text-2);
 `;

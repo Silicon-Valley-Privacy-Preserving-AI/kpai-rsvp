@@ -220,7 +220,7 @@ function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: 
                     return (
                       <Tr key={r.id}>
                         <Td style={{ fontWeight: 600 }}>{user?.username ?? `#${r.user_id}`}</Td>
-                        <Td style={{ color: "#A1A1AA", fontSize: 13 }}>{user?.email ?? "—"}</Td>
+                        <Td style={{ color: "var(--text-2)", fontSize: 13 }}>{user?.email ?? "—"}</Td>
                         <Td>
                           {user ? (
                             <Badge color={user.is_temporary ? "orange" : "blue"}>
@@ -228,13 +228,13 @@ function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: 
                             </Badge>
                           ) : "—"}
                         </Td>
-                        <Td style={{ fontSize: 13, color: "#A1A1AA" }}>{formatDate(r.created_at)}</Td>
+                        <Td style={{ fontSize: 13, color: "var(--text-2)" }}>{formatDate(r.created_at)}</Td>
                         <Td>
                           <Badge color={r.checked_in ? "green" : "gray"}>
                             {r.checked_in ? "Done" : "Pending"}
                           </Badge>
                         </Td>
-                        <Td style={{ fontSize: 13, color: "#A1A1AA" }}>{formatDate(r.checked_in_at)}</Td>
+                        <Td style={{ fontSize: 13, color: "var(--text-2)" }}>{formatDate(r.checked_in_at)}</Td>
                         <Td>
                           <Button
                             size="sm"
@@ -466,10 +466,10 @@ export default function AdminPage() {
                   selected={selectedUserId === u.id}
                   onClick={() => setSelectedUserId(selectedUserId === u.id ? null : u.id)}
                 >
-                  <Td style={{ color: "#71717A", fontSize: 13 }}>#{u.id}</Td>
-                  <Td style={{ fontSize: 13, color: "#A1A1AA", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
+                  <Td style={{ color: "var(--text-3)", fontSize: 13 }}>#{u.id}</Td>
+                  <Td style={{ fontSize: 13, color: "var(--text-2)", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
                   <Td style={{ fontWeight: 600 }}>{u.username}</Td>
-                  <Td style={{ color: "#A1A1AA", fontSize: 13 }}>{u.email}</Td>
+                  <Td style={{ color: "var(--text-2)", fontSize: 13 }}>{u.email}</Td>
                   <Td>
                     <Badge color={u.role === "staff" ? "purple" : "green"}>
                       {u.role === "staff" ? "Staff" : "Member"}
@@ -668,8 +668,8 @@ const StatsRow = styled.div`
 `;
 
 const StatCard = styled.div<{ accent?: string }>`
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-top: 3px solid ${({ accent }) => accent ?? "#F97316"};
   border-radius: 10px;
   padding: 14px 16px;
@@ -679,14 +679,14 @@ const StatCard = styled.div<{ accent?: string }>`
 const StatNum = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
 `;
 
 const StatLabel = styled.div`
   font-size: 11px;
   font-weight: 600;
-  color: #71717A;
+  color: var(--text-3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 4px;
@@ -695,7 +695,7 @@ const StatLabel = styled.div`
 const TabBar = styled.div`
   display: flex;
   gap: 0;
-  border-bottom: 2px solid rgba(255,255,255,0.08);
+  border-bottom: 2px solid var(--surface-active);
   margin-bottom: 20px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -727,20 +727,20 @@ const TabBtn = styled.button<{ active?: boolean }>`
     gap: 8px;
   }
 
-  &:hover { color: #F4F4F5; }
+  &:hover { color: var(--text-1); }
 `;
 
 const TabCount = styled.span`
-  background: rgba(255,255,255,0.06);
-  color: #A1A1AA;
+  background: var(--surface-active);
+  color: var(--text-2);
   font-size: 12px;
   padding: 1px 7px;
   border-radius: 10px;
 `;
 
 const TableWrap = styled.div`
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-radius: 12px;
   overflow: hidden;
   overflow-x: auto;
@@ -759,8 +759,8 @@ const SeminarList = styled.div`
 `;
 
 const SeminarCard = styled.div`
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-radius: 12px;
   overflow: hidden;
 `;
@@ -788,7 +788,7 @@ const HeaderLeft = styled.div`
 
 const Chevron = styled.span<{ open: boolean }>`
   font-size: 11px;
-  color: #71717A;
+  color: var(--text-3);
   transition: transform 0.2s;
   transform: ${({ open }) => (open ? "rotate(90deg)" : "rotate(0deg)")};
   flex-shrink: 0;
@@ -801,7 +801,7 @@ const HeaderInfo = styled.div`
 const SeminarName = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -824,7 +824,7 @@ const SeminarMeta = styled.div`
 
   span {
     font-size: 12px;
-    color: #71717A;
+    color: var(--text-3);
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -846,7 +846,7 @@ const StatPill = styled.div<{ color?: "green" | "orange" | "purple" | "red" }>`
     color === "green" ? "rgba(74,222,128,0.10)" :
     color === "orange" ? "rgba(249,115,22,0.10)" :
     color === "purple" ? "rgba(249,115,22,0.10)" :
-    color === "red" ? "rgba(248,113,113,0.10)" : "rgba(255,255,255,0.06)"};
+    color === "red" ? "rgba(248,113,113,0.10)" : "var(--surface-active)"};
   border-radius: 8px;
   padding: 5px 10px;
   min-width: 44px;
@@ -860,14 +860,14 @@ const StatPill = styled.div<{ color?: "green" | "orange" | "purple" | "red" }>`
 const PillNum = styled.div`
   font-size: 16px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   line-height: 1;
 `;
 
 const PillLabel = styled.div`
   font-size: 10px;
   font-weight: 600;
-  color: #A1A1AA;
+  color: var(--text-2);
   text-transform: uppercase;
   margin-top: 2px;
   letter-spacing: 0.04em;
@@ -875,7 +875,7 @@ const PillLabel = styled.div`
 
 // Expanded detail
 const SeminarDetail = styled.div`
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--surface-active);
   padding: 20px;
   background: rgba(249,115,22,0.04);
 `;
@@ -883,8 +883,8 @@ const SeminarDetail = styled.div`
 const StatsBar = styled.div`
   display: flex;
   gap: 0;
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 20px;
@@ -901,7 +901,7 @@ const StatItem = styled.div`
 const StatBig = styled.div<{ color?: string }>`
   font-size: 22px;
   font-weight: 800;
-  color: ${({ color }) => color ?? "#F4F4F5"};
+  color: ${({ color }) => color ?? "var(--text-1)"};
   letter-spacing: -0.02em;
 `;
 
@@ -914,7 +914,7 @@ const OverCapLabel = styled.span`
 const StatSub = styled.div`
   font-size: 11px;
   font-weight: 600;
-  color: #71717A;
+  color: var(--text-3);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-top: 2px;
@@ -922,14 +922,14 @@ const StatSub = styled.div`
 
 const StatDivider = styled.div`
   width: 1px;
-  background: rgba(255,255,255,0.03);
+  background: var(--surface-3);
   align-self: stretch;
 `;
 
 const AttendeeTableWrap = styled.div`
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--surface-active);
 `;
 
 // Clickable user row
@@ -940,7 +940,7 @@ const UserTr = styled.tr<{ selected: boolean }>`
 
   &:hover { background: ${({ selected }) => selected ? "rgba(249,115,22,0.10)" : "rgba(249,115,22,0.04)"}; }
 
-  td { border-bottom: 1px solid rgba(255,255,255,0.07); }
+  td { border-bottom: 1px solid var(--border); }
   &:last-child td { border-bottom: none; }
 `;
 
@@ -948,7 +948,7 @@ const UserTr = styled.tr<{ selected: boolean }>`
 const DrawerOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay);
   z-index: 200;
   display: flex;
   justify-content: flex-end;
@@ -958,7 +958,7 @@ const DrawerPanel = styled.div`
   width: 100%;
   max-width: 400px;
   height: 100%;
-  background: #111113;
+  background: var(--surface);
   box-shadow: -4px 0 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
@@ -970,7 +970,7 @@ const DrawerHeader = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   padding: 24px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid var(--border);
 `;
 
 const DrawerHeaderInfo = styled.div`
@@ -980,19 +980,19 @@ const DrawerHeaderInfo = styled.div`
 const DrawerName = styled.div`
   font-size: 18px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   margin-bottom: 3px;
 `;
 
 const DrawerEmail = styled.div`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
   word-break: break-all;
 `;
 
 const DrawerCloseBtn = styled.button`
   font-size: 16px;
-  color: #71717A;
+  color: var(--text-3);
   background: none;
   border: none;
   cursor: pointer;
@@ -1000,7 +1000,7 @@ const DrawerCloseBtn = styled.button`
   flex-shrink: 0;
   margin-left: 12px;
   line-height: 1;
-  &:hover { color: #A1A1AA; }
+  &:hover { color: var(--text-2); }
 `;
 
 const DrawerBadgeRow = styled.div`
@@ -1012,16 +1012,16 @@ const DrawerBadgeRow = styled.div`
 
 const DrawerMeta = styled.div`
   font-size: 12px;
-  color: #71717A;
+  color: var(--text-3);
   padding: 6px 20px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid var(--border);
 `;
 
 const DrawerStatGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid var(--border);
   gap: 0;
 `;
 
@@ -1033,7 +1033,7 @@ const DrawerStat = styled.div`
 const DrawerStatVal = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 4px;
@@ -1044,7 +1044,7 @@ const DrawerStatLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #71717A;
+  color: var(--text-3);
 `;
 
 const DrawerSection = styled.div`
@@ -1058,7 +1058,7 @@ const DrawerSectionTitle = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #71717A;
+  color: var(--text-3);
   margin-bottom: 10px;
 `;
 
@@ -1074,9 +1074,9 @@ const DrawerHistoryItem = styled.div`
   justify-content: space-between;
   gap: 10px;
   padding: 10px 12px;
-  background: rgba(255,255,255,0.03);
+  background: var(--surface-3);
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--surface-active);
 `;
 
 const DrawerHistoryInfo = styled.div`
@@ -1087,7 +1087,7 @@ const DrawerHistoryInfo = styled.div`
 const DrawerHistoryTitle = styled.div`
   font-size: 13px;
   font-weight: 600;
-  color: #F4F4F5;
+  color: var(--text-1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1095,14 +1095,14 @@ const DrawerHistoryTitle = styled.div`
 
 const DrawerHistoryDate = styled.div`
   font-size: 11px;
-  color: #71717A;
+  color: var(--text-3);
   margin-top: 2px;
 `;
 
 const DrawerActions = styled.div`
   padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,0.07);
-  background: #111113;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
   position: sticky;
   bottom: 0;
 `;
@@ -1133,17 +1133,17 @@ const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarS
   white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   border: 1.5px solid ${({ active, status }) =>
-    !active ? "rgba(255,255,255,0.1)" :
+    !active ? "var(--border-strong)" :
     status === "ongoing" ? "#F87171" :
     status === "upcoming" ? "#4ADE80" :
-    status === "ended" ? "#A1A1AA" : "#F97316"};
+    status === "ended" ? "var(--text-2)" : "#F97316"};
   background: ${({ active, status }) =>
-    !active ? "rgba(255,255,255,0.04)" :
+    !active ? "var(--border-soft)" :
     status === "ongoing" ? "rgba(248,113,113,0.10)" :
     status === "upcoming" ? "#dcfce7" :
-    status === "ended" ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.10)"};
+    status === "ended" ? "var(--surface-active)" : "rgba(249,115,22,0.10)"};
   color: ${({ active, status }) =>
-    !active ? "#A1A1AA" :
+    !active ? "var(--text-2)" :
     status === "ongoing" ? "#F87171" :
     status === "upcoming" ? "#4ADE80" :
     status === "ended" ? "#4b5563" : "#F97316"};
@@ -1152,7 +1152,7 @@ const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarS
     border-color: ${({ status }) =>
       status === "ongoing" ? "#F87171" :
       status === "upcoming" ? "#4ADE80" :
-      status === "ended" ? "#A1A1AA" : "#F97316"};
+      status === "ended" ? "var(--text-2)" : "#F97316"};
     color: ${({ status }) =>
       status === "ongoing" ? "#F87171" :
       status === "upcoming" ? "#4ADE80" :
@@ -1161,7 +1161,7 @@ const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarS
 `;
 
 const AdminFilterCount = styled.span<{ active: boolean }>`
-  background: ${({ active }) => active ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.06)"};
+  background: ${({ active }) => active ? "rgba(0,0,0,0.1)" : "var(--surface-active)"};
   color: inherit;
   font-size: 10px;
   font-weight: 700;
@@ -1189,14 +1189,14 @@ const SortGroup = styled.div`
 const SortLabel = styled.span`
   font-size: 12px;
   font-weight: 600;
-  color: #71717A;
+  color: var(--text-3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
 
 const SortBtnGroup = styled.div`
   display: flex;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--surface-active);
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -1206,26 +1206,26 @@ const SortBtn = styled.button<{ active: boolean }>`
   font-size: 13px;
   font-weight: 600;
   border: none;
-  border-right: 1px solid rgba(255,255,255,0.08);
-  background: ${({ active }) => (active ? "#F97316" : "rgba(255,255,255,0.04)")};
-  color: ${({ active }) => (active ? "#fff" : "#A1A1AA")};
+  border-right: 1px solid var(--surface-active);
+  background: ${({ active }) => (active ? "#F97316" : "var(--border-soft)")};
+  color: ${({ active }) => (active ? "#fff" : "var(--text-2)")};
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 
   &:last-child { border-right: none; }
-  &:hover { background: ${({ active }) => (active ? "#5b4bd6" : "#f5f3ff")}; }
+  &:hover { background: ${({ active }) => (active ? "#F97316" : "var(--surface-hover)")}; }
 `;
 
 const SortDirBtn = styled.button`
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--surface-active);
   border-radius: 8px;
-  background: #111113;
-  color: #A1A1AA;
+  background: var(--surface);
+  color: var(--text-2);
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: rgba(255,255,255,0.03); }
+  &:hover { background: var(--surface-3); }
 `;

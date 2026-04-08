@@ -4,6 +4,7 @@ import {
   Tooltip, ResponsiveContainer, Legend, ReferenceLine, Cell,
 } from "recharts";
 import styled from "styled-components";
+import { useTheme } from "../contexts/ThemeContext";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -78,6 +79,13 @@ function Trend({ value, lowerIsBetter = false, suffix = "%" }: TrendProps) {
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export default function AdminStats({ seminars, rsvps, users }: Props) {
+  const { theme } = useTheme();
+  // Recharts SVG fill can't use CSS variables — compute from JS theme
+  const axisColor = theme === "dark" ? "#9ca3af" : "#71717A";
+  const gridColor = theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.07)";
+  const tooltipBg = theme === "dark" ? "#1A1A1E" : "#FFFFFF";
+  const tooltipBorder = theme === "dark" ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.12)";
+
   // Sort seminars chronologically by start_time
   const sorted = useMemo(() =>
     [...seminars]
@@ -203,11 +211,11 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
   });
 
   const PURPLE  = "#F97316";
-  const GREEN   = "#059669";
-  const RED     = "#ef4444";
+  const GREEN   = theme === "dark" ? "#4ADE80" : "#16A34A";
+  const RED     = theme === "dark" ? "#F87171" : "#DC2626";
   const ORANGE  = "#d97706";
   const BLUE    = "#0ea5e9";
-  const GRID    = "#f0eeff";
+  const GRID    = gridColor; // theme-aware, defined above
 
   const hasCapacity = stats.some(s => s.fillRate !== null);
 
@@ -324,10 +332,10 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }} barCategoryGap="28%">
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
-                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: axisColor }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: axisColor }} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  contentStyle={{ borderRadius: 8, background: tooltipBg, border: `1px solid ${tooltipBorder}`, fontSize: 13 }}
                   formatter={(val: number, name: string) => [val, name === "rsvp" ? "RSVPs" : "Check-ins"]}
                   labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
                 />
@@ -349,10 +357,10 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
-                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: axisColor }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: axisColor }} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  contentStyle={{ borderRadius: 8, background: tooltipBg, border: `1px solid ${tooltipBorder}`, fontSize: 13 }}
                   formatter={(val: number) => [val, "RSVPs"]}
                   labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
                 />
@@ -372,10 +380,10 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
             <ResponsiveContainer width="100%" height={280}>
               <LineChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
-                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: axisColor }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: axisColor }} domain={[0, 100]} tickFormatter={(v: number) => `${v}%`} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  contentStyle={{ borderRadius: 8, background: tooltipBg, border: `1px solid ${tooltipBorder}`, fontSize: 13 }}
                   formatter={(val: number, name: string) => [`${val}%`, name === "checkinRate" ? "Check-in rate" : "3-sem. rolling avg"]}
                   labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
                 />
@@ -402,10 +410,10 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
-                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} allowDecimals={false} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: axisColor }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: axisColor }} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  contentStyle={{ borderRadius: 8, background: tooltipBg, border: `1px solid ${tooltipBorder}`, fontSize: 13 }}
                   formatter={(val: number) => [val, "No-shows"]}
                   labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? s.fullTitle : l; }}
                 />
@@ -438,10 +446,10 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
                 margin={{ top: 8, right: 16, left: 0, bottom: 40 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke={GRID} vertical={false} />
-                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} angle={-35} textAnchor="end" interval={0} />
-                <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v: number) => `${v}%`} />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: axisColor }} angle={-35} textAnchor="end" interval={0} />
+                <YAxis tick={{ fontSize: 11, fill: axisColor }} tickFormatter={(v: number) => `${v}%`} />
                 <Tooltip
-                  contentStyle={{ borderRadius: 8, border: "1px solid #ede9fe", fontSize: 13 }}
+                  contentStyle={{ borderRadius: 8, background: tooltipBg, border: `1px solid ${tooltipBorder}`, fontSize: 13 }}
                   formatter={(val: number) => [`${val}%`, "Capacity Fill"]}
                   labelFormatter={(l: string) => { const s = chartData.find(d => d.date === l); return s ? `${s.fullTitle} (cap: ${s.maxCapacity})` : l; }}
                 />
@@ -523,7 +531,7 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
             <RankCell>{s.dateYear}</RankCell>
             <RankCell>{s.rsvp}</RankCell>
             <RankCell style={{ color: GREEN, fontWeight: 600 }}>{s.checkin}</RankCell>
-            <RankCell style={{ color: s.noshow > 0 ? RED : "#9ca3af" }}>{s.noshow}</RankCell>
+            <RankCell style={{ color: s.noshow > 0 ? RED : axisColor }}>{s.noshow}</RankCell>
             <RankCell>
               <RateBar>
                 <RateBarFill
@@ -555,7 +563,7 @@ const Wrap = styled.div`
 const EmptyMsg = styled.div`
   padding: 48px;
   text-align: center;
-  color: #9ca3af;
+  color: var(--text-3);
   font-size: 14px;
 `;
 
@@ -581,12 +589,12 @@ const ModeSelectorLabel = styled.div`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
+  color: var(--text-3);
 `;
 
 const ModeBtnGroup = styled.div`
   display: flex;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--surface-active);
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -594,9 +602,9 @@ const ModeBtnGroup = styled.div`
 const ModeBtn = styled.button<{ active: boolean }>`
   padding: 5px 12px;
   border: none;
-  border-right: 1px solid rgba(255,255,255,0.08);
-  background: ${({ active }) => active ? "#F97316" : "rgba(255,255,255,0.04)"};
-  color: ${({ active }) => active ? "#fff" : "#A1A1AA"};
+  border-right: 1px solid var(--surface-active);
+  background: ${({ active }) => active ? "#F97316" : "var(--border-soft)"};
+  color: ${({ active }) => active ? "#fff" : "var(--text-2)"};
   font-size: 12px;
   font-weight: ${({ active }) => active ? 600 : 400};
   cursor: pointer;
@@ -605,7 +613,7 @@ const ModeBtn = styled.button<{ active: boolean }>`
 
   &:last-child { border-right: none; }
   &:hover:not([disabled]) {
-    background: ${({ active }) => active ? "#5b4bd6" : "#f5f3ff"};
+    background: ${({ active }) => active ? "#F97316" : "var(--surface-hover)"};
     color: ${({ active }) => active ? "#fff" : "#F97316"};
   }
 `;
@@ -617,13 +625,13 @@ const SectionHead = styled.div`
 const SectionHeadTitle = styled.div`
   font-size: 16px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   margin-bottom: 4px;
 `;
 
 const SectionHeadDesc = styled.div`
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-3);
   line-height: 1.5;
   max-width: 680px;
 `;
@@ -639,8 +647,8 @@ const KpiGrid = styled.div`
 `;
 
 const KpiCard = styled.div<{ accent?: string }>`
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-top: 3px solid ${({ accent }) => accent ?? "#F97316"};
   border-radius: 10px;
   padding: 14px 16px;
@@ -649,7 +657,7 @@ const KpiCard = styled.div<{ accent?: string }>`
 const KpiValue = styled.div`
   font-size: 24px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 4px;
@@ -660,13 +668,13 @@ const KpiLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #A1A1AA;
+  color: var(--text-2);
   margin-bottom: 4px;
 `;
 
 const KpiDesc = styled.div`
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-3);
   margin-top: 6px;
 `;
 
@@ -681,17 +689,17 @@ const TrendBase = styled.span`
 
 const TrendUp = styled(TrendBase)`
   background: rgba(74,222,128,0.10);
-  color: #059669;
+  color: #4ADE80;
 `;
 
 const TrendDown = styled(TrendBase)`
   background: rgba(248,113,113,0.10);
-  color: #ef4444;
+  color: #F87171;
 `;
 
 const TrendNeutral = styled(TrendBase)`
-  background: rgba(255,255,255,0.06);
-  color: #9ca3af;
+  background: var(--surface-active);
+  color: var(--text-3);
 `;
 
 // Chart tabs
@@ -706,8 +714,8 @@ const ChartTabBtn = styled.button<{ active: boolean }>`
   padding: 6px 14px;
   border-radius: 20px;
   border: 1px solid ${({ active }) => active ? "#F97316" : "#e5e7eb"};
-  background: ${({ active }) => active ? "#F97316" : "rgba(255,255,255,0.04)"};
-  color: ${({ active }) => active ? "#fff" : "#A1A1AA"};
+  background: ${({ active }) => active ? "#F97316" : "var(--border-soft)"};
+  color: ${({ active }) => active ? "#fff" : "var(--text-2)"};
   font-size: 13px;
   font-weight: ${({ active }) => active ? 600 : 400};
   cursor: pointer;
@@ -721,7 +729,7 @@ const ChartTabBtn = styled.button<{ active: boolean }>`
 
 const ChartTabDesc = styled.div`
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--text-3);
   line-height: 1.5;
   margin-bottom: 16px;
   max-width: 640px;
@@ -729,8 +737,8 @@ const ChartTabDesc = styled.div`
 
 // Chart card
 const ChartCard = styled.div`
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-radius: 12px;
   padding: 20px 16px 8px;
 `;
@@ -744,7 +752,7 @@ const CapacityLegend = styled.div`
 
 const CapLegItem = styled.div<{ color: string }>`
   font-size: 11px;
-  color: #A1A1AA;
+  color: var(--text-2);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -770,8 +778,8 @@ const HighlightGrid = styled.div`
 `;
 
 const HighlightCard = styled.div<{ accent: string }>`
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-left: 4px solid ${({ accent }) => accent};
   border-radius: 10px;
   padding: 16px 18px;
@@ -791,7 +799,7 @@ const HighlightBadge = styled.div<{ color: string }>`
 const HighlightTitle = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -801,20 +809,20 @@ const HighlightTitle = styled.div`
 const HighlightStat = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
   margin-bottom: 4px;
 `;
 
 const HighlightMeta = styled.div`
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-3);
 `;
 
 // Rank table
 const RankTable = styled.div`
-  background: #111113;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--surface);
+  border: 1px solid var(--surface-active);
   border-radius: 12px;
   overflow: hidden;
 `;
@@ -829,7 +837,7 @@ const RankHeader = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #71717A;
+  color: var(--text-3);
   gap: 8px;
 
   @media (max-width: 640px) {
@@ -860,14 +868,14 @@ const RankRow = styled.div<{ highlight?: boolean }>`
 const RankNum = styled.div`
   font-size: 13px;
   font-weight: 700;
-  color: #A1A1AA;
+  color: var(--text-2);
   text-align: center;
 `;
 
 const RankName = styled.div`
   font-size: 13px;
   font-weight: 600;
-  color: #F4F4F5;
+  color: var(--text-1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -875,7 +883,7 @@ const RankName = styled.div`
 
 const RankCell = styled.div`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
 `;
 
 const RateBar = styled.div`

@@ -26,12 +26,12 @@ export default function MarkdownContent({ children, compact }: Props) {
 
 const Prose = styled.div<{ compact?: boolean }>`
   font-size: ${({ compact }) => (compact ? "13px" : "15px")};
-  color: #A1A1AA;
+  color: var(--text-2);
   line-height: 1.75;
 
   /* Headings */
   h1, h2, h3, h4, h5, h6 {
-    color: #F4F4F5;
+    color: var(--text-1);
     font-weight: 700;
     line-height: 1.3;
     margin: ${({ compact }) => (compact ? "10px 0 4px" : "20px 0 8px")};
@@ -46,7 +46,7 @@ const Prose = styled.div<{ compact?: boolean }>`
   }
 
   /* Bold / italic */
-  strong { font-weight: 700; color: #F4F4F5; }
+  strong { font-weight: 700; color: var(--text-1); }
   em { font-style: italic; }
 
   /* Inline code */
@@ -61,8 +61,8 @@ const Prose = styled.div<{ compact?: boolean }>`
 
   /* Code block */
   pre {
-    background: #1e1e2e;
-    color: #cdd6f4;
+    background: var(--surface);
+    color: var(--text-1);
     border-radius: 8px;
     padding: 16px 20px;
     overflow-x: auto;
@@ -83,7 +83,7 @@ const Prose = styled.div<{ compact?: boolean }>`
     margin: ${({ compact }) => (compact ? "8px 0" : "16px 0")};
     padding: 10px 16px;
     border-radius: 0 8px 8px 0;
-    color: #A1A1AA;
+    color: var(--text-2);
     font-style: italic;
 
     p { margin: 0; }
@@ -106,7 +106,7 @@ const Prose = styled.div<{ compact?: boolean }>`
   /* Horizontal rule */
   hr {
     border: none;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid var(--surface-active);
     margin: ${({ compact }) => (compact ? "10px 0" : "20px 0")};
   }
 
@@ -128,22 +128,22 @@ const Prose = styled.div<{ compact?: boolean }>`
     display: block;
   }
   th {
-    background: rgba(255,255,255,0.04);
+    background: var(--border-soft);
     font-weight: 700;
-    color: #A1A1AA;
+    color: var(--text-2);
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 8px 12px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid var(--surface-active);
     text-align: left;
   }
   td {
     padding: 8px 12px;
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #A1A1AA;
+    border: 1px solid var(--surface-active);
+    color: var(--text-2);
   }
-  tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+  tr:nth-child(even) td { background: var(--surface-3); }
 
   /* Images */
   img {

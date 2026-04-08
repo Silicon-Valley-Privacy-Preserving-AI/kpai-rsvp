@@ -201,7 +201,7 @@ export default function MyPage() {
               {profile.is_temporary && <Badge color="orange">Temporary Account</Badge>}
               {isMember && (
                 <MemberBadge>
-                  <ShieldCheckIcon size={13} color="#0ea5e9" /> Full Member
+                  <ShieldCheckIcon size={13} color="#F97316" /> Full Member
                 </MemberBadge>
               )}
             </BadgeRow>
@@ -217,12 +217,12 @@ export default function MyPage() {
         {/* Membership progress */}
         <MembershipSection>
           <MembershipLabel>
-            <ShieldCheckIcon size={15} color={isMember ? "#0ea5e9" : "#9ca3af"} />
+            <ShieldCheckIcon size={15} color={isMember ? "#F97316" : "var(--text-3)"} />
             Full Membership
           </MembershipLabel>
           {isMember ? (
             <MembershipStatus active>
-              <CheckCircleIcon size={15} color="#0ea5e9" /> You are a Full Member — thank you for your participation!
+              <CheckCircleIcon size={15} color="#F97316" /> You are a Full Member — thank you for your participation!
             </MembershipStatus>
           ) : (
             <MembershipProgress>
@@ -422,7 +422,7 @@ export default function MyPage() {
 // ── Styled components ─────────────────────────────────────────────────────────
 
 const ProfileCard = styled.div`
-  background: #111113;
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   padding: 18px 16px;
@@ -461,14 +461,14 @@ const ProfileInfo = styled.div`
 const ProfileName = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.03em;
   margin-bottom: 2px;
 `;
 
 const ProfileEmail = styled.div`
   font-size: 14px;
-  color: #A1A1AA;
+  color: var(--text-2);
   margin-bottom: 10px;
 `;
 
@@ -488,12 +488,12 @@ const MemberBadge = styled.span`
   font-size: 12px;
   font-weight: 700;
   background: rgba(14, 165, 233, 0.12);
-  color: #38BDF8;
+  color: #F97316;
 `;
 
 const JoinDate = styled.div`
   font-size: 12px;
-  color: #71717A;
+  color: var(--text-3);
 `;
 
 const ProfileActions = styled.div`
@@ -514,7 +514,7 @@ const MembershipLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #71717A;
+  color: var(--text-3);
   margin-bottom: 10px;
 `;
 
@@ -524,7 +524,7 @@ const MembershipStatus = styled.div<{ active?: boolean }>`
   gap: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: ${({ active }) => active ? "#38BDF8" : "#A1A1AA"};
+  color: ${({ active }) => active ? "#38BDF8" : "var(--text-2)"};
 `;
 
 const MembershipProgress = styled.div`
@@ -550,7 +550,7 @@ const ProgressFill = styled.div<{ pct: number }>`
 
 const ProgressLabel = styled.div`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
 `;
 
 const StatRow = styled.div`
@@ -575,7 +575,7 @@ const StatBox = styled.div`
 const StatNum = styled.div`
   font-size: 16px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
 
   @media (min-width: 400px) {
@@ -586,7 +586,7 @@ const StatNum = styled.div`
 const StatLabel = styled.div`
   font-size: 9px;
   font-weight: 600;
-  color: #71717A;
+  color: var(--text-3);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-top: 3px;
@@ -609,7 +609,7 @@ const StatDivider = styled.div`
 
 // Edit form
 const EditCard = styled.div`
-  background: #111113;
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   padding: 18px 16px;
@@ -623,7 +623,7 @@ const EditCard = styled.div`
 const EditTitle = styled.h2`
   font-size: 17px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
   margin-bottom: 20px;
 `;
@@ -647,7 +647,7 @@ const Divider = styled.hr`
 const SectionLabel = styled.div`
   font-size: 12px;
   font-weight: 700;
-  color: #71717A;
+  color: var(--text-3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 14px;
@@ -662,7 +662,7 @@ const EditActions = styled.div`
 
 // Seminar history
 const SectionCard = styled.div`
-  background: #111113;
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
   padding: 18px 16px;
@@ -676,7 +676,7 @@ const SectionCard = styled.div`
 const SectionHeader = styled.h2`
   font-size: 17px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
   margin-bottom: 20px;
 `;
@@ -737,10 +737,10 @@ const StatusPill = styled.span<{ status: SeminarStatus }>`
   border-radius: 20px;
   background: ${({ status }) =>
     status === "ongoing" ? "rgba(248,113,113,0.12)" :
-    status === "upcoming" ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
+    status === "upcoming" ? "rgba(74,222,128,0.10)" : "var(--surface-active)"};
   color: ${({ status }) =>
     status === "ongoing" ? "#F87171" :
-    status === "upcoming" ? "#4ADE80" : "#A1A1AA"};
+    status === "upcoming" ? "#4ADE80" : "var(--text-2)"};
 `;
 
 const CheckinBadge = styled.span<{ checked: boolean }>`
@@ -751,14 +751,14 @@ const CheckinBadge = styled.span<{ checked: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: ${({ checked }) => checked ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
-  color: ${({ checked }) => checked ? "#4ADE80" : "#A1A1AA"};
+  background: ${({ checked }) => checked ? "rgba(74,222,128,0.10)" : "var(--surface-active)"};
+  color: ${({ checked }) => checked ? "#4ADE80" : "var(--text-2)"};
 `;
 
 const HistoryTitle = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   margin-bottom: 5px;
   white-space: nowrap;
   overflow: hidden;
@@ -776,7 +776,7 @@ const MetaItem = styled.span`
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #A1A1AA;
+  color: var(--text-2);
 `;
 
 const CheckinTime = styled.div`
@@ -790,7 +790,7 @@ const CheckinTime = styled.div`
 
 // Danger zone
 const DangerZone = styled.div`
-  background: #111113;
+  background: var(--surface);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: 18px;
   padding: 18px 16px;
@@ -803,7 +803,7 @@ const DangerZone = styled.div`
 const DangerTitle = styled.div`
   font-size: 13px;
   font-weight: 700;
-  color: #EF4444;
+  color: #F87171;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 14px;

@@ -7,13 +7,15 @@ import { api } from "../apis/endpoints";
 import { route } from "../router/route";
 import { BREAKPOINTS } from "../utils/constants";
 import { Button } from "./ui";
-import { MenuIcon, XIcon } from "./icons";
+import { MenuIcon, XIcon, SunIcon, MoonIcon } from "./icons";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function Header() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isLoggedIn = !!sessionStorage.getItem("accessToken");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   // ── Logo expand animation ────────────────────────────────────────────────
   const [logoExpanded, setLogoExpanded] = useState(false);
@@ -98,6 +100,14 @@ export default function Header() {
 
         {/* Desktop navigation */}
         <NavRight>
+          <ThemeToggle
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark"
+              ? <SunIcon size={15} color="currentColor" />
+              : <MoonIcon size={15} color="currentColor" />}
+          </ThemeToggle>
           <NavLink to={route.seminar}>Seminars</NavLink>
           {me?.role === "staff" && (
             <NavLink to={route.admin}>Admin</NavLink>
@@ -124,8 +134,17 @@ export default function Header() {
           )}
         </NavRight>
 
-        {/* Mobile hamburger */}
-        <HamburgerBtn
+        {/* Mobile: theme toggle + hamburger */}
+        <MobileControls>
+          <ThemeToggle
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark"
+              ? <SunIcon size={15} color="currentColor" />
+              : <MoonIcon size={15} color="currentColor" />}
+          </ThemeToggle>
+          <HamburgerBtn
           onClick={() => setMobileMenuOpen((v) => !v)}
           aria-label="Toggle navigation"
           aria-expanded={mobileMenuOpen}
@@ -135,6 +154,7 @@ export default function Header() {
             : <MenuIcon size={18} color="currentColor" />
           }
         </HamburgerBtn>
+        </MobileControls>
       </Inner>
 
       {/* Mobile dropdown */}
@@ -182,13 +202,14 @@ const LOGO_PARTS = [
 // ── Styled components ─────────────────────────────────────────────────────────
 
 const HeaderWrapper = styled.header`
-  background: rgba(9, 9, 11, 0.85);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--bg-glass);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 200;
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
+  transition: background 0.25s ease, border-color 0.25s ease;
 `;
 
 const Inner = styled.div`
@@ -234,7 +255,7 @@ const LogoText = styled.div`
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  color: #F4F4F5;
+  color: var(--text-1);
   overflow: hidden; /* clips suffixes during animation */
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
@@ -259,7 +280,7 @@ const LogoSuffix = styled.span<{ $expanded: boolean }>`
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
-  color: #F4F4F5;
+  color: var(--text-1);
   /* max-width drives the layout expansion; clip keeps it tidy at width:0 */
   max-width: ${({ $expanded }) => ($expanded ? "200px" : "0px")};
   opacity: ${({ $expanded }) => ($expanded ? 1 : 0)};
@@ -284,7 +305,7 @@ const NavLink = styled(Link)`
   padding: 7px 13px;
   font-size: 14px;
   font-weight: 500;
-  color: #A1A1AA;
+  color: var(--text-2);
   text-decoration: none;
   border-radius: 8px;
   position: relative;
@@ -292,8 +313,8 @@ const NavLink = styled(Link)`
   transition: color 0.18s cubic-bezier(0.16,1,0.3,1), background 0.18s;
 
   &:hover {
-    color: #F4F4F5;
-    background: rgba(255,255,255,0.05);
+    color: var(--text-1);
+    background: var(--surface-hover);
     text-decoration: none;
   }
 `;
@@ -304,17 +325,17 @@ const HamburgerBtn = styled.button`
   justify-content: center;
   width: 38px;
   height: 38px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-strong);
   border-radius: 10px;
-  background: rgba(255,255,255,0.04);
-  color: #A1A1AA;
+  background: var(--border-soft);
+  color: var(--text-2);
   cursor: pointer;
   flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
 
   &:hover {
-    background: rgba(255,255,255,0.08);
-    color: #F4F4F5;
+    background: var(--surface-active);
+    color: var(--text-1);
   }
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
@@ -325,8 +346,8 @@ const HamburgerBtn = styled.button`
 const MobileMenu = styled.div`
   display: flex;
   flex-direction: column;
-  border-top: 1px solid rgba(255,255,255,0.07);
-  background: rgba(9,9,11,0.97);
+  border-top: 1px solid var(--border);
+  background: var(--bg-glass);
   padding: 8px 0 20px;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
@@ -338,9 +359,9 @@ const MobileNavLink = styled(Link)`
   padding: 13px 24px;
   font-size: 15px;
   font-weight: 600;
-  color: #A1A1AA;
+  color: var(--text-2);
   text-decoration: none;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--surface-hover);
   transition: background 0.12s, color 0.12s;
   letter-spacing: -0.01em;
 
@@ -350,4 +371,37 @@ const MobileNavLink = styled(Link)`
 
 const MobileActionRow = styled.div`
   padding: 14px 24px 0;
+`;
+
+/** Sun / Moon icon button — shared between desktop NavRight and mobile bar */
+const ThemeToggle = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+  color: var(--text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+
+  &:hover {
+    background: var(--surface-active);
+    color: #F97316;
+    border-color: rgba(249,115,22,0.3);
+  }
+`;
+
+/** Wraps ThemeToggle + HamburgerBtn on mobile; hidden on desktop */
+const MobileControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (min-width: ${BREAKPOINTS.mobile}) {
+    display: none;
+  }
 `;

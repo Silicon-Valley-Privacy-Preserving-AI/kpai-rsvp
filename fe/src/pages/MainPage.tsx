@@ -222,12 +222,12 @@ export default function MainPage() {
               <>
                 <PreviewTitle>{nextSeminar.title}</PreviewTitle>
                 <PreviewMeta>
-                  <CalendarIcon size={12} color="#A1A1AA" />
+                  <CalendarIcon size={12} color="var(--text-2)" />
                   {formatPreviewDate(nextSeminar)}
                 </PreviewMeta>
                 {nextDetail != null && (
                   <PreviewMeta>
-                    <UsersIcon size={12} color="#A1A1AA" />
+                    <UsersIcon size={12} color="var(--text-2)" />
                     {nextDetail.current_rsvp_count} attending
                     {nextSeminar.max_capacity != null && ` / ${nextSeminar.max_capacity}`}
                   </PreviewMeta>
@@ -393,7 +393,7 @@ const HeroBadge = styled.span`
 const HeroTitle = styled.h1`
   font-size: 44px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.05em;
   line-height: 1.0;
   margin-bottom: 22px;
@@ -406,7 +406,7 @@ const HeroTitle = styled.h1`
 
 const HeroSub = styled.p`
   font-size: 16px;
-  color: #A1A1AA;
+  color: var(--text-2);
   max-width: 460px;
   margin: 0 0 32px;
   line-height: 1.7;
@@ -434,14 +434,14 @@ const Stat = styled.div``;
 const StatNumber = styled.div`
   font-size: 18px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 `;
 
 const StatLabel = styled.div`
   font-size: 11px;
-  color: #71717A;
+  color: var(--text-3);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -451,7 +451,7 @@ const StatLabel = styled.div`
 const StatDiv = styled.div`
   width: 1px;
   height: 28px;
-  background: rgba(255,255,255,0.08);
+  background: var(--surface-active);
   flex-shrink: 0;
 `;
 
@@ -478,8 +478,8 @@ const PreviewCard = styled.div`
   position: absolute;
   bottom: 16px;
   right: -8px;
-  background: #1A1A1E;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
   border-radius: 16px;
   padding: 18px 20px;
   width: 232px;
@@ -511,7 +511,7 @@ const PulseDot = styled.span`
 const PreviewTitle = styled.div`
   font-size: 13px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
   line-height: 1.35;
   margin-bottom: 10px;
@@ -522,14 +522,14 @@ const PreviewMeta = styled.div`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  color: #71717A;
+  color: var(--text-3);
   margin-bottom: 4px;
 `;
 
 const PreviewRsvp = styled.div`
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255,255,255,0.07);
+  border-top: 1px solid var(--border);
   display: inline-flex;
   align-items: center;
   padding: 6px 14px;
@@ -545,9 +545,9 @@ const PreviewRsvp = styled.div`
 const shimmerBase = css`
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0.04) 25%,
+    var(--border-soft) 25%,
     rgba(255,255,255,0.09) 50%,
-    rgba(255,255,255,0.04) 75%
+    var(--border-soft) 75%
   );
   background-size: 200% 100%;
   animation: ${shimmer} 1.6s linear infinite;
@@ -578,7 +578,7 @@ const PreviewSkeletonBtn = styled.div`
 
 const PreviewEmpty = styled.p`
   font-size: 12px;
-  color: #71717A;
+  color: var(--text-3);
   margin: 4px 0 0;
   line-height: 1.5;
 `;
@@ -586,8 +586,8 @@ const PreviewEmpty = styled.p`
 // ── User card ─────────────────────────────────────────────────────────────────
 
 const UserCard = styled.div`
-  background: #1A1A1E;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 18px 24px;
   display: flex;
@@ -621,18 +621,18 @@ const Avatar = styled.div`
 const UserName = styled.div`
   font-weight: 700;
   font-size: 15px;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
 `;
 
 const UserEmail = styled.div`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
   margin-top: 1px;
 `;
 
 const LoadingDots = styled.p`
-  color: #71717A;
+  color: var(--text-3);
   font-size: 14px;
 `;
 
@@ -645,7 +645,7 @@ const TileSectionLabel = styled.div`
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #71717A;
+  color: var(--text-3);
   margin-bottom: 16px;
 `;
 
@@ -663,8 +663,8 @@ const baseTileCSS = `
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  background: #1A1A1E;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 16px;
   text-decoration: none;
   transition: border-color 0.22s cubic-bezier(0.16,1,0.3,1), background 0.22s, transform 0.22s cubic-bezier(0.16,1,0.3,1);
@@ -713,14 +713,14 @@ const TileIconWrap = styled.div<{ small?: boolean }>`
 const TileTitle = styled.div`
   font-size: 15px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   margin-bottom: 5px;
   letter-spacing: -0.02em;
 `;
 
 const TileDesc = styled.div`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
   line-height: 1.55;
   letter-spacing: -0.01em;
 `;

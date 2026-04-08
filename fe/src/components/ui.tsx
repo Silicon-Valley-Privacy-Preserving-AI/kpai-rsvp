@@ -15,15 +15,15 @@ export const colors = {
   warning:       "#FBBF24",
   warningBg:     "rgba(251,191,36,0.12)",
   // Surfaces
-  surface:       "#1A1A1E",                   // Raised surface — cards
-  background:    "#09090B",                   // Void black — canvas
-  border:        "rgba(255,255,255,0.07)",    // Whisper border
-  borderLight:   "rgba(255,255,255,0.04)",    // Ultra-subtle structural lines
-  borderSoft:    "rgba(255,255,255,0.12)",    // Interactive element borders
+  surface:       "var(--surface-2)",                   // Raised surface — cards
+  background:    "var(--bg)",                   // Void black — canvas
+  border:        "var(--border)",    // Whisper border
+  borderLight:   "var(--border-soft)",    // Ultra-subtle structural lines
+  borderSoft:    "var(--border-strong)",    // Interactive element borders
   // Text
-  text:          "#F4F4F5",                   // Primary — zinc-100
-  textSecondary: "#A1A1AA",                   // Secondary — zinc-400
-  textMuted:     "#71717A",                   // Muted — zinc-600
+  text:          "var(--text-1)",                   // Primary — zinc-100
+  textSecondary: "var(--text-2)",                   // Secondary — zinc-400
+  textMuted:     "var(--text-3)",                   // Muted — zinc-600
 };
 
 // ── Keyframes ─────────────────────────────────────────────────────────────────
@@ -68,10 +68,10 @@ export const Button = styled.button<{
     switch (variant) {
       case "secondary":
         return css`
-          background: rgba(255,255,255,0.06);
-          color: #E4E4E7;
-          border: 1px solid rgba(255,255,255,0.12);
-          &:hover:not(:disabled) { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18); }
+          background: var(--surface-active);
+          color: var(--text-1);
+          border: 1px solid var(--border-strong);
+          &:hover:not(:disabled) { background: var(--border-strong); border-color: var(--border-strong); }
           &:active:not(:disabled) { transform: scale(0.98); }
         `;
       case "danger":
@@ -86,7 +86,7 @@ export const Button = styled.button<{
         return css`
           background: transparent;
           color: ${colors.textSecondary};
-          &:hover:not(:disabled) { background: rgba(255,255,255,0.05); color: ${colors.text}; }
+          &:hover:not(:disabled) { background: var(--surface-hover); color: ${colors.text}; }
           &:active:not(:disabled) { transform: scale(0.98); }
         `;
       case "outline":
@@ -133,7 +133,7 @@ export const Card = styled.div<{ hoverable?: boolean }>`
       cursor: pointer;
       transition: box-shadow 0.25s cubic-bezier(0.16,1,0.3,1), transform 0.25s cubic-bezier(0.16,1,0.3,1), border-color 0.2s;
       &:hover {
-        border-color: rgba(255,255,255,0.14);
+        border-color: var(--border-strong);
         box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(249,115,22,0.06);
         transform: translateY(-2px);
       }
@@ -151,11 +151,11 @@ export const Input = styled.input`
   padding: 10px 14px;
   font-size: 14px;
   font-family: inherit;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-strong);
   border-radius: 10px;
   outline: none;
   transition: border-color 0.18s, box-shadow 0.18s;
-  background: #111113;
+  background: var(--surface);
   color: ${colors.text};
 
   &::placeholder { color: ${colors.textMuted}; }
@@ -172,11 +172,11 @@ export const Textarea = styled.textarea`
   padding: 10px 14px;
   font-size: 14px;
   font-family: inherit;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-strong);
   border-radius: 10px;
   outline: none;
   transition: border-color 0.18s, box-shadow 0.18s;
-  background: #111113;
+  background: var(--surface);
   color: ${colors.text};
   resize: vertical;
   min-height: 90px;
@@ -195,15 +195,15 @@ export const Select = styled.select`
   padding: 10px 14px;
   font-size: 14px;
   font-family: inherit;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-strong);
   border-radius: 10px;
   outline: none;
   transition: border-color 0.18s, box-shadow 0.18s;
-  background: #111113;
+  background: var(--surface);
   color: ${colors.text};
   cursor: pointer;
 
-  option { background: #1A1A1E; color: ${colors.text}; }
+  option { background: var(--surface-2); color: ${colors.text}; }
 
   &:focus {
     border-color: ${colors.primary};
@@ -265,7 +265,7 @@ export const Badge = styled.span<{ color?: BadgeColor }>`
       case "green":  return css`background: rgba(34,197,94,0.14);  color: #22C55E;`;
       case "red":    return css`background: rgba(248,113,113,0.14); color: #F87171;`;
       case "orange": return css`background: rgba(249,115,22,0.14); color: #F97316;`;
-      default:       return css`background: rgba(255,255,255,0.07); color: ${colors.textSecondary};`;
+      default:       return css`background: var(--border); color: ${colors.textSecondary};`;
     }
   }}
 `;
@@ -352,7 +352,7 @@ export const Table = styled.table`
 `;
 
 export const Thead = styled.thead`
-  background: rgba(255,255,255,0.03);
+  background: var(--surface-3);
 `;
 
 export const Th = styled.th`
@@ -377,14 +377,14 @@ export const Td = styled.td`
 export const Tr = styled.tr`
   transition: background 0.12s;
   &:last-child ${Td} { border-bottom: none; }
-  &:hover ${Td} { background: rgba(255,255,255,0.025); }
+  &:hover ${Td} { background: var(--surface-3); }
 `;
 
 // ── Modal overlay ─────────────────────────────────────────────────────────────
 export const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -394,12 +394,12 @@ export const ModalOverlay = styled.div`
 `;
 
 export const ModalCard = styled.div`
-  background: #1A1A1E;
+  background: var(--surface-2);
   border-radius: 20px;
   padding: 32px;
   max-width: 440px;
   width: 100%;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-strong);
   box-shadow: 0 24px 80px rgba(0,0,0,0.6);
 `;
 
@@ -416,7 +416,7 @@ export const Spinner = styled.div`
   display: inline-block;
   width: 28px;
   height: 28px;
-  border: 2px solid rgba(255,255,255,0.08);
+  border: 2px solid var(--surface-active);
   border-top-color: ${colors.primary};
   border-radius: 50%;
   animation: spin 0.6s cubic-bezier(0.4,0,0.2,1) infinite;
@@ -442,7 +442,7 @@ export const Skeleton = styled.div<{ w?: string; h?: string; radius?: string }>`
   width: ${({ w }) => w ?? "100%"};
   height: ${({ h }) => h ?? "16px"};
   border-radius: ${({ radius }) => radius ?? "6px"};
-  background: linear-gradient(90deg, #1A1A1E 0%, #222228 50%, #1A1A1E 100%);
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-shimmer) 50%, var(--surface-2) 100%);
   background-size: 400px 100%;
   animation: ${shimmer} 1.4s ease-in-out infinite;
 `;

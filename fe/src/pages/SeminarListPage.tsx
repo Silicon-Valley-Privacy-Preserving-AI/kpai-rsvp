@@ -475,14 +475,14 @@ const TimezoneSelect = styled.select`
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   font-size: 13px;
-  color: #F4F4F5;
-  background: #111113;
+  color: var(--text-1);
+  background: var(--surface);
   cursor: pointer;
   font-family: inherit;
 
   option {
-    background: #1A1A1E;
-    color: #F4F4F5;
+    background: var(--surface-2);
+    color: var(--text-1);
   }
 
   &:focus {
@@ -493,7 +493,7 @@ const TimezoneSelect = styled.select`
 `;
 
 const CreateForm = styled.div`
-  background: #111113;
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 18px 16px 16px;
@@ -507,7 +507,7 @@ const CreateForm = styled.div`
 const CreateFormTitle = styled.h2`
   font-size: 18px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.02em;
   margin-bottom: 20px;
 `;
@@ -541,7 +541,7 @@ const Grid = styled.div`
 `;
 
 const SeminarCard = styled.div<{ ended?: boolean }>`
-  background: #111113;
+  background: var(--surface);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 16px;
   overflow: hidden;
@@ -578,10 +578,10 @@ const StatusBadge = styled.span<{ status: SeminarStatus }>`
   letter-spacing: 0.03em;
   background: ${({ status }) =>
     status === "ongoing" ? "rgba(248, 113, 113, 0.12)" :
-    status === "upcoming" ? "rgba(74, 222, 128, 0.10)" : "rgba(255,255,255,0.05)"};
+    status === "upcoming" ? "rgba(74, 222, 128, 0.10)" : "var(--surface-hover)"};
   color: ${({ status }) =>
     status === "ongoing" ? "#F87171" :
-    status === "upcoming" ? "#4ADE80" : "#A1A1AA"};
+    status === "upcoming" ? "#4ADE80" : "var(--text-2)"};
 `;
 
 const LiveDot = styled.span`
@@ -612,7 +612,7 @@ const TagRowTop = styled.div`
 const SeminarTitle = styled.h2`
   font-size: 17px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   margin-bottom: 4px;
   line-height: 1.35;
   letter-spacing: -0.02em;
@@ -630,7 +630,7 @@ const HostLine = styled.div`
 
 const Description = styled.p`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
   line-height: 1.5;
   margin-bottom: 12px;
   display: -webkit-box;
@@ -648,7 +648,7 @@ const MetaBlock = styled.div`
 
 const MetaItem = styled.div`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -693,20 +693,20 @@ const FilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus
   white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   border: 1.5px solid ${({ active, status }) =>
-    !active ? "rgba(255,255,255,0.1)" :
+    !active ? "var(--border-strong)" :
     status === "ongoing" ? "rgba(248,113,113,0.5)" :
     status === "upcoming" ? "rgba(74,222,128,0.4)" :
     status === "ended" ? "rgba(255,255,255,0.15)" : "rgba(249,115,22,0.5)"};
   background: ${({ active, status }) =>
-    !active ? "rgba(255,255,255,0.04)" :
+    !active ? "var(--border-soft)" :
     status === "ongoing" ? "rgba(248,113,113,0.1)" :
     status === "upcoming" ? "rgba(74,222,128,0.08)" :
-    status === "ended" ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.1)"};
+    status === "ended" ? "var(--surface-active)" : "rgba(249,115,22,0.1)"};
   color: ${({ active, status }) =>
-    !active ? "#A1A1AA" :
+    !active ? "var(--text-2)" :
     status === "ongoing" ? "#F87171" :
     status === "upcoming" ? "#4ADE80" :
-    status === "ended" ? "#A1A1AA" : "#F97316"};
+    status === "ended" ? "var(--text-2)" : "#F97316"};
 
   &:hover {
     border-color: ${({ status }) =>
@@ -716,16 +716,16 @@ const FilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus
     color: ${({ status }) =>
       status === "ongoing" ? "#F87171" :
       status === "upcoming" ? "#4ADE80" :
-      status === "ended" ? "#A1A1AA" : "#F97316"};
+      status === "ended" ? "var(--text-2)" : "#F97316"};
     background: ${({ status }) =>
       status === "ongoing" ? "rgba(248,113,113,0.08)" :
       status === "upcoming" ? "rgba(74,222,128,0.06)" :
-      status === "ended" ? "rgba(255,255,255,0.04)" : "rgba(249,115,22,0.08)"};
+      status === "ended" ? "var(--border-soft)" : "rgba(249,115,22,0.08)"};
   }
 `;
 
 const FilterCount = styled.span<{ active: boolean }>`
-  background: ${({ active }) => active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.07)"};
+  background: ${({ active }) => active ? "var(--border-strong)" : "var(--border)"};
   color: inherit;
   font-size: 11px;
   font-weight: 700;
@@ -768,7 +768,7 @@ const SortDirBtn = styled.button`
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
-  color: #A1A1AA;
+  color: var(--text-2);
   cursor: pointer;
   white-space: nowrap;
   font-family: inherit;
@@ -777,6 +777,6 @@ const SortDirBtn = styled.button`
   &:hover {
     background: rgba(255, 255, 255, 0.07);
     border-color: rgba(255, 255, 255, 0.18);
-    color: #F4F4F5;
+    color: var(--text-1);
   }
 `;

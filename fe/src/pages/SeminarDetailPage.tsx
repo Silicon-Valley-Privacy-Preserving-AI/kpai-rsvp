@@ -500,7 +500,7 @@ export default function SeminarDetailPage() {
               {reminderMutation.isPending ? "Sending…" : "Send Reminder"}
             </Button>
             {seminar.current_rsvp_count === 0 && (
-              <span style={{ fontSize: 13, color: "#71717A" }}>No RSVPs yet</span>
+              <span style={{ fontSize: 13, color: "var(--text-3)" }}>No RSVPs yet</span>
             )}
           </div>
           {reminderResult && (
@@ -751,7 +751,7 @@ const RsvpPanelTitle = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #71717A;
+  color: var(--text-3);
 `;
 
 const TagRow = styled.div`
@@ -764,7 +764,7 @@ const TagRow = styled.div`
 const SeminarTitle = styled.h1`
   font-size: 22px;
   font-weight: 800;
-  color: #F4F4F5;
+  color: var(--text-1);
   letter-spacing: -0.03em;
   margin-bottom: 6px;
 
@@ -816,13 +816,13 @@ const MetaLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #71717A;
+  color: var(--text-3);
   margin-bottom: 2px;
 `;
 
 const MetaValue = styled.div`
   font-size: 14px;
-  color: #F4F4F5;
+  color: var(--text-1);
   font-weight: 500;
 `;
 
@@ -847,9 +847,9 @@ const TzToggleBtn = styled.button<{ active: boolean }>`
   white-space: nowrap;
   font-family: inherit;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
-  border: 1.5px solid ${({ active }) => active ? "rgba(249,115,22,0.5)" : "rgba(255,255,255,0.1)"};
-  background: ${({ active }) => active ? "rgba(249,115,22,0.1)" : "rgba(255,255,255,0.04)"};
-  color: ${({ active }) => active ? "#F97316" : "#A1A1AA"};
+  border: 1.5px solid ${({ active }) => active ? "rgba(249,115,22,0.5)" : "var(--border-strong)"};
+  background: ${({ active }) => active ? "rgba(249,115,22,0.1)" : "var(--border-soft)"};
+  color: ${({ active }) => active ? "#F97316" : "var(--text-2)"};
 
   &:hover {
     border-color: rgba(249, 115, 22, 0.4);
@@ -863,14 +863,14 @@ const TimezoneSelect = styled.select`
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   font-size: 13px;
-  color: #F4F4F5;
-  background: #111113;
+  color: var(--text-1);
+  background: var(--surface);
   cursor: pointer;
   font-family: inherit;
 
   option {
-    background: #1A1A1E;
-    color: #F4F4F5;
+    background: var(--surface-2);
+    color: var(--text-1);
   }
 
   &:focus {
@@ -903,7 +903,7 @@ const EditActions = styled.div`
 
 const SectionDesc = styled.p`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
   margin-bottom: 14px;
 `;
 
@@ -925,7 +925,7 @@ const RsvpBadge = styled.div<{ confirmed?: boolean }>`
 
 const RsvpSub = styled.div`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -970,8 +970,8 @@ const DurationInput = styled.input`
   border-radius: 8px;
   outline: none;
   font-family: inherit;
-  background: #111113;
-  color: #F4F4F5;
+  background: var(--surface);
+  color: var(--text-1);
 
   &:focus {
     border-color: #F97316;
@@ -988,7 +988,7 @@ const CsvRow = styled.div`
 
 const FileInput = styled.input`
   font-size: 13px;
-  color: #A1A1AA;
+  color: var(--text-2);
 
   &::file-selector-button {
     padding: 7px 14px;
@@ -1018,7 +1018,7 @@ const ImportResult = styled.div`
 const ImportResultTitle = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #F4F4F5;
+  color: var(--text-1);
   margin-bottom: 12px;
 `;
 
@@ -1035,8 +1035,8 @@ const ImportStat = styled.div`
   flex-direction: column;
   gap: 2px;
 
-  span { font-size: 11px; color: #71717A; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-  strong { font-size: 18px; color: #F4F4F5; letter-spacing: -0.02em; }
+  span { font-size: 11px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  strong { font-size: 18px; color: var(--text-1); letter-spacing: -0.02em; }
 `;
 
 const RsvpActionCell = styled.div`
@@ -1082,10 +1082,10 @@ const DetailStatusBadge = styled.span<{ status: "upcoming" | "ongoing" | "ended"
   letter-spacing: 0.03em;
   background: ${({ status }) =>
     status === "ongoing" ? "rgba(248,113,113,0.12)" :
-    status === "upcoming" ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
+    status === "upcoming" ? "rgba(74,222,128,0.10)" : "var(--surface-active)"};
   color: ${({ status }) =>
     status === "ongoing" ? "#F87171" :
-    status === "upcoming" ? "#4ADE80" : "#A1A1AA"};
+    status === "upcoming" ? "#4ADE80" : "var(--text-2)"};
 `;
 
 const DetailLiveDot = styled.span`
