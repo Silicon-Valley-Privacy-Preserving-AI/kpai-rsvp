@@ -23,7 +23,7 @@ export const colors = {
   // Text
   text:          "#F4F4F5",                   // Primary — zinc-100
   textSecondary: "#A1A1AA",                   // Secondary — zinc-400
-  textMuted:     "#52525B",                   // Muted — zinc-600
+  textMuted:     "#71717A",                   // Muted — zinc-600
 };
 
 // ── Keyframes ─────────────────────────────────────────────────────────────────

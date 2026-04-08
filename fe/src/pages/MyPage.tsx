@@ -468,7 +468,7 @@ const ProfileName = styled.div`
 
 const ProfileEmail = styled.div`
   font-size: 14px;
-  color: #71717A;
+  color: #A1A1AA;
   margin-bottom: 10px;
 `;
 
@@ -493,7 +493,7 @@ const MemberBadge = styled.span`
 
 const JoinDate = styled.div`
   font-size: 12px;
-  color: #52525B;
+  color: #71717A;
 `;
 
 const ProfileActions = styled.div`
@@ -514,7 +514,7 @@ const MembershipLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #52525B;
+  color: #71717A;
   margin-bottom: 10px;
 `;
 
@@ -524,7 +524,7 @@ const MembershipStatus = styled.div<{ active?: boolean }>`
   gap: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: ${({ active }) => active ? "#38BDF8" : "#71717A"};
+  color: ${({ active }) => active ? "#38BDF8" : "#A1A1AA"};
 `;
 
 const MembershipProgress = styled.div`
@@ -550,7 +550,7 @@ const ProgressFill = styled.div<{ pct: number }>`
 
 const ProgressLabel = styled.div`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
 `;
 
 const StatRow = styled.div`
@@ -586,7 +586,7 @@ const StatNum = styled.div`
 const StatLabel = styled.div`
   font-size: 9px;
   font-weight: 600;
-  color: #52525B;
+  color: #71717A;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-top: 3px;
@@ -647,7 +647,7 @@ const Divider = styled.hr`
 const SectionLabel = styled.div`
   font-size: 12px;
   font-weight: 700;
-  color: #52525B;
+  color: #71717A;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 14px;
@@ -740,7 +740,7 @@ const StatusPill = styled.span<{ status: SeminarStatus }>`
     status === "upcoming" ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
   color: ${({ status }) =>
     status === "ongoing" ? "#F87171" :
-    status === "upcoming" ? "#4ADE80" : "#71717A"};
+    status === "upcoming" ? "#4ADE80" : "#A1A1AA"};
 `;
 
 const CheckinBadge = styled.span<{ checked: boolean }>`
@@ -752,7 +752,7 @@ const CheckinBadge = styled.span<{ checked: boolean }>`
   align-items: center;
   gap: 3px;
   background: ${({ checked }) => checked ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
-  color: ${({ checked }) => checked ? "#4ADE80" : "#71717A"};
+  color: ${({ checked }) => checked ? "#4ADE80" : "#A1A1AA"};
 `;
 
 const HistoryTitle = styled.div`
@@ -776,7 +776,7 @@ const MetaItem = styled.span`
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #71717A;
+  color: #A1A1AA;
 `;
 
 const CheckinTime = styled.div`

@@ -304,7 +304,7 @@ const CardTitle = styled.h1`
 
 const CardSub = styled.p`
   font-size: 14px;
-  color: #71717A;
+  color: #A1A1AA;
 `;
 
 const Divider = styled.hr`
@@ -316,7 +316,7 @@ const Divider = styled.hr`
 const FooterText = styled.p`
   text-align: center;
   font-size: 14px;
-  color: #71717A;
+  color: #A1A1AA;
 
   a {
     color: #F97316;
@@ -335,7 +335,7 @@ const ModalTitle = styled.h2`
 
 const ModalDesc = styled.p`
   font-size: 14px;
-  color: #71717A;
+  color: #A1A1AA;
   margin-bottom: 20px;
   line-height: 1.6;
 `;
@@ -354,7 +354,7 @@ const TempRow = styled.div`
   font-size: 14px;
   padding: 4px 0;
 
-  span { color: #71717A; }
+  span { color: #A1A1AA; }
   strong { color: #F4F4F5; }
 `;
 

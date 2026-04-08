@@ -581,7 +581,7 @@ const StatusBadge = styled.span<{ status: SeminarStatus }>`
     status === "upcoming" ? "rgba(74, 222, 128, 0.10)" : "rgba(255,255,255,0.05)"};
   color: ${({ status }) =>
     status === "ongoing" ? "#F87171" :
-    status === "upcoming" ? "#4ADE80" : "#71717A"};
+    status === "upcoming" ? "#4ADE80" : "#A1A1AA"};
 `;
 
 const LiveDot = styled.span`
@@ -630,7 +630,7 @@ const HostLine = styled.div`
 
 const Description = styled.p`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
   line-height: 1.5;
   margin-bottom: 12px;
   display: -webkit-box;
@@ -648,7 +648,7 @@ const MetaBlock = styled.div`
 
 const MetaItem = styled.div`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -703,7 +703,7 @@ const FilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus
     status === "upcoming" ? "rgba(74,222,128,0.08)" :
     status === "ended" ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.1)"};
   color: ${({ active, status }) =>
-    !active ? "#71717A" :
+    !active ? "#A1A1AA" :
     status === "ongoing" ? "#F87171" :
     status === "upcoming" ? "#4ADE80" :
     status === "ended" ? "#A1A1AA" : "#F97316"};

@@ -84,5 +84,5 @@ const Title = styled.h2`
 
 const Sub = styled.p`
   font-size: 14px;
-  color: #71717A;
+  color: #A1A1AA;
 `;

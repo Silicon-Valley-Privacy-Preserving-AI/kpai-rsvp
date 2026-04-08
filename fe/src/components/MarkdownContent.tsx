@@ -26,7 +26,7 @@ export default function MarkdownContent({ children, compact }: Props) {
 
 const Prose = styled.div<{ compact?: boolean }>`
   font-size: ${({ compact }) => (compact ? "13px" : "15px")};
-  color: #374151;
+  color: #A1A1AA;
   line-height: 1.75;
 
   /* Headings */
@@ -83,7 +83,7 @@ const Prose = styled.div<{ compact?: boolean }>`
     margin: ${({ compact }) => (compact ? "8px 0" : "16px 0")};
     padding: 10px 16px;
     border-radius: 0 8px 8px 0;
-    color: #4b5563;
+    color: #A1A1AA;
     font-style: italic;
 
     p { margin: 0; }
@@ -115,7 +115,7 @@ const Prose = styled.div<{ compact?: boolean }>`
     color: #F97316;
     text-decoration: underline;
     text-underline-offset: 2px;
-    &:hover { color: #5849e8; }
+    &:hover { color: #FB923C; }
   }
 
   /* Tables (GFM) */
@@ -130,7 +130,7 @@ const Prose = styled.div<{ compact?: boolean }>`
   th {
     background: rgba(255,255,255,0.04);
     font-weight: 700;
-    color: #71717A;
+    color: #A1A1AA;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -141,7 +141,7 @@ const Prose = styled.div<{ compact?: boolean }>`
   td {
     padding: 8px 12px;
     border: 1px solid rgba(255,255,255,0.08);
-    color: #374151;
+    color: #A1A1AA;
   }
   tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
 

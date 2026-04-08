@@ -155,11 +155,11 @@ export default function MainPage() {
             </PreviewLabel>
             <PreviewTitle>Differential Privacy in LLM Fine-Tuning</PreviewTitle>
             <PreviewMeta>
-              <CalendarIcon size={12} color="#52525B" />
+              <CalendarIcon size={12} color="#71717A" />
               Apr 22, 2026 · Palo Alto
             </PreviewMeta>
             <PreviewMeta>
-              <UsersIcon size={12} color="#52525B" />
+              <UsersIcon size={12} color="#71717A" />
               28 attending
             </PreviewMeta>
             <PreviewRsvp>RSVP Now</PreviewRsvp>
@@ -359,7 +359,7 @@ const StatNumber = styled.div`
 
 const StatLabel = styled.div`
   font-size: 11px;
-  color: #52525B;
+  color: #71717A;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -440,7 +440,7 @@ const PreviewMeta = styled.div`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  color: #52525B;
+  color: #71717A;
   margin-bottom: 4px;
 `;
 
@@ -504,12 +504,12 @@ const UserName = styled.div`
 
 const UserEmail = styled.div`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
   margin-top: 1px;
 `;
 
 const LoadingDots = styled.p`
-  color: #52525B;
+  color: #71717A;
   font-size: 14px;
 `;
 
@@ -522,7 +522,7 @@ const TileSectionLabel = styled.div`
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #52525B;
+  color: #71717A;
   margin-bottom: 16px;
 `;
 
@@ -597,7 +597,7 @@ const TileTitle = styled.div`
 
 const TileDesc = styled.div`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
   line-height: 1.55;
   letter-spacing: -0.01em;
 `;

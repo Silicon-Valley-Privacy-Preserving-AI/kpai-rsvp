@@ -596,7 +596,7 @@ const ModeBtn = styled.button<{ active: boolean }>`
   border: none;
   border-right: 1px solid rgba(255,255,255,0.08);
   background: ${({ active }) => active ? "#F97316" : "rgba(255,255,255,0.04)"};
-  color: ${({ active }) => active ? "#fff" : "#71717A"};
+  color: ${({ active }) => active ? "#fff" : "#A1A1AA"};
   font-size: 12px;
   font-weight: ${({ active }) => active ? 600 : 400};
   cursor: pointer;
@@ -660,7 +660,7 @@ const KpiLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #71717A;
+  color: #A1A1AA;
   margin-bottom: 4px;
 `;
 
@@ -707,7 +707,7 @@ const ChartTabBtn = styled.button<{ active: boolean }>`
   border-radius: 20px;
   border: 1px solid ${({ active }) => active ? "#F97316" : "#e5e7eb"};
   background: ${({ active }) => active ? "#F97316" : "rgba(255,255,255,0.04)"};
-  color: ${({ active }) => active ? "#fff" : "#71717A"};
+  color: ${({ active }) => active ? "#fff" : "#A1A1AA"};
   font-size: 13px;
   font-weight: ${({ active }) => active ? 600 : 400};
   cursor: pointer;
@@ -744,7 +744,7 @@ const CapacityLegend = styled.div`
 
 const CapLegItem = styled.div<{ color: string }>`
   font-size: 11px;
-  color: #71717A;
+  color: #A1A1AA;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -829,7 +829,7 @@ const RankHeader = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #52525B;
+  color: #71717A;
   gap: 8px;
 
   @media (max-width: 640px) {
@@ -860,7 +860,7 @@ const RankRow = styled.div<{ highlight?: boolean }>`
 const RankNum = styled.div`
   font-size: 13px;
   font-weight: 700;
-  color: #9ca3af;
+  color: #A1A1AA;
   text-align: center;
 `;
 
@@ -875,7 +875,7 @@ const RankName = styled.div`
 
 const RankCell = styled.div`
   font-size: 13px;
-  color: #374151;
+  color: #A1A1AA;
 `;
 
 const RateBar = styled.div`

@@ -153,7 +153,7 @@ const CardTitle = styled.h1`
 
 const CardSub = styled.p`
   font-size: 14px;
-  color: #71717A;
+  color: #A1A1AA;
 `;
 
 const Divider = styled.hr`
@@ -165,7 +165,7 @@ const Divider = styled.hr`
 const FooterText = styled.p`
   text-align: center;
   font-size: 14px;
-  color: #71717A;
+  color: #A1A1AA;
 
   a {
     color: #F97316;

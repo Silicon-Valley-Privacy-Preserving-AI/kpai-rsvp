@@ -220,7 +220,7 @@ function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: 
                     return (
                       <Tr key={r.id}>
                         <Td style={{ fontWeight: 600 }}>{user?.username ?? `#${r.user_id}`}</Td>
-                        <Td style={{ color: "#71717A", fontSize: 13 }}>{user?.email ?? "—"}</Td>
+                        <Td style={{ color: "#A1A1AA", fontSize: 13 }}>{user?.email ?? "—"}</Td>
                         <Td>
                           {user ? (
                             <Badge color={user.is_temporary ? "orange" : "blue"}>
@@ -228,13 +228,13 @@ function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: 
                             </Badge>
                           ) : "—"}
                         </Td>
-                        <Td style={{ fontSize: 13, color: "#71717A" }}>{formatDate(r.created_at)}</Td>
+                        <Td style={{ fontSize: 13, color: "#A1A1AA" }}>{formatDate(r.created_at)}</Td>
                         <Td>
                           <Badge color={r.checked_in ? "green" : "gray"}>
                             {r.checked_in ? "Done" : "Pending"}
                           </Badge>
                         </Td>
-                        <Td style={{ fontSize: 13, color: "#71717A" }}>{formatDate(r.checked_in_at)}</Td>
+                        <Td style={{ fontSize: 13, color: "#A1A1AA" }}>{formatDate(r.checked_in_at)}</Td>
                         <Td>
                           <Button
                             size="sm"
@@ -466,10 +466,10 @@ export default function AdminPage() {
                   selected={selectedUserId === u.id}
                   onClick={() => setSelectedUserId(selectedUserId === u.id ? null : u.id)}
                 >
-                  <Td style={{ color: "#52525B", fontSize: 13 }}>#{u.id}</Td>
-                  <Td style={{ fontSize: 13, color: "#71717A", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
+                  <Td style={{ color: "#71717A", fontSize: 13 }}>#{u.id}</Td>
+                  <Td style={{ fontSize: 13, color: "#A1A1AA", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
                   <Td style={{ fontWeight: 600 }}>{u.username}</Td>
-                  <Td style={{ color: "#71717A", fontSize: 13 }}>{u.email}</Td>
+                  <Td style={{ color: "#A1A1AA", fontSize: 13 }}>{u.email}</Td>
                   <Td>
                     <Badge color={u.role === "staff" ? "purple" : "green"}>
                       {u.role === "staff" ? "Staff" : "Member"}
@@ -686,7 +686,7 @@ const StatNum = styled.div`
 const StatLabel = styled.div`
   font-size: 11px;
   font-weight: 600;
-  color: #52525B;
+  color: #71717A;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 4px;
@@ -732,7 +732,7 @@ const TabBtn = styled.button<{ active?: boolean }>`
 
 const TabCount = styled.span`
   background: rgba(255,255,255,0.06);
-  color: #71717A;
+  color: #A1A1AA;
   font-size: 12px;
   padding: 1px 7px;
   border-radius: 10px;
@@ -788,7 +788,7 @@ const HeaderLeft = styled.div`
 
 const Chevron = styled.span<{ open: boolean }>`
   font-size: 11px;
-  color: #52525B;
+  color: #71717A;
   transition: transform 0.2s;
   transform: ${({ open }) => (open ? "rotate(90deg)" : "rotate(0deg)")};
   flex-shrink: 0;
@@ -824,7 +824,7 @@ const SeminarMeta = styled.div`
 
   span {
     font-size: 12px;
-    color: #52525B;
+    color: #71717A;
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -867,7 +867,7 @@ const PillNum = styled.div`
 const PillLabel = styled.div`
   font-size: 10px;
   font-weight: 600;
-  color: #71717A;
+  color: #A1A1AA;
   text-transform: uppercase;
   margin-top: 2px;
   letter-spacing: 0.04em;
@@ -914,7 +914,7 @@ const OverCapLabel = styled.span`
 const StatSub = styled.div`
   font-size: 11px;
   font-weight: 600;
-  color: #52525B;
+  color: #71717A;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-top: 2px;
@@ -986,13 +986,13 @@ const DrawerName = styled.div`
 
 const DrawerEmail = styled.div`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
   word-break: break-all;
 `;
 
 const DrawerCloseBtn = styled.button`
   font-size: 16px;
-  color: #52525B;
+  color: #71717A;
   background: none;
   border: none;
   cursor: pointer;
@@ -1012,7 +1012,7 @@ const DrawerBadgeRow = styled.div`
 
 const DrawerMeta = styled.div`
   font-size: 12px;
-  color: #52525B;
+  color: #71717A;
   padding: 6px 20px 16px;
   border-bottom: 1px solid rgba(255,255,255,0.07);
 `;
@@ -1044,7 +1044,7 @@ const DrawerStatLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #52525B;
+  color: #71717A;
 `;
 
 const DrawerSection = styled.div`
@@ -1058,7 +1058,7 @@ const DrawerSectionTitle = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #52525B;
+  color: #71717A;
   margin-bottom: 10px;
 `;
 
@@ -1095,7 +1095,7 @@ const DrawerHistoryTitle = styled.div`
 
 const DrawerHistoryDate = styled.div`
   font-size: 11px;
-  color: #52525B;
+  color: #71717A;
   margin-top: 2px;
 `;
 
@@ -1136,14 +1136,14 @@ const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarS
     !active ? "rgba(255,255,255,0.1)" :
     status === "ongoing" ? "#F87171" :
     status === "upcoming" ? "#4ADE80" :
-    status === "ended" ? "#71717A" : "#F97316"};
+    status === "ended" ? "#A1A1AA" : "#F97316"};
   background: ${({ active, status }) =>
     !active ? "rgba(255,255,255,0.04)" :
     status === "ongoing" ? "rgba(248,113,113,0.10)" :
     status === "upcoming" ? "#dcfce7" :
     status === "ended" ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.10)"};
   color: ${({ active, status }) =>
-    !active ? "#71717A" :
+    !active ? "#A1A1AA" :
     status === "ongoing" ? "#F87171" :
     status === "upcoming" ? "#4ADE80" :
     status === "ended" ? "#4b5563" : "#F97316"};
@@ -1152,7 +1152,7 @@ const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarS
     border-color: ${({ status }) =>
       status === "ongoing" ? "#F87171" :
       status === "upcoming" ? "#4ADE80" :
-      status === "ended" ? "#71717A" : "#F97316"};
+      status === "ended" ? "#A1A1AA" : "#F97316"};
     color: ${({ status }) =>
       status === "ongoing" ? "#F87171" :
       status === "upcoming" ? "#4ADE80" :
@@ -1189,7 +1189,7 @@ const SortGroup = styled.div`
 const SortLabel = styled.span`
   font-size: 12px;
   font-weight: 600;
-  color: #52525B;
+  color: #71717A;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;

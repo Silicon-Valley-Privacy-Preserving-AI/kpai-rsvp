@@ -500,7 +500,7 @@ export default function SeminarDetailPage() {
               {reminderMutation.isPending ? "Sending…" : "Send Reminder"}
             </Button>
             {seminar.current_rsvp_count === 0 && (
-              <span style={{ fontSize: 13, color: "#52525B" }}>No RSVPs yet</span>
+              <span style={{ fontSize: 13, color: "#71717A" }}>No RSVPs yet</span>
             )}
           </div>
           {reminderResult && (
@@ -751,7 +751,7 @@ const RsvpPanelTitle = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #52525B;
+  color: #71717A;
 `;
 
 const TagRow = styled.div`
@@ -816,7 +816,7 @@ const MetaLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #52525B;
+  color: #71717A;
   margin-bottom: 2px;
 `;
 
@@ -849,7 +849,7 @@ const TzToggleBtn = styled.button<{ active: boolean }>`
   transition: background 0.15s, border-color 0.15s, color 0.15s;
   border: 1.5px solid ${({ active }) => active ? "rgba(249,115,22,0.5)" : "rgba(255,255,255,0.1)"};
   background: ${({ active }) => active ? "rgba(249,115,22,0.1)" : "rgba(255,255,255,0.04)"};
-  color: ${({ active }) => active ? "#F97316" : "#71717A"};
+  color: ${({ active }) => active ? "#F97316" : "#A1A1AA"};
 
   &:hover {
     border-color: rgba(249, 115, 22, 0.4);
@@ -903,7 +903,7 @@ const EditActions = styled.div`
 
 const SectionDesc = styled.p`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
   margin-bottom: 14px;
 `;
 
@@ -925,7 +925,7 @@ const RsvpBadge = styled.div<{ confirmed?: boolean }>`
 
 const RsvpSub = styled.div`
   font-size: 13px;
-  color: #71717A;
+  color: #A1A1AA;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1035,7 +1035,7 @@ const ImportStat = styled.div`
   flex-direction: column;
   gap: 2px;
 
-  span { font-size: 11px; color: #52525B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  span { font-size: 11px; color: #71717A; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
   strong { font-size: 18px; color: #F4F4F5; letter-spacing: -0.02em; }
 `;
 
@@ -1085,7 +1085,7 @@ const DetailStatusBadge = styled.span<{ status: "upcoming" | "ongoing" | "ended"
     status === "upcoming" ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
   color: ${({ status }) =>
     status === "ongoing" ? "#F87171" :
-    status === "upcoming" ? "#4ADE80" : "#71717A"};
+    status === "upcoming" ? "#4ADE80" : "#A1A1AA"};
 `;
 
 const DetailLiveDot = styled.span`

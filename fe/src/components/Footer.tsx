@@ -39,7 +39,7 @@ export default function Footer() {
 const FooterWrapper = styled.footer`
   background: #09090B;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
-  color: #71717A;
+  color: #A1A1AA;
   padding: 28px 24px;
 `;
 
@@ -62,7 +62,7 @@ const Copyright = styled.p`
   font-size: 13px;
   line-height: 1.5;
   margin: 0;
-  color: #52525B;
+  color: #71717A;
   letter-spacing: -0.01em;
 `;
 
@@ -74,7 +74,7 @@ const LinkGroup = styled.nav`
 
 const FooterLink = styled.a`
   font-size: 13px;
-  color: #52525B;
+  color: #71717A;
   text-decoration: none;
   letter-spacing: -0.01em;
   transition: color 0.15s;
