@@ -37,13 +37,14 @@ export default function Footer() {
 }
 
 const FooterWrapper = styled.footer`
-  background-color: #0f172a; /* slate-900 */
-  color: #cbd5f5; /* slate-300 */
-  padding: 32px 24px;
+  background: #09090B;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  color: #71717A;
+  padding: 28px 24px;
 `;
 
 const Inner = styled.div`
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
 
   display: flex;
@@ -58,24 +59,28 @@ const Inner = styled.div`
 `;
 
 const Copyright = styled.p`
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   margin: 0;
+  color: #52525B;
+  letter-spacing: -0.01em;
 `;
 
 const LinkGroup = styled.nav`
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 20px;
 `;
 
 const FooterLink = styled.a`
-  font-size: 14px;
-  color: #94a3b8; /* slate-400 */
+  font-size: 13px;
+  color: #52525B;
   text-decoration: none;
+  letter-spacing: -0.01em;
+  transition: color 0.15s;
 
   &:hover {
-    color: #e2e8f0; /* slate-200 */
-    text-decoration: underline;
+    color: #F97316;
+    text-decoration: none;
   }
 `;

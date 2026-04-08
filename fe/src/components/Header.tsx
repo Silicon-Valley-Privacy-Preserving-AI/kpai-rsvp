@@ -7,6 +7,7 @@ import { api } from "../apis/endpoints";
 import { route } from "../router/route";
 import { BREAKPOINTS } from "../utils/constants";
 import { Button } from "./ui";
+import { MenuIcon, XIcon } from "./icons";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -39,25 +40,9 @@ export default function Header() {
         <Link to="/" style={{ textDecoration: "none" }} onClick={closeMobileMenu}>
           <LogoContainer>
             <LogoImage src="/logo.png" alt="K-PAI Logo" />
-            <LogoWrapper>
-              <LetterGroup>
-                <Letter>K</Letter>
-                <ExpandedWord>orean</ExpandedWord>
-              </LetterGroup>
-              <Separator>-</Separator>
-              <LetterGroup>
-                <Letter>P</Letter>
-                <ExpandedWord>rivacy Preserving</ExpandedWord>
-              </LetterGroup>
-              <DynamicSpacer />
-              <LetterGroup>
-                <Letter>AI</Letter>
-              </LetterGroup>
-              <Spacer />
-              <LetterGroup>
-                <ExpandedWord>Forum</ExpandedWord>
-              </LetterGroup>
-            </LogoWrapper>
+            <LogoText>
+              <LogoAccent>SVAIN</LogoAccent>
+            </LogoText>
           </LogoContainer>
         </Link>
 
@@ -83,62 +68,47 @@ export default function Header() {
                 variant="primary"
                 size="sm"
               >
-                Sign Up
+                Join Forum
               </Button>
             </>
           )}
         </NavRight>
 
-        {/* Mobile hamburger button */}
+        {/* Mobile hamburger */}
         <HamburgerBtn
           onClick={() => setMobileMenuOpen((v) => !v)}
           aria-label="Toggle navigation"
           aria-expanded={mobileMenuOpen}
         >
-          {mobileMenuOpen ? "✕" : "☰"}
+          {mobileMenuOpen
+            ? <XIcon size={18} color="currentColor" />
+            : <MenuIcon size={18} color="currentColor" />
+          }
         </HamburgerBtn>
       </Inner>
 
-      {/* Mobile dropdown menu */}
+      {/* Mobile dropdown */}
       {mobileMenuOpen && (
         <MobileMenu>
-          <MobileNavLink to={route.seminar} onClick={closeMobileMenu}>
-            Seminars
-          </MobileNavLink>
+          <MobileNavLink to={route.seminar} onClick={closeMobileMenu}>Seminars</MobileNavLink>
           {me?.role === "staff" && (
-            <MobileNavLink to={route.admin} onClick={closeMobileMenu}>
-              Admin
-            </MobileNavLink>
+            <MobileNavLink to={route.admin} onClick={closeMobileMenu}>Admin</MobileNavLink>
           )}
           {isLoggedIn ? (
             <>
-              <MobileNavLink to={route.mypage} onClick={closeMobileMenu}>
-                My Page
-              </MobileNavLink>
+              <MobileNavLink to={route.mypage} onClick={closeMobileMenu}>My Page</MobileNavLink>
               <MobileActionRow>
-                <Button
-                  variant="ghost"
-                  fullWidth
-                  onClick={() => { handleLogout(); closeMobileMenu(); }}
-                >
+                <Button variant="ghost" fullWidth onClick={() => { handleLogout(); closeMobileMenu(); }}>
                   Sign Out
                 </Button>
               </MobileActionRow>
             </>
           ) : (
             <>
-              <MobileNavLink to={route.signin} onClick={closeMobileMenu}>
-                Sign In
-              </MobileNavLink>
+              <MobileNavLink to={route.signin} onClick={closeMobileMenu}>Sign In</MobileNavLink>
               <MobileActionRow>
-                <Button
-                  as={Link as any}
-                  to={route.signup}
-                  variant="primary"
-                  fullWidth
-                  onClick={closeMobileMenu}
-                >
-                  Sign Up
+                <Button as={Link as any} to={route.signup} variant="primary" fullWidth onClick={closeMobileMenu}>
+                  Join Forum
                 </Button>
               </MobileActionRow>
             </>
@@ -149,21 +119,24 @@ export default function Header() {
   );
 }
 
+// ── Styled components ─────────────────────────────────────────────────────────
+
 const HeaderWrapper = styled.header`
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: rgba(9, 9, 11, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   position: sticky;
   top: 0;
-  z-index: 100;
-  backdrop-filter: blur(8px);
+  z-index: 200;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
 `;
 
 const Inner = styled.div`
-  max-width: 1200px;
+  max-width: 1280px;
   width: 100%;
-  height: 60px;
+  height: 64px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -171,114 +144,45 @@ const Inner = styled.div`
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
     height: 68px;
-    padding: 0 32px;
+    padding: 0 40px;
   }
 `;
 
 const LogoContainer = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
-
-  @media (min-width: ${BREAKPOINTS.mobile}) {
-    gap: 16px;
-  }
+  transition: opacity 0.2s;
+  &:hover { opacity: 0.85; }
 `;
 
 const LogoImage = styled.img`
-  height: 32px;
+  height: 30px;
   width: auto;
   object-fit: contain;
-  transition: transform 0.35s ease;
   border-radius: 50%;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
-    height: 40px;
-  }
-
-  @media (hover: hover) {
-    ${LogoContainer}:hover & {
-      transform: scale(1.05);
-    }
+    height: 34px;
   }
 `;
 
-const LogoWrapper = styled.div`
+const LogoText = styled.div`
   display: inline-flex;
-  align-items: flex-end;
+  align-items: center;
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #111827;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #F4F4F5;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
-    font-size: 26px;
+    font-size: 22px;
   }
 `;
 
-const LetterGroup = styled.div`
-  display: inline-flex;
-  align-items: flex-end;
-  position: relative;
-`;
-
-const Letter = styled.span`
-  transition: opacity 0.35s ease;
-
-  @media (hover: hover) {
-    ${LogoContainer}:hover & {
-      opacity: 0.6;
-    }
-  }
-`;
-
-const Separator = styled.span`
-  transition: opacity 0.35s ease;
-
-  @media (hover: hover) {
-    ${LogoContainer}:hover & {
-      opacity: 0.6;
-    }
-  }
-`;
-
-const Spacer = styled.span`
-  width: 6px;
-  @media (min-width: ${BREAKPOINTS.mobile}) { width: 8px; }
-`;
-
-const DynamicSpacer = styled.span`
-  width: 0;
-  transition: width 0.35s ease;
-
-  @media (hover: hover) {
-    ${LogoContainer}:hover & { width: 8px; }
-  }
-
-  @media (min-width: ${BREAKPOINTS.mobile}) and (hover: hover) {
-    ${LogoContainer}:hover & { width: 12px; }
-  }
-`;
-
-const ExpandedWord = styled.span`
-  margin-bottom: 2px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #6b7280;
-  white-space: nowrap;
-  opacity: 0;
-  max-width: 0;
-  transition: opacity 0.35s ease, max-width 0.35s ease;
-
-  @media (min-width: ${BREAKPOINTS.mobile}) { font-size: 18px; }
-
-  @media (hover: hover) {
-    ${LogoContainer}:hover & {
-      opacity: 1;
-      max-width: 200px;
-    }
-  }
+const LogoAccent = styled.span`
+  color: #F97316;
 `;
 
 const NavRight = styled.nav`
@@ -288,7 +192,25 @@ const NavRight = styled.nav`
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
     display: flex;
-    gap: 8px;
+    gap: 2px;
+  }
+`;
+
+const NavLink = styled(Link)`
+  padding: 7px 13px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #A1A1AA;
+  text-decoration: none;
+  border-radius: 8px;
+  position: relative;
+  letter-spacing: -0.01em;
+  transition: color 0.18s cubic-bezier(0.16,1,0.3,1), background 0.18s;
+
+  &:hover {
+    color: #F4F4F5;
+    background: rgba(255,255,255,0.05);
+    text-decoration: none;
   }
 `;
 
@@ -296,19 +218,19 @@ const HamburgerBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: transparent;
-  font-size: 18px;
-  color: #374151;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  color: #A1A1AA;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s;
+  transition: background 0.15s, color 0.15s;
 
   &:hover {
-    background: #f3f4f6;
+    background: rgba(255,255,255,0.08);
+    color: #F4F4F5;
   }
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
@@ -319,9 +241,9 @@ const HamburgerBtn = styled.button`
 const MobileMenu = styled.div`
   display: flex;
   flex-direction: column;
-  border-top: 1px solid #e5e7eb;
-  background: #ffffff;
-  padding: 8px 0 16px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  background: rgba(9,9,11,0.97);
+  padding: 8px 0 20px;
 
   @media (min-width: ${BREAKPOINTS.mobile}) {
     display: none;
@@ -329,40 +251,19 @@ const MobileMenu = styled.div`
 `;
 
 const MobileNavLink = styled(Link)`
-  padding: 13px 20px;
+  padding: 13px 24px;
   font-size: 15px;
   font-weight: 600;
-  color: #374151;
+  color: #A1A1AA;
   text-decoration: none;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
   transition: background 0.12s, color 0.12s;
+  letter-spacing: -0.01em;
 
-  &:last-of-type {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background: #f5f3ff;
-    color: #6c5ce7;
-  }
+  &:last-of-type { border-bottom: none; }
+  &:hover { background: rgba(249,115,22,0.06); color: #F97316; }
 `;
 
 const MobileActionRow = styled.div`
-  padding: 12px 16px 0;
-`;
-
-const NavLink = styled(Link)`
-  padding: 6px 12px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6b7280;
-  text-decoration: none;
-  border-radius: 8px;
-  transition: color 0.15s, background 0.15s;
-
-  &:hover {
-    color: #111827;
-    background: #f3f4f6;
-    text-decoration: none;
-  }
+  padding: 14px 24px 0;
 `;

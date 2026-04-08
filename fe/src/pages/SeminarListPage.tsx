@@ -371,7 +371,7 @@ export default function SeminarListPage() {
                 </TagRowTop>
 
                 <SeminarTitle>{s.title}</SeminarTitle>
-                {s.host && <HostLine><MicIcon size={14} color="#6c5ce7" /> {s.host}</HostLine>}
+                {s.host && <HostLine><MicIcon size={14} color="#F97316" /> {s.host}</HostLine>}
                 {s.description && <Description>{stripMarkdown(s.description)}</Description>}
 
                 <MetaBlock>
@@ -413,8 +413,8 @@ export default function SeminarListPage() {
 // ── Styled components ─────────────────────────────────────────────────────────
 
 const LumaSection = styled.div`
-  background: #f0f7ff;
-  border: 1px solid #bfdbfe;
+  background: rgba(249, 115, 22, 0.05);
+  border: 1px solid rgba(249, 115, 22, 0.2);
   border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 22px;
@@ -428,7 +428,7 @@ const LumaSectionTitle = styled.div`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #3b82f6;
+  color: #F97316;
   margin-bottom: 10px;
 `;
 
@@ -442,7 +442,7 @@ const LumaFetchBtn = styled.button`
   flex-shrink: 0;
   padding: 0 18px;
   height: 38px;
-  background: #3b82f6;
+  background: #F97316;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -452,44 +452,50 @@ const LumaFetchBtn = styled.button`
   white-space: nowrap;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) { background: #2563eb; }
-  &:disabled { background: #93c5fd; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: #EA6C0A; }
+  &:disabled { background: rgba(249, 115, 22, 0.35); cursor: not-allowed; }
 `;
 
 const LumaSuccessRow = styled.div`
   margin-top: 8px;
   font-size: 12px;
-  color: #16a34a;
+  color: #4ADE80;
   font-weight: 500;
 `;
 
 const LumaWarning = styled.div`
   margin-top: 6px;
   font-size: 12px;
-  color: #b45309;
+  color: #FCD34D;
 `;
 
 const TimezoneSelect = styled.select`
   width: 100%;
   padding: 8px 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   font-size: 13px;
-  color: #374151;
-  background: #fff;
+  color: #F4F4F5;
+  background: #111113;
   cursor: pointer;
+  font-family: inherit;
+
+  option {
+    background: #1A1A1E;
+    color: #F4F4F5;
+  }
 
   &:focus {
     outline: none;
-    border-color: #6c5ce7;
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+    border-color: #F97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
   }
 `;
 
 const CreateForm = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   padding: 18px 16px 16px;
   margin-bottom: 32px;
 
@@ -501,7 +507,8 @@ const CreateForm = styled.div`
 const CreateFormTitle = styled.h2`
   font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
+  letter-spacing: -0.02em;
   margin-bottom: 20px;
 `;
 
@@ -534,19 +541,19 @@ const Grid = styled.div`
 `;
 
 const SeminarCard = styled.div<{ ended?: boolean }>`
-  background: #fff;
-  border: 1px solid ${({ ended }) => ended ? "#e5e7eb" : "#e5e7eb"};
-  border-radius: 14px;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  opacity: ${({ ended }) => ended ? 0.62 : 1};
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s, opacity 0.2s;
+  opacity: ${({ ended }) => ended ? 0.55 : 1};
+  transition: box-shadow 0.2s cubic-bezier(0.16,1,0.3,1), transform 0.2s cubic-bezier(0.16,1,0.3,1), border-color 0.2s, opacity 0.2s;
 
   &:hover {
     opacity: 1;
-    box-shadow: 0 8px 28px rgba(108, 92, 231, 0.12);
+    box-shadow: 0 8px 32px rgba(249, 115, 22, 0.1);
     transform: translateY(-2px);
-    border-color: #c4b5fd;
+    border-color: rgba(249, 115, 22, 0.35);
   }
 `;
 
@@ -570,18 +577,18 @@ const StatusBadge = styled.span<{ status: SeminarStatus }>`
   font-weight: 700;
   letter-spacing: 0.03em;
   background: ${({ status }) =>
-    status === "ongoing" ? "#fee2e2" :
-    status === "upcoming" ? "#dcfce7" : "#f3f4f6"};
+    status === "ongoing" ? "rgba(248, 113, 113, 0.12)" :
+    status === "upcoming" ? "rgba(74, 222, 128, 0.10)" : "rgba(255,255,255,0.05)"};
   color: ${({ status }) =>
-    status === "ongoing" ? "#dc2626" :
-    status === "upcoming" ? "#16a34a" : "#6b7280"};
+    status === "ongoing" ? "#F87171" :
+    status === "upcoming" ? "#4ADE80" : "#71717A"};
 `;
 
 const LiveDot = styled.span`
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #dc2626;
+  background: #F87171;
   display: inline-block;
   animation: pulse 1.4s ease-in-out infinite;
 
@@ -605,14 +612,15 @@ const TagRowTop = styled.div`
 const SeminarTitle = styled.h2`
   font-size: 17px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
   margin-bottom: 4px;
   line-height: 1.35;
+  letter-spacing: -0.02em;
 `;
 
 const HostLine = styled.div`
   font-size: 13px;
-  color: #6c5ce7;
+  color: #F97316;
   font-weight: 600;
   margin-bottom: 8px;
   display: flex;
@@ -622,7 +630,7 @@ const HostLine = styled.div`
 
 const Description = styled.p`
   font-size: 13px;
-  color: #6b7280;
+  color: #71717A;
   line-height: 1.5;
   margin-bottom: 12px;
   display: -webkit-box;
@@ -640,7 +648,7 @@ const MetaBlock = styled.div`
 
 const MetaItem = styled.div`
   font-size: 13px;
-  color: #6b7280;
+  color: #71717A;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -685,35 +693,39 @@ const FilterBtn = styled.button<{ active: boolean; status: "all" | SeminarStatus
   white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   border: 1.5px solid ${({ active, status }) =>
-    !active ? "#e5e7eb" :
-    status === "ongoing" ? "#dc2626" :
-    status === "upcoming" ? "#16a34a" :
-    status === "ended" ? "#6b7280" : "#6c5ce7"};
+    !active ? "rgba(255,255,255,0.1)" :
+    status === "ongoing" ? "rgba(248,113,113,0.5)" :
+    status === "upcoming" ? "rgba(74,222,128,0.4)" :
+    status === "ended" ? "rgba(255,255,255,0.15)" : "rgba(249,115,22,0.5)"};
   background: ${({ active, status }) =>
-    !active ? "#fff" :
-    status === "ongoing" ? "#fee2e2" :
-    status === "upcoming" ? "#dcfce7" :
-    status === "ended" ? "#f3f4f6" : "#ede9fe"};
+    !active ? "rgba(255,255,255,0.04)" :
+    status === "ongoing" ? "rgba(248,113,113,0.1)" :
+    status === "upcoming" ? "rgba(74,222,128,0.08)" :
+    status === "ended" ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.1)"};
   color: ${({ active, status }) =>
-    !active ? "#6b7280" :
-    status === "ongoing" ? "#dc2626" :
-    status === "upcoming" ? "#16a34a" :
-    status === "ended" ? "#4b5563" : "#6c5ce7"};
+    !active ? "#71717A" :
+    status === "ongoing" ? "#F87171" :
+    status === "upcoming" ? "#4ADE80" :
+    status === "ended" ? "#A1A1AA" : "#F97316"};
 
   &:hover {
     border-color: ${({ status }) =>
-      status === "ongoing" ? "#dc2626" :
-      status === "upcoming" ? "#16a34a" :
-      status === "ended" ? "#6b7280" : "#6c5ce7"};
+      status === "ongoing" ? "rgba(248,113,113,0.6)" :
+      status === "upcoming" ? "rgba(74,222,128,0.5)" :
+      status === "ended" ? "rgba(255,255,255,0.25)" : "rgba(249,115,22,0.6)"};
     color: ${({ status }) =>
-      status === "ongoing" ? "#dc2626" :
-      status === "upcoming" ? "#16a34a" :
-      status === "ended" ? "#4b5563" : "#6c5ce7"};
+      status === "ongoing" ? "#F87171" :
+      status === "upcoming" ? "#4ADE80" :
+      status === "ended" ? "#A1A1AA" : "#F97316"};
+    background: ${({ status }) =>
+      status === "ongoing" ? "rgba(248,113,113,0.08)" :
+      status === "upcoming" ? "rgba(74,222,128,0.06)" :
+      status === "ended" ? "rgba(255,255,255,0.04)" : "rgba(249,115,22,0.08)"};
   }
 `;
 
 const FilterCount = styled.span<{ active: boolean }>`
-  background: ${({ active }) => active ? "rgba(0,0,0,0.1)" : "#f3f4f6"};
+  background: ${({ active }) => active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.07)"};
   color: inherit;
   font-size: 11px;
   font-weight: 700;
@@ -734,17 +746,18 @@ const TzToggle = styled.button`
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
-  border: 1.5px solid #c4b5fd;
+  border: 1.5px solid rgba(249, 115, 22, 0.35);
   border-radius: 8px;
-  background: #f5f3ff;
-  color: #6c5ce7;
+  background: rgba(249, 115, 22, 0.07);
+  color: #F97316;
   cursor: pointer;
   white-space: nowrap;
+  font-family: inherit;
   transition: background 0.15s, border-color 0.15s;
 
   &:hover {
-    background: #ede9fe;
-    border-color: #6c5ce7;
+    background: rgba(249, 115, 22, 0.12);
+    border-color: rgba(249, 115, 22, 0.55);
   }
 `;
 
@@ -752,17 +765,18 @@ const SortDirBtn = styled.button`
   padding: 7px 14px;
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: #fff;
-  color: #374151;
+  background: rgba(255, 255, 255, 0.04);
+  color: #A1A1AA;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 
   &:hover {
-    background: #f5f3ff;
-    border-color: #c4b5fd;
-    color: #6c5ce7;
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #F4F4F5;
   }
 `;

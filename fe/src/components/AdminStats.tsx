@@ -202,7 +202,7 @@ export default function AdminStats({ seminars, rsvps, users }: Props) {
     return { ...s, rollingCI };
   });
 
-  const PURPLE  = "#6c5ce7";
+  const PURPLE  = "#F97316";
   const GREEN   = "#059669";
   const RED     = "#ef4444";
   const ORANGE  = "#d97706";
@@ -586,7 +586,7 @@ const ModeSelectorLabel = styled.div`
 
 const ModeBtnGroup = styled.div`
   display: flex;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -594,9 +594,9 @@ const ModeBtnGroup = styled.div`
 const ModeBtn = styled.button<{ active: boolean }>`
   padding: 5px 12px;
   border: none;
-  border-right: 1px solid #e5e7eb;
-  background: ${({ active }) => active ? "#6c5ce7" : "#fff"};
-  color: ${({ active }) => active ? "#fff" : "#6b7280"};
+  border-right: 1px solid rgba(255,255,255,0.08);
+  background: ${({ active }) => active ? "#F97316" : "rgba(255,255,255,0.04)"};
+  color: ${({ active }) => active ? "#fff" : "#71717A"};
   font-size: 12px;
   font-weight: ${({ active }) => active ? 600 : 400};
   cursor: pointer;
@@ -606,7 +606,7 @@ const ModeBtn = styled.button<{ active: boolean }>`
   &:last-child { border-right: none; }
   &:hover:not([disabled]) {
     background: ${({ active }) => active ? "#5b4bd6" : "#f5f3ff"};
-    color: ${({ active }) => active ? "#fff" : "#6c5ce7"};
+    color: ${({ active }) => active ? "#fff" : "#F97316"};
   }
 `;
 
@@ -617,7 +617,7 @@ const SectionHead = styled.div`
 const SectionHeadTitle = styled.div`
   font-size: 16px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
   margin-bottom: 4px;
 `;
 
@@ -639,9 +639,9 @@ const KpiGrid = styled.div`
 `;
 
 const KpiCard = styled.div<{ accent?: string }>`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-top: 3px solid ${({ accent }) => accent ?? "#6c5ce7"};
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 3px solid ${({ accent }) => accent ?? "#F97316"};
   border-radius: 10px;
   padding: 14px 16px;
 `;
@@ -649,7 +649,7 @@ const KpiCard = styled.div<{ accent?: string }>`
 const KpiValue = styled.div`
   font-size: 24px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 4px;
@@ -660,7 +660,7 @@ const KpiLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6b7280;
+  color: #71717A;
   margin-bottom: 4px;
 `;
 
@@ -680,17 +680,17 @@ const TrendBase = styled.span`
 `;
 
 const TrendUp = styled(TrendBase)`
-  background: #d1fae5;
+  background: rgba(74,222,128,0.10);
   color: #059669;
 `;
 
 const TrendDown = styled(TrendBase)`
-  background: #fee2e2;
+  background: rgba(248,113,113,0.10);
   color: #ef4444;
 `;
 
 const TrendNeutral = styled(TrendBase)`
-  background: #f3f4f6;
+  background: rgba(255,255,255,0.06);
   color: #9ca3af;
 `;
 
@@ -705,17 +705,17 @@ const ChartTabBar = styled.div`
 const ChartTabBtn = styled.button<{ active: boolean }>`
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid ${({ active }) => active ? "#6c5ce7" : "#e5e7eb"};
-  background: ${({ active }) => active ? "#6c5ce7" : "#fff"};
-  color: ${({ active }) => active ? "#fff" : "#6b7280"};
+  border: 1px solid ${({ active }) => active ? "#F97316" : "#e5e7eb"};
+  background: ${({ active }) => active ? "#F97316" : "rgba(255,255,255,0.04)"};
+  color: ${({ active }) => active ? "#fff" : "#71717A"};
   font-size: 13px;
   font-weight: ${({ active }) => active ? 600 : 400};
   cursor: pointer;
   transition: all 0.15s;
 
   &:hover {
-    border-color: #6c5ce7;
-    color: ${({ active }) => active ? "#fff" : "#6c5ce7"};
+    border-color: #F97316;
+    color: ${({ active }) => active ? "#fff" : "#F97316"};
   }
 `;
 
@@ -729,8 +729,8 @@ const ChartTabDesc = styled.div`
 
 // Chart card
 const ChartCard = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   padding: 20px 16px 8px;
 `;
@@ -744,7 +744,7 @@ const CapacityLegend = styled.div`
 
 const CapLegItem = styled.div<{ color: string }>`
   font-size: 11px;
-  color: #6b7280;
+  color: #71717A;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -770,8 +770,8 @@ const HighlightGrid = styled.div`
 `;
 
 const HighlightCard = styled.div<{ accent: string }>`
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
   border-left: 4px solid ${({ accent }) => accent};
   border-radius: 10px;
   padding: 16px 18px;
@@ -791,7 +791,7 @@ const HighlightBadge = styled.div<{ color: string }>`
 const HighlightTitle = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -801,7 +801,7 @@ const HighlightTitle = styled.div`
 const HighlightStat = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
   letter-spacing: -0.02em;
   margin-bottom: 4px;
 `;
@@ -813,8 +813,8 @@ const HighlightMeta = styled.div`
 
 // Rank table
 const RankTable = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   overflow: hidden;
 `;
@@ -823,13 +823,13 @@ const RankHeader = styled.div`
   display: grid;
   grid-template-columns: 32px 1fr 90px 54px 80px 80px 120px;
   padding: 10px 16px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
+  color: #52525B;
   gap: 8px;
 
   @media (max-width: 640px) {
@@ -843,13 +843,13 @@ const RankRow = styled.div<{ highlight?: boolean }>`
   grid-template-columns: 32px 1fr 90px 54px 80px 80px 120px;
   align-items: center;
   padding: 10px 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   gap: 8px;
-  background: ${({ highlight }) => highlight ? "#f8f7ff" : "transparent"};
+  background: ${({ highlight }) => highlight ? "rgba(249, 115, 22, 0.07)" : "transparent"};
   transition: background 0.15s;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: #faf9ff; }
+  &:hover { background: rgba(249, 115, 22, 0.05); }
 
   @media (max-width: 640px) {
     grid-template-columns: 28px 1fr 60px 60px;
@@ -867,7 +867,7 @@ const RankNum = styled.div`
 const RankName = styled.div`
   font-size: 13px;
   font-weight: 600;
-  color: #111827;
+  color: #F4F4F5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

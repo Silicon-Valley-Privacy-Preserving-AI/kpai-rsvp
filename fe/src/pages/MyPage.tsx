@@ -189,7 +189,7 @@ export default function MyPage() {
       <ProfileCard>
         <ProfileTop>
           <AvatarCircle>
-            <UserIcon size={32} color="#6c5ce7" />
+            <UserIcon size={32} color="#F97316" />
           </AvatarCircle>
           <ProfileInfo>
             <ProfileName>{profile.username}</ProfileName>
@@ -245,17 +245,17 @@ export default function MyPage() {
           </StatBox>
           <StatDivider />
           <StatBox>
-            <StatNum style={{ color: "#059669" }}>{checkedInCount}</StatNum>
+            <StatNum style={{ color: "#4ADE80" }}>{checkedInCount}</StatNum>
             <StatLabel>Check-ins</StatLabel>
           </StatBox>
           <StatDivider />
           <StatBox>
-            <StatNum style={{ color: "#d97706" }}>{totalRsvps - checkedInCount}</StatNum>
+            <StatNum style={{ color: "#FCD34D" }}>{totalRsvps - checkedInCount}</StatNum>
             <StatLabel>No-shows</StatLabel>
           </StatBox>
           <StatDivider />
           <StatBox>
-            <StatNum style={{ color: "#6c5ce7" }}>
+            <StatNum style={{ color: "#F97316" }}>
               {totalRsvps > 0 ? `${Math.round((checkedInCount / totalRsvps) * 100)}%` : "—"}
             </StatNum>
             <StatLabel>Attendance</StatLabel>
@@ -377,7 +377,7 @@ export default function MyPage() {
                     </HistoryMeta>
                     {item.checked_in && item.checked_in_at && (
                       <CheckinTime>
-                        <CheckIcon size={12} color="#059669" /> Checked in at {formatDate(item.checked_in_at)}
+                        <CheckIcon size={12} color="#4ADE80" /> Checked in at {formatDate(item.checked_in_at)}
                       </CheckinTime>
                     )}
                   </HistoryContent>
@@ -422,9 +422,9 @@ export default function MyPage() {
 // ── Styled components ─────────────────────────────────────────────────────────
 
 const ProfileCard = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
   padding: 18px 16px;
   margin-bottom: 20px;
 
@@ -445,7 +445,8 @@ const AvatarCircle = styled.div`
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #ede9fe;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1.5px solid rgba(249, 115, 22, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -460,13 +461,14 @@ const ProfileInfo = styled.div`
 const ProfileName = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
+  letter-spacing: -0.03em;
   margin-bottom: 2px;
 `;
 
 const ProfileEmail = styled.div`
   font-size: 14px;
-  color: #6b7280;
+  color: #71717A;
   margin-bottom: 10px;
 `;
 
@@ -485,13 +487,13 @@ const MemberBadge = styled.span`
   border-radius: 20px;
   font-size: 12px;
   font-weight: 700;
-  background: #e0f2fe;
-  color: #0369a1;
+  background: rgba(14, 165, 233, 0.12);
+  color: #38BDF8;
 `;
 
 const JoinDate = styled.div`
   font-size: 12px;
-  color: #9ca3af;
+  color: #52525B;
 `;
 
 const ProfileActions = styled.div`
@@ -500,7 +502,7 @@ const ProfileActions = styled.div`
 
 const MembershipSection = styled.div`
   padding: 16px 0;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   margin-bottom: 20px;
 `;
 
@@ -512,7 +514,7 @@ const MembershipLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #9ca3af;
+  color: #52525B;
   margin-bottom: 10px;
 `;
 
@@ -522,7 +524,7 @@ const MembershipStatus = styled.div<{ active?: boolean }>`
   gap: 6px;
   font-size: 14px;
   font-weight: 600;
-  color: ${({ active }) => active ? "#0369a1" : "#6b7280"};
+  color: ${({ active }) => active ? "#38BDF8" : "#71717A"};
 `;
 
 const MembershipProgress = styled.div`
@@ -532,8 +534,8 @@ const MembershipProgress = styled.div`
 `;
 
 const ProgressBar = styled.div`
-  height: 8px;
-  background: #f3f4f6;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.07);
   border-radius: 4px;
   overflow: hidden;
 `;
@@ -541,21 +543,21 @@ const ProgressBar = styled.div`
 const ProgressFill = styled.div<{ pct: number }>`
   height: 100%;
   width: ${({ pct }) => pct}%;
-  background: linear-gradient(90deg, #6c5ce7, #0ea5e9);
+  background: linear-gradient(90deg, #F97316, #FB923C);
   border-radius: 4px;
   transition: width 0.4s ease;
 `;
 
 const ProgressLabel = styled.div`
   font-size: 13px;
-  color: #6b7280;
+  color: #71717A;
 `;
 
 const StatRow = styled.div`
   display: flex;
-  background: #f9fafb;
-  border: 1px solid #f3f4f6;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
   overflow: hidden;
 `;
 
@@ -573,7 +575,7 @@ const StatBox = styled.div`
 const StatNum = styled.div`
   font-size: 16px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
   letter-spacing: -0.02em;
 
   @media (min-width: 400px) {
@@ -584,7 +586,7 @@ const StatNum = styled.div`
 const StatLabel = styled.div`
   font-size: 9px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #52525B;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-top: 3px;
@@ -601,15 +603,15 @@ const StatLabel = styled.div`
 
 const StatDivider = styled.div`
   width: 1px;
-  background: #e5e7eb;
+  background: rgba(255, 255, 255, 0.06);
   align-self: stretch;
 `;
 
 // Edit form
 const EditCard = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
   padding: 18px 16px;
   margin-bottom: 20px;
 
@@ -621,7 +623,8 @@ const EditCard = styled.div`
 const EditTitle = styled.h2`
   font-size: 17px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
+  letter-spacing: -0.02em;
   margin-bottom: 20px;
 `;
 
@@ -637,14 +640,14 @@ const TwoCol = styled.div`
 
 const Divider = styled.hr`
   border: none;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   margin: 20px 0 16px;
 `;
 
 const SectionLabel = styled.div`
   font-size: 12px;
   font-weight: 700;
-  color: #9ca3af;
+  color: #52525B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 14px;
@@ -659,9 +662,9 @@ const EditActions = styled.div`
 
 // Seminar history
 const SectionCard = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
   padding: 18px 16px;
   margin-bottom: 20px;
 
@@ -673,7 +676,8 @@ const SectionCard = styled.div`
 const SectionHeader = styled.h2`
   font-size: 17px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
+  letter-spacing: -0.02em;
   margin-bottom: 20px;
 `;
 
@@ -687,8 +691,8 @@ const HistoryItem = styled.div`
   display: flex;
   gap: 12px;
   padding: 12px;
-  border: 1px solid #f3f4f6;
-  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
   align-items: flex-start;
@@ -699,8 +703,8 @@ const HistoryItem = styled.div`
   }
 
   &:hover {
-    background: #faf9ff;
-    border-color: #c4b5fd;
+    background: rgba(249, 115, 22, 0.04);
+    border-color: rgba(249, 115, 22, 0.25);
   }
 `;
 
@@ -710,7 +714,7 @@ const HistoryCover = styled.img<{ status: SeminarStatus }>`
   border-radius: 7px;
   object-fit: cover;
   flex-shrink: 0;
-  filter: ${({ status }) => status === "ended" ? "grayscale(35%)" : "none"};
+  filter: ${({ status }) => status === "ended" ? "grayscale(50%)" : "none"};
 `;
 
 const HistoryContent = styled.div`
@@ -732,11 +736,11 @@ const StatusPill = styled.span<{ status: SeminarStatus }>`
   padding: 2px 8px;
   border-radius: 20px;
   background: ${({ status }) =>
-    status === "ongoing" ? "#fee2e2" :
-    status === "upcoming" ? "#dcfce7" : "#f3f4f6"};
+    status === "ongoing" ? "rgba(248,113,113,0.12)" :
+    status === "upcoming" ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
   color: ${({ status }) =>
-    status === "ongoing" ? "#dc2626" :
-    status === "upcoming" ? "#16a34a" : "#6b7280"};
+    status === "ongoing" ? "#F87171" :
+    status === "upcoming" ? "#4ADE80" : "#71717A"};
 `;
 
 const CheckinBadge = styled.span<{ checked: boolean }>`
@@ -747,14 +751,14 @@ const CheckinBadge = styled.span<{ checked: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: ${({ checked }) => checked ? "#d1fae5" : "#f3f4f6"};
-  color: ${({ checked }) => checked ? "#059669" : "#6b7280"};
+  background: ${({ checked }) => checked ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
+  color: ${({ checked }) => checked ? "#4ADE80" : "#71717A"};
 `;
 
 const HistoryTitle = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
   margin-bottom: 5px;
   white-space: nowrap;
   overflow: hidden;
@@ -772,7 +776,7 @@ const MetaItem = styled.span`
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #6b7280;
+  color: #71717A;
 `;
 
 const CheckinTime = styled.div`
@@ -780,15 +784,15 @@ const CheckinTime = styled.div`
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: #059669;
+  color: #4ADE80;
   margin-top: 4px;
 `;
 
 // Danger zone
 const DangerZone = styled.div`
-  background: #fff;
-  border: 1px solid #fecaca;
-  border-radius: 16px;
+  background: #111113;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 18px;
   padding: 18px 16px;
 
   @media (min-width: 480px) {
@@ -799,7 +803,7 @@ const DangerZone = styled.div`
 const DangerTitle = styled.div`
   font-size: 13px;
   font-weight: 700;
-  color: #ef4444;
+  color: #EF4444;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 14px;

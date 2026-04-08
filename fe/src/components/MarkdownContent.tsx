@@ -31,7 +31,7 @@ const Prose = styled.div<{ compact?: boolean }>`
 
   /* Headings */
   h1, h2, h3, h4, h5, h6 {
-    color: #111827;
+    color: #F4F4F5;
     font-weight: 700;
     line-height: 1.3;
     margin: ${({ compact }) => (compact ? "10px 0 4px" : "20px 0 8px")};
@@ -46,13 +46,13 @@ const Prose = styled.div<{ compact?: boolean }>`
   }
 
   /* Bold / italic */
-  strong { font-weight: 700; color: #111827; }
+  strong { font-weight: 700; color: #F4F4F5; }
   em { font-style: italic; }
 
   /* Inline code */
   code {
-    background: #f0eeff;
-    color: #6c5ce7;
+    background: rgba(249,115,22,0.08);
+    color: #F97316;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
@@ -78,8 +78,8 @@ const Prose = styled.div<{ compact?: boolean }>`
 
   /* Blockquote */
   blockquote {
-    border-left: 4px solid #6c5ce7;
-    background: #f8f6ff;
+    border-left: 4px solid #F97316;
+    background: rgba(249,115,22,0.06);
     margin: ${({ compact }) => (compact ? "8px 0" : "16px 0")};
     padding: 10px 16px;
     border-radius: 0 8px 8px 0;
@@ -100,19 +100,19 @@ const Prose = styled.div<{ compact?: boolean }>`
   /* Task list (GFM) */
   li input[type="checkbox"] {
     margin-right: 6px;
-    accent-color: #6c5ce7;
+    accent-color: #F97316;
   }
 
   /* Horizontal rule */
   hr {
     border: none;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid rgba(255,255,255,0.08);
     margin: ${({ compact }) => (compact ? "10px 0" : "20px 0")};
   }
 
   /* Links */
   a {
-    color: #6c5ce7;
+    color: #F97316;
     text-decoration: underline;
     text-underline-offset: 2px;
     &:hover { color: #5849e8; }
@@ -128,22 +128,22 @@ const Prose = styled.div<{ compact?: boolean }>`
     display: block;
   }
   th {
-    background: #f8f7ff;
+    background: rgba(255,255,255,0.04);
     font-weight: 700;
-    color: #6b7280;
+    color: #71717A;
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 8px 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(255,255,255,0.08);
     text-align: left;
   }
   td {
     padding: 8px 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(255,255,255,0.08);
     color: #374151;
   }
-  tr:nth-child(even) td { background: #faf9ff; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
 
   /* Images */
   img {

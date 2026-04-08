@@ -11,36 +11,45 @@ const GlobalStyle = createGlobalStyle`
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   body {
     margin: 0;
     padding: 0;
-    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
     font-size: 15px;
-    color: #111827;
-    background: #f8f7ff;
+    color: #F4F4F5;
+    background: #09090B;
     line-height: 1.6;
+    letter-spacing: -0.01em;
   }
 
   h1, h2, h3, h4, h5, h6 {
     margin: 0;
-    line-height: 1.3;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
   }
 
   p { margin: 0; }
 
   a {
-    color: #6c5ce7;
+    color: #F97316;
     text-decoration: none;
     &:hover { text-decoration: underline; }
   }
 
   input, textarea, select, button {
     font-family: inherit;
+    letter-spacing: inherit;
   }
 
   img { display: block; }
+
+  ::selection {
+    background: rgba(249, 115, 22, 0.25);
+    color: #F4F4F5;
+  }
 `;
 
 export default function App() {

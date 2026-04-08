@@ -62,26 +62,27 @@ const Wrap = styled.div`
 `;
 
 const Card = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
   padding: 48px 40px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 4px 24px rgba(108, 92, 231, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
   min-width: 280px;
 `;
 
 const Title = styled.h2`
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
+  letter-spacing: -0.02em;
 `;
 
 const Sub = styled.p`
   font-size: 14px;
-  color: #9ca3af;
+  color: #71717A;
 `;

@@ -286,7 +286,7 @@ export default function SeminarDetailPage() {
                     : BROWSER_TZ;
                   return (
                   <MetaItem>
-                    <MetaIcon><CalendarIcon size={16} color="#6c5ce7" /></MetaIcon>
+                    <MetaIcon><CalendarIcon size={16} color="#F97316" /></MetaIcon>
                     <div>
                       <MetaLabel>Date & Time</MetaLabel>
                       <MetaValue>{formatDate(seminar.start_time, etz)}{seminar.end_time && ` — ${formatDate(seminar.end_time, etz)}`}</MetaValue>
@@ -296,7 +296,7 @@ export default function SeminarDetailPage() {
                 })()}
                 {seminar.location && (
                   <MetaItem>
-                    <MetaIcon><MapPinIcon size={16} color="#6c5ce7" /></MetaIcon>
+                    <MetaIcon><MapPinIcon size={16} color="#F97316" /></MetaIcon>
                     <div>
                       <MetaLabel>Location</MetaLabel>
                       <MetaValue>{seminar.location}</MetaValue>
@@ -304,7 +304,7 @@ export default function SeminarDetailPage() {
                   </MetaItem>
                 )}
                 <MetaItem>
-                  <MetaIcon><UsersIcon size={16} color="#6c5ce7" /></MetaIcon>
+                  <MetaIcon><UsersIcon size={16} color="#F97316" /></MetaIcon>
                   <div>
                     <MetaLabel>Capacity</MetaLabel>
                     <MetaValue>
@@ -500,7 +500,7 @@ export default function SeminarDetailPage() {
               {reminderMutation.isPending ? "Sending…" : "Send Reminder"}
             </Button>
             {seminar.current_rsvp_count === 0 && (
-              <span style={{ fontSize: 13, color: "#9ca3af" }}>No RSVPs yet</span>
+              <span style={{ fontSize: 13, color: "#52525B" }}>No RSVPs yet</span>
             )}
           </div>
           {reminderResult && (
@@ -716,7 +716,7 @@ const CoverImg = styled.img`
   object-fit: cover;
   border-radius: 14px;
   display: block;
-  background: #f3f0ff;
+  background: rgba(249, 115, 22, 0.05);
 
   @media (min-width: 640px) {
     width: 45%;
@@ -738,9 +738,9 @@ const InfoPanel = styled.div`
 const RsvpPanel = styled.div`
   margin-top: 20px;
   padding: 18px;
-  background: #f8f7ff;
-  border: 1px solid #ede9fe;
-  border-radius: 12px;
+  background: rgba(249, 115, 22, 0.05);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -751,7 +751,7 @@ const RsvpPanelTitle = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: #9ca3af;
+  color: #52525B;
 `;
 
 const TagRow = styled.div`
@@ -764,8 +764,8 @@ const TagRow = styled.div`
 const SeminarTitle = styled.h1`
   font-size: 22px;
   font-weight: 800;
-  color: #111827;
-  letter-spacing: -0.02em;
+  color: #F4F4F5;
+  letter-spacing: -0.03em;
   margin-bottom: 6px;
 
   @media (min-width: 480px) { font-size: 26px; }
@@ -775,7 +775,7 @@ const SeminarTitle = styled.h1`
 
 const HostLine = styled.div`
   font-size: 15px;
-  color: #6c5ce7;
+  color: #F97316;
   font-weight: 600;
   margin-bottom: 12px;
   display: flex;
@@ -805,7 +805,7 @@ const MetaIcon = styled.span`
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #ede9fe;
+  background: rgba(249, 115, 22, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -816,13 +816,13 @@ const MetaLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #9ca3af;
+  color: #52525B;
   margin-bottom: 2px;
 `;
 
 const MetaValue = styled.div`
   font-size: 14px;
-  color: #111827;
+  color: #F4F4F5;
   font-weight: 500;
 `;
 
@@ -845,31 +845,38 @@ const TzToggleBtn = styled.button<{ active: boolean }>`
   border-radius: 20px;
   cursor: pointer;
   white-space: nowrap;
+  font-family: inherit;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
-  border: 1.5px solid ${({ active }) => active ? "#6c5ce7" : "#e5e7eb"};
-  background: ${({ active }) => active ? "#ede9fe" : "#fff"};
-  color: ${({ active }) => active ? "#6c5ce7" : "#6b7280"};
+  border: 1.5px solid ${({ active }) => active ? "rgba(249,115,22,0.5)" : "rgba(255,255,255,0.1)"};
+  background: ${({ active }) => active ? "rgba(249,115,22,0.1)" : "rgba(255,255,255,0.04)"};
+  color: ${({ active }) => active ? "#F97316" : "#71717A"};
 
   &:hover {
-    border-color: #6c5ce7;
-    color: #6c5ce7;
+    border-color: rgba(249, 115, 22, 0.4);
+    color: #F97316;
   }
 `;
 
 const TimezoneSelect = styled.select`
   width: 100%;
   padding: 8px 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   font-size: 13px;
-  color: #374151;
-  background: #fff;
+  color: #F4F4F5;
+  background: #111113;
   cursor: pointer;
+  font-family: inherit;
+
+  option {
+    background: #1A1A1E;
+    color: #F4F4F5;
+  }
 
   &:focus {
     outline: none;
-    border-color: #6c5ce7;
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+    border-color: #F97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
   }
 `;
 
@@ -896,7 +903,7 @@ const EditActions = styled.div`
 
 const SectionDesc = styled.p`
   font-size: 13px;
-  color: #9ca3af;
+  color: #71717A;
   margin-bottom: 14px;
 `;
 
@@ -910,7 +917,7 @@ const RsvpStatus = styled.div`
 const RsvpBadge = styled.div<{ confirmed?: boolean }>`
   font-size: 15px;
   font-weight: 600;
-  color: ${({ confirmed }) => (confirmed ? "#059669" : "#d97706")};
+  color: ${({ confirmed }) => (confirmed ? "#4ADE80" : "#FCD34D")};
   display: flex;
   align-items: center;
   gap: 6px;
@@ -918,7 +925,7 @@ const RsvpBadge = styled.div<{ confirmed?: boolean }>`
 
 const RsvpSub = styled.div`
   font-size: 13px;
-  color: #6b7280;
+  color: #71717A;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -929,16 +936,16 @@ const QrBlock = styled.div`
   flex-direction: column;
   gap: 12px;
   align-items: flex-start;
-  background: #f8f7ff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  background: rgba(249, 115, 22, 0.05);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 12px;
   padding: 20px;
   margin-top: 4px;
 `;
 
 const QrUrl = styled.a`
   font-size: 12px;
-  color: #6c5ce7;
+  color: #F97316;
   word-break: break-all;
 `;
 
@@ -959,14 +966,16 @@ const DurationInput = styled.input`
   width: 72px;
   padding: 6px 10px;
   font-size: 14px;
-  border: 1.5px solid #e5e7eb;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   outline: none;
   font-family: inherit;
+  background: #111113;
+  color: #F4F4F5;
 
   &:focus {
-    border-color: #6c5ce7;
-    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.12);
+    border-color: #F97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
   }
 `;
 
@@ -979,13 +988,13 @@ const CsvRow = styled.div`
 
 const FileInput = styled.input`
   font-size: 13px;
-  color: #374151;
+  color: #A1A1AA;
 
   &::file-selector-button {
     padding: 7px 14px;
-    background: #ede9fe;
-    color: #6c5ce7;
-    border: none;
+    background: rgba(249, 115, 22, 0.12);
+    color: #F97316;
+    border: 1px solid rgba(249, 115, 22, 0.3);
     border-radius: 6px;
     font-size: 13px;
     font-weight: 600;
@@ -994,22 +1003,22 @@ const FileInput = styled.input`
     font-family: inherit;
     transition: background 0.15s;
 
-    &:hover { background: #ddd6fe; }
+    &:hover { background: rgba(249, 115, 22, 0.2); }
   }
 `;
 
 const ImportResult = styled.div`
   margin-top: 16px;
-  background: #f8f7ff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  background: rgba(249, 115, 22, 0.05);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  border-radius: 12px;
   padding: 18px 20px;
 `;
 
 const ImportResultTitle = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
   margin-bottom: 12px;
 `;
 
@@ -1026,8 +1035,8 @@ const ImportStat = styled.div`
   flex-direction: column;
   gap: 2px;
 
-  span { font-size: 11px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
-  strong { font-size: 18px; color: #111827; }
+  span { font-size: 11px; color: #52525B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  strong { font-size: 18px; color: #F4F4F5; letter-spacing: -0.02em; }
 `;
 
 const RsvpActionCell = styled.div`
@@ -1040,8 +1049,8 @@ const RsvpActionCell = styled.div`
 const TableWrap = styled.div`
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 
   table {
     min-width: 520px;
@@ -1072,18 +1081,18 @@ const DetailStatusBadge = styled.span<{ status: "upcoming" | "ongoing" | "ended"
   font-weight: 700;
   letter-spacing: 0.03em;
   background: ${({ status }) =>
-    status === "ongoing" ? "#fee2e2" :
-    status === "upcoming" ? "#dcfce7" : "#f3f4f6"};
+    status === "ongoing" ? "rgba(248,113,113,0.12)" :
+    status === "upcoming" ? "rgba(74,222,128,0.10)" : "rgba(255,255,255,0.06)"};
   color: ${({ status }) =>
-    status === "ongoing" ? "#dc2626" :
-    status === "upcoming" ? "#16a34a" : "#6b7280"};
+    status === "ongoing" ? "#F87171" :
+    status === "upcoming" ? "#4ADE80" : "#71717A"};
 `;
 
 const DetailLiveDot = styled.span`
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #dc2626;
+  background: #F87171;
   display: inline-block;
   animation: pulse 1.4s ease-in-out infinite;
 

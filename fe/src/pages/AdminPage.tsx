@@ -160,17 +160,17 @@ function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: 
             </StatItem>
             <StatDivider />
             <StatItem>
-              <StatBig color="#059669">{checkinCount}</StatBig>
+              <StatBig color="#4ADE80">{checkinCount}</StatBig>
               <StatSub>Check-ins</StatSub>
             </StatItem>
             <StatDivider />
             <StatItem>
-              <StatBig color="#d97706">{noshowCount}</StatBig>
+              <StatBig color="#FCD34D">{noshowCount}</StatBig>
               <StatSub>No-shows</StatSub>
             </StatItem>
             <StatDivider />
             <StatItem>
-              <StatBig color="#6c5ce7">{pct(checkinCount, rsvpCount)}</StatBig>
+              <StatBig color="#F97316">{pct(checkinCount, rsvpCount)}</StatBig>
               <StatSub>Attendance</StatSub>
             </StatItem>
             <StatDivider />
@@ -220,7 +220,7 @@ function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: 
                     return (
                       <Tr key={r.id}>
                         <Td style={{ fontWeight: 600 }}>{user?.username ?? `#${r.user_id}`}</Td>
-                        <Td style={{ color: "#6b7280", fontSize: 13 }}>{user?.email ?? "—"}</Td>
+                        <Td style={{ color: "#71717A", fontSize: 13 }}>{user?.email ?? "—"}</Td>
                         <Td>
                           {user ? (
                             <Badge color={user.is_temporary ? "orange" : "blue"}>
@@ -228,13 +228,13 @@ function SeminarRow({ seminar, rsvps, users, onCancelRsvp, cancelRsvpPending }: 
                             </Badge>
                           ) : "—"}
                         </Td>
-                        <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(r.created_at)}</Td>
+                        <Td style={{ fontSize: 13, color: "#71717A" }}>{formatDate(r.created_at)}</Td>
                         <Td>
                           <Badge color={r.checked_in ? "green" : "gray"}>
                             {r.checked_in ? "Done" : "Pending"}
                           </Badge>
                         </Td>
-                        <Td style={{ fontSize: 13, color: "#6b7280" }}>{formatDate(r.checked_in_at)}</Td>
+                        <Td style={{ fontSize: 13, color: "#71717A" }}>{formatDate(r.checked_in_at)}</Td>
                         <Td>
                           <Button
                             size="sm"
@@ -397,7 +397,7 @@ export default function AdminPage() {
 
       {/* ── Summary stats ── */}
       <StatsRow>
-        <StatCard accent="#6c5ce7">
+        <StatCard accent="#F97316">
           <StatNum>{users.length}</StatNum>
           <StatLabel>Total Users</StatLabel>
         </StatCard>
@@ -409,7 +409,7 @@ export default function AdminPage() {
           <StatNum>{tempCount}</StatNum>
           <StatLabel>Temporary</StatLabel>
         </StatCard>
-        <StatCard accent="#6c5ce7">
+        <StatCard accent="#F97316">
           <StatNum>{memberCount}</StatNum>
           <StatLabel>Full Members</StatLabel>
         </StatCard>
@@ -421,7 +421,7 @@ export default function AdminPage() {
           <StatNum>{totalRsvps}</StatNum>
           <StatLabel>Total RSVPs</StatLabel>
         </StatCard>
-        <StatCard accent="#059669">
+        <StatCard accent="#4ADE80">
           <StatNum>{totalCheckins}</StatNum>
           <StatLabel>Total Check-ins</StatLabel>
         </StatCard>
@@ -466,10 +466,10 @@ export default function AdminPage() {
                   selected={selectedUserId === u.id}
                   onClick={() => setSelectedUserId(selectedUserId === u.id ? null : u.id)}
                 >
-                  <Td style={{ color: "#9ca3af", fontSize: 13 }}>#{u.id}</Td>
-                  <Td style={{ fontSize: 13, color: "#6b7280", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
+                  <Td style={{ color: "#52525B", fontSize: 13 }}>#{u.id}</Td>
+                  <Td style={{ fontSize: 13, color: "#71717A", whiteSpace: "nowrap" }}>{formatDate(u.created_at)}</Td>
                   <Td style={{ fontWeight: 600 }}>{u.username}</Td>
-                  <Td style={{ color: "#6b7280", fontSize: 13 }}>{u.email}</Td>
+                  <Td style={{ color: "#71717A", fontSize: 13 }}>{u.email}</Td>
                   <Td>
                     <Badge color={u.role === "staff" ? "purple" : "green"}>
                       {u.role === "staff" ? "Staff" : "Member"}
@@ -535,7 +535,7 @@ export default function AdminPage() {
                   <DrawerStatLabel>RSVPs</DrawerStatLabel>
                 </DrawerStat>
                 <DrawerStat>
-                  <DrawerStatVal style={{ color: "#059669" }}>{checkins.length}</DrawerStatVal>
+                  <DrawerStatVal style={{ color: "#4ADE80" }}>{checkins.length}</DrawerStatVal>
                   <DrawerStatLabel>Check-ins</DrawerStatLabel>
                 </DrawerStat>
                 <DrawerStat>
@@ -543,7 +543,7 @@ export default function AdminPage() {
                   <DrawerStatLabel>No-shows</DrawerStatLabel>
                 </DrawerStat>
                 <DrawerStat>
-                  <DrawerStatVal style={{ color: "#6c5ce7" }}>
+                  <DrawerStatVal style={{ color: "#F97316" }}>
                     {attendanceRate !== null ? `${attendanceRate}%` : "—"}
                   </DrawerStatVal>
                   <DrawerStatLabel>Attendance</DrawerStatLabel>
@@ -668,9 +668,9 @@ const StatsRow = styled.div`
 `;
 
 const StatCard = styled.div<{ accent?: string }>`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-top: 3px solid ${({ accent }) => accent ?? "#6c5ce7"};
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 3px solid ${({ accent }) => accent ?? "#F97316"};
   border-radius: 10px;
   padding: 14px 16px;
   text-align: center;
@@ -679,14 +679,14 @@ const StatCard = styled.div<{ accent?: string }>`
 const StatNum = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
   letter-spacing: -0.02em;
 `;
 
 const StatLabel = styled.div`
   font-size: 11px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #52525B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-top: 4px;
@@ -695,7 +695,7 @@ const StatLabel = styled.div`
 const TabBar = styled.div`
   display: flex;
   gap: 0;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid rgba(255,255,255,0.08);
   margin-bottom: 20px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -716,9 +716,9 @@ const TabBtn = styled.button<{ active?: boolean }>`
   border: none;
   background: transparent;
   cursor: pointer;
-  border-bottom: 2px solid ${({ active }) => (active ? "#6c5ce7" : "transparent")};
+  border-bottom: 2px solid ${({ active }) => (active ? "#F97316" : "transparent")};
   margin-bottom: -2px;
-  color: ${({ active }) => (active ? "#6c5ce7" : "#6b7280")};
+  color: ${({ active }) => (active ? "#F97316" : "#6b7280")};
   transition: color 0.15s;
 
   @media (min-width: 480px) {
@@ -727,20 +727,20 @@ const TabBtn = styled.button<{ active?: boolean }>`
     gap: 8px;
   }
 
-  &:hover { color: #111827; }
+  &:hover { color: #F4F4F5; }
 `;
 
 const TabCount = styled.span`
-  background: #f3f4f6;
-  color: #6b7280;
+  background: rgba(255,255,255,0.06);
+  color: #71717A;
   font-size: 12px;
   padding: 1px 7px;
   border-radius: 10px;
 `;
 
 const TableWrap = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   overflow: hidden;
   overflow-x: auto;
@@ -759,8 +759,8 @@ const SeminarList = styled.div`
 `;
 
 const SeminarCard = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   overflow: hidden;
 `;
@@ -775,7 +775,7 @@ const SeminarHeader = styled.div`
   flex-wrap: wrap;
   transition: background 0.15s;
 
-  &:hover { background: #faf9ff; }
+  &:hover { background: rgba(249,115,22,0.04); }
 `;
 
 const HeaderLeft = styled.div`
@@ -788,7 +788,7 @@ const HeaderLeft = styled.div`
 
 const Chevron = styled.span<{ open: boolean }>`
   font-size: 11px;
-  color: #9ca3af;
+  color: #52525B;
   transition: transform 0.2s;
   transform: ${({ open }) => (open ? "rotate(90deg)" : "rotate(0deg)")};
   flex-shrink: 0;
@@ -801,7 +801,7 @@ const HeaderInfo = styled.div`
 const SeminarName = styled.div`
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: #F4F4F5;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -824,7 +824,7 @@ const SeminarMeta = styled.div`
 
   span {
     font-size: 12px;
-    color: #9ca3af;
+    color: #52525B;
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -843,10 +843,10 @@ const StatPill = styled.div<{ color?: "green" | "orange" | "purple" | "red" }>`
   flex-direction: column;
   align-items: center;
   background: ${({ color }) =>
-    color === "green" ? "#d1fae5" :
-    color === "orange" ? "#ffedd5" :
-    color === "purple" ? "#ede9fe" :
-    color === "red" ? "#fee2e2" : "#f3f4f6"};
+    color === "green" ? "rgba(74,222,128,0.10)" :
+    color === "orange" ? "rgba(249,115,22,0.10)" :
+    color === "purple" ? "rgba(249,115,22,0.10)" :
+    color === "red" ? "rgba(248,113,113,0.10)" : "rgba(255,255,255,0.06)"};
   border-radius: 8px;
   padding: 5px 10px;
   min-width: 44px;
@@ -860,14 +860,14 @@ const StatPill = styled.div<{ color?: "green" | "orange" | "purple" | "red" }>`
 const PillNum = styled.div`
   font-size: 16px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
   line-height: 1;
 `;
 
 const PillLabel = styled.div`
   font-size: 10px;
   font-weight: 600;
-  color: #6b7280;
+  color: #71717A;
   text-transform: uppercase;
   margin-top: 2px;
   letter-spacing: 0.04em;
@@ -875,16 +875,16 @@ const PillLabel = styled.div`
 
 // Expanded detail
 const SeminarDetail = styled.div`
-  border-top: 1px solid #f0eeff;
+  border-top: 1px solid rgba(255,255,255,0.06);
   padding: 20px;
-  background: #faf9ff;
+  background: rgba(249,115,22,0.04);
 `;
 
 const StatsBar = styled.div`
   display: flex;
   gap: 0;
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 20px;
@@ -901,7 +901,7 @@ const StatItem = styled.div`
 const StatBig = styled.div<{ color?: string }>`
   font-size: 22px;
   font-weight: 800;
-  color: ${({ color }) => color ?? "#111827"};
+  color: ${({ color }) => color ?? "#F4F4F5"};
   letter-spacing: -0.02em;
 `;
 
@@ -914,7 +914,7 @@ const OverCapLabel = styled.span`
 const StatSub = styled.div`
   font-size: 11px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #52525B;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-top: 2px;
@@ -922,25 +922,25 @@ const StatSub = styled.div`
 
 const StatDivider = styled.div`
   width: 1px;
-  background: #f0eeff;
+  background: rgba(255,255,255,0.03);
   align-self: stretch;
 `;
 
 const AttendeeTableWrap = styled.div`
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.08);
 `;
 
 // Clickable user row
 const UserTr = styled.tr<{ selected: boolean }>`
   cursor: pointer;
-  background: ${({ selected }) => selected ? "#f5f3ff" : "transparent"};
+  background: ${({ selected }) => selected ? "rgba(249,115,22,0.06)" : "transparent"};
   transition: background 0.12s;
 
-  &:hover { background: ${({ selected }) => selected ? "#ede9fe" : "#faf9ff"}; }
+  &:hover { background: ${({ selected }) => selected ? "rgba(249,115,22,0.10)" : "rgba(249,115,22,0.04)"}; }
 
-  td { border-bottom: 1px solid #f3f4f6; }
+  td { border-bottom: 1px solid rgba(255,255,255,0.07); }
   &:last-child td { border-bottom: none; }
 `;
 
@@ -948,7 +948,7 @@ const UserTr = styled.tr<{ selected: boolean }>`
 const DrawerOverlay = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 200;
   display: flex;
   justify-content: flex-end;
@@ -958,8 +958,8 @@ const DrawerPanel = styled.div`
   width: 100%;
   max-width: 400px;
   height: 100%;
-  background: #fff;
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  background: #111113;
+  box-shadow: -4px 0 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -970,7 +970,7 @@ const DrawerHeader = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   padding: 24px 20px 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 `;
 
 const DrawerHeaderInfo = styled.div`
@@ -980,19 +980,19 @@ const DrawerHeaderInfo = styled.div`
 const DrawerName = styled.div`
   font-size: 18px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
   margin-bottom: 3px;
 `;
 
 const DrawerEmail = styled.div`
   font-size: 13px;
-  color: #6b7280;
+  color: #71717A;
   word-break: break-all;
 `;
 
 const DrawerCloseBtn = styled.button`
   font-size: 16px;
-  color: #9ca3af;
+  color: #52525B;
   background: none;
   border: none;
   cursor: pointer;
@@ -1000,7 +1000,7 @@ const DrawerCloseBtn = styled.button`
   flex-shrink: 0;
   margin-left: 12px;
   line-height: 1;
-  &:hover { color: #374151; }
+  &:hover { color: #A1A1AA; }
 `;
 
 const DrawerBadgeRow = styled.div`
@@ -1012,16 +1012,16 @@ const DrawerBadgeRow = styled.div`
 
 const DrawerMeta = styled.div`
   font-size: 12px;
-  color: #9ca3af;
+  color: #52525B;
   padding: 6px 20px 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 `;
 
 const DrawerStatGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding: 16px 20px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   gap: 0;
 `;
 
@@ -1033,7 +1033,7 @@ const DrawerStat = styled.div`
 const DrawerStatVal = styled.div`
   font-size: 22px;
   font-weight: 800;
-  color: #111827;
+  color: #F4F4F5;
   letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 4px;
@@ -1044,7 +1044,7 @@ const DrawerStatLabel = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #9ca3af;
+  color: #52525B;
 `;
 
 const DrawerSection = styled.div`
@@ -1058,7 +1058,7 @@ const DrawerSectionTitle = styled.div`
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #9ca3af;
+  color: #52525B;
   margin-bottom: 10px;
 `;
 
@@ -1074,9 +1074,9 @@ const DrawerHistoryItem = styled.div`
   justify-content: space-between;
   gap: 10px;
   padding: 10px 12px;
-  background: #f9fafb;
+  background: rgba(255,255,255,0.03);
   border-radius: 8px;
-  border: 1px solid #f3f4f6;
+  border: 1px solid rgba(255,255,255,0.06);
 `;
 
 const DrawerHistoryInfo = styled.div`
@@ -1087,7 +1087,7 @@ const DrawerHistoryInfo = styled.div`
 const DrawerHistoryTitle = styled.div`
   font-size: 13px;
   font-weight: 600;
-  color: #111827;
+  color: #F4F4F5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1095,14 +1095,14 @@ const DrawerHistoryTitle = styled.div`
 
 const DrawerHistoryDate = styled.div`
   font-size: 11px;
-  color: #9ca3af;
+  color: #52525B;
   margin-top: 2px;
 `;
 
 const DrawerActions = styled.div`
   padding: 16px 20px;
-  border-top: 1px solid #f3f4f6;
-  background: #fff;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  background: #111113;
   position: sticky;
   bottom: 0;
 `;
@@ -1133,35 +1133,35 @@ const AdminFilterBtn = styled.button<{ active: boolean; status: "all" | SeminarS
   white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
   border: 1.5px solid ${({ active, status }) =>
-    !active ? "#e5e7eb" :
-    status === "ongoing" ? "#dc2626" :
-    status === "upcoming" ? "#16a34a" :
-    status === "ended" ? "#6b7280" : "#6c5ce7"};
+    !active ? "rgba(255,255,255,0.1)" :
+    status === "ongoing" ? "#F87171" :
+    status === "upcoming" ? "#4ADE80" :
+    status === "ended" ? "#71717A" : "#F97316"};
   background: ${({ active, status }) =>
-    !active ? "#fff" :
-    status === "ongoing" ? "#fee2e2" :
+    !active ? "rgba(255,255,255,0.04)" :
+    status === "ongoing" ? "rgba(248,113,113,0.10)" :
     status === "upcoming" ? "#dcfce7" :
-    status === "ended" ? "#f3f4f6" : "#ede9fe"};
+    status === "ended" ? "rgba(255,255,255,0.06)" : "rgba(249,115,22,0.10)"};
   color: ${({ active, status }) =>
-    !active ? "#6b7280" :
-    status === "ongoing" ? "#dc2626" :
-    status === "upcoming" ? "#16a34a" :
-    status === "ended" ? "#4b5563" : "#6c5ce7"};
+    !active ? "#71717A" :
+    status === "ongoing" ? "#F87171" :
+    status === "upcoming" ? "#4ADE80" :
+    status === "ended" ? "#4b5563" : "#F97316"};
 
   &:hover {
     border-color: ${({ status }) =>
-      status === "ongoing" ? "#dc2626" :
-      status === "upcoming" ? "#16a34a" :
-      status === "ended" ? "#6b7280" : "#6c5ce7"};
+      status === "ongoing" ? "#F87171" :
+      status === "upcoming" ? "#4ADE80" :
+      status === "ended" ? "#71717A" : "#F97316"};
     color: ${({ status }) =>
-      status === "ongoing" ? "#dc2626" :
-      status === "upcoming" ? "#16a34a" :
-      status === "ended" ? "#4b5563" : "#6c5ce7"};
+      status === "ongoing" ? "#F87171" :
+      status === "upcoming" ? "#4ADE80" :
+      status === "ended" ? "#4b5563" : "#F97316"};
   }
 `;
 
 const AdminFilterCount = styled.span<{ active: boolean }>`
-  background: ${({ active }) => active ? "rgba(0,0,0,0.1)" : "#f3f4f6"};
+  background: ${({ active }) => active ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.06)"};
   color: inherit;
   font-size: 10px;
   font-weight: 700;
@@ -1189,14 +1189,14 @@ const SortGroup = styled.div`
 const SortLabel = styled.span`
   font-size: 12px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #52525B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
 
 const SortBtnGroup = styled.div`
   display: flex;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
   overflow: hidden;
 `;
@@ -1206,9 +1206,9 @@ const SortBtn = styled.button<{ active: boolean }>`
   font-size: 13px;
   font-weight: 600;
   border: none;
-  border-right: 1px solid #e5e7eb;
-  background: ${({ active }) => (active ? "#6c5ce7" : "#fff")};
-  color: ${({ active }) => (active ? "#fff" : "#374151")};
+  border-right: 1px solid rgba(255,255,255,0.08);
+  background: ${({ active }) => (active ? "#F97316" : "rgba(255,255,255,0.04)")};
+  color: ${({ active }) => (active ? "#fff" : "#A1A1AA")};
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 
@@ -1220,12 +1220,12 @@ const SortDirBtn = styled.button`
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
-  background: #fff;
-  color: #374151;
+  background: #111113;
+  color: #A1A1AA;
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover { background: #f9fafb; }
+  &:hover { background: rgba(255,255,255,0.03); }
 `;

@@ -126,13 +126,13 @@ const PageWrap = styled.div`
 `;
 
 const AuthCard = styled.div`
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background: #111113;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
   padding: 28px 20px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 4px 24px rgba(108, 92, 231, 0.08);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
 
   @media (min-width: 480px) {
     padding: 40px 36px;
@@ -146,29 +146,29 @@ const CardHeader = styled.div`
 const CardTitle = styled.h1`
   font-size: 26px;
   font-weight: 800;
-  color: #111827;
-  letter-spacing: -0.02em;
+  color: #F4F4F5;
+  letter-spacing: -0.03em;
   margin-bottom: 4px;
 `;
 
 const CardSub = styled.p`
   font-size: 14px;
-  color: #6b7280;
+  color: #71717A;
 `;
 
 const Divider = styled.hr`
   border: none;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   margin: 24px 0;
 `;
 
 const FooterText = styled.p`
   text-align: center;
   font-size: 14px;
-  color: #6b7280;
+  color: #71717A;
 
   a {
-    color: #6c5ce7;
+    color: #F97316;
     font-weight: 600;
   }
 `;
