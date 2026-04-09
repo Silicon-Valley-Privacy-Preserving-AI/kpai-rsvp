@@ -153,6 +153,7 @@ export default function MainPage() {
   };
 
   return (
+    <>
     <Wrapper>
       {/* ── Hero ── */}
       <HeroSection>
@@ -201,47 +202,6 @@ export default function MainPage() {
           <OrbitalWrap>
             <OrbitalSystem />
           </OrbitalWrap>
-
-          {/* Floating preview card — real data */}
-          <PreviewCard>
-            <PreviewLabel>
-              <PulseDot />
-              Next Seminar
-            </PreviewLabel>
-
-            {seminarsLoading ? (
-              <>
-                <PreviewSkeleton style={{ width: "90%", marginBottom: 6 }} />
-                <PreviewSkeleton style={{ width: "70%" }} />
-                <PreviewSkeletonMeta />
-                <PreviewSkeletonMeta />
-                <PreviewSkeletonBtn />
-              </>
-            ) : !nextSeminar ? (
-              <PreviewEmpty>No upcoming seminars scheduled.</PreviewEmpty>
-            ) : (
-              <>
-                <PreviewTitle>{nextSeminar.title}</PreviewTitle>
-                <PreviewMeta>
-                  <CalendarIcon size={14} color="var(--text-2)" />
-                  {formatPreviewDate(nextSeminar)}
-                </PreviewMeta>
-                {nextDetail != null && (
-                  <PreviewMeta>
-                    <UsersIcon size={14} color="var(--text-2)" />
-                    {nextDetail.current_rsvp_count} attending
-                    {nextSeminar.max_capacity != null && ` / ${nextSeminar.max_capacity}`}
-                  </PreviewMeta>
-                )}
-                <PreviewRsvp
-                  as={Link as any}
-                  to={`/seminar/${nextSeminar.id}`}
-                >
-                  RSVP Now
-                </PreviewRsvp>
-              </>
-            )}
-          </PreviewCard>
         </HeroVisual>
       </HeroSection>
 
@@ -337,6 +297,57 @@ export default function MainPage() {
         })()}
       </TileSection>
     </Wrapper>
+
+    {/* ── Fixed peek card — right edge of viewport, slides left on hover ── */}
+    <PeekWrapper>
+      <FloatInner>
+        <PeekTab>
+          <PulseDot />
+          <CalendarIcon size={15} color="rgba(255,255,255,0.9)" />
+          <PeekTabLabel>Next</PeekTabLabel>
+        </PeekTab>
+        <PreviewCard>
+          <PreviewLabel>
+            <PulseDot />
+            Next Seminar
+          </PreviewLabel>
+
+          {seminarsLoading ? (
+            <>
+              <PreviewSkeleton style={{ width: "90%", marginBottom: 6 }} />
+              <PreviewSkeleton style={{ width: "70%" }} />
+              <PreviewSkeletonMeta />
+              <PreviewSkeletonMeta />
+              <PreviewSkeletonBtn />
+            </>
+          ) : !nextSeminar ? (
+            <PreviewEmpty>No upcoming seminars scheduled.</PreviewEmpty>
+          ) : (
+            <>
+              <PreviewTitle>{nextSeminar.title}</PreviewTitle>
+              <PreviewMeta>
+                <CalendarIcon size={14} color="var(--text-2)" />
+                {formatPreviewDate(nextSeminar)}
+              </PreviewMeta>
+              {nextDetail != null && (
+                <PreviewMeta>
+                  <UsersIcon size={14} color="var(--text-2)" />
+                  {nextDetail.current_rsvp_count} attending
+                  {nextSeminar.max_capacity != null && ` / ${nextSeminar.max_capacity}`}
+                </PreviewMeta>
+              )}
+              <PreviewRsvp
+                as={Link as any}
+                to={`/seminar/${nextSeminar.id}`}
+              >
+                RSVP Now
+              </PreviewRsvp>
+            </>
+          )}
+        </PreviewCard>
+      </FloatInner>
+    </PeekWrapper>
+    </>
   );
 }
 
@@ -494,22 +505,75 @@ const OrbitalWrap = styled.div`
   max-width: 340px;
 `;
 
-const PreviewCard = styled.div`
-  position: absolute;
-  bottom: 16px;
-  right: -8px;
-  background: rgba(26, 26, 30, 0.68);
-  html[data-theme="light"] & {
-    background: rgba(235, 235, 237, 0.72);
+/** Fixed overlay — slides left on hover to reveal card from right edge */
+const PeekWrapper = styled.div`
+  position: fixed;
+  right: 0;
+  top: 50%;
+  /* Initially show only the 44px PeekTab, rest hidden off-screen right */
+  transform: translateY(-50%) translateX(calc(100% - 44px));
+  transition: transform 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 200;
+
+  &:hover {
+    transform: translateY(-50%) translateX(0);
   }
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1px solid var(--border-strong);
-  border-radius: 16px;
+
+  /* Only show on desktop where hero visual is present */
+  display: none;
+  @media (min-width: 900px) {
+    display: block;
+  }
+`;
+
+/** Decouples float animation from the peek translate so transforms don't clobber each other */
+const FloatInner = styled.div`
+  display: flex;
+  align-items: stretch;
+  animation: ${float} 7s ease-in-out infinite;
+`;
+
+/** The colored strip that peeks out — provides affordance to hover */
+const PeekTab = styled.div`
+  width: 44px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #F97316 0%, #EA580C 100%);
+  border-radius: 12px 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 0;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: -6px 0 24px rgba(249, 115, 22, 0.35);
+`;
+
+const PeekTabLabel = styled.span`
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+`;
+
+/** The card itself — flush with viewport right edge when peeked */
+const PreviewCard = styled.div`
+  background: rgba(22, 22, 26, 0.94);
+  html[data-theme="light"] & {
+    background: rgba(242, 242, 244, 0.97);
+  }
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  border-left: 1px solid rgba(249, 115, 22, 0.12);
   padding: 22px 24px;
   width: 280px;
-  box-shadow: 0 20px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(249,115,22,0.08);
-  animation: ${float} 7s ease-in-out infinite;
+  box-shadow: -12px 0 48px rgba(0, 0, 0, 0.35);
 `;
 
 const PreviewLabel = styled.div`
