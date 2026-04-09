@@ -120,17 +120,14 @@ export default function Header() {
               </Button>
             </>
           ) : (
-            <>
-              <NavLink to={route.signin}>Sign In</NavLink>
-              <Button
-                as={Link as any}
-                to={route.signup}
-                variant="primary"
-                size="sm"
-              >
-                Join Forum
-              </Button>
-            </>
+            <Button
+              as={Link as any}
+              to={route.signin}
+              variant="primary"
+              size="sm"
+            >
+              Sign In
+            </Button>
           )}
         </NavRight>
 
@@ -174,14 +171,11 @@ export default function Header() {
               </MobileActionRow>
             </>
           ) : (
-            <>
-              <MobileNavLink to={route.signin} onClick={closeMobileMenu}>Sign In</MobileNavLink>
-              <MobileActionRow>
-                <Button as={Link as any} to={route.signup} variant="primary" fullWidth onClick={closeMobileMenu}>
-                  Join Forum
-                </Button>
-              </MobileActionRow>
-            </>
+            <MobileActionRow>
+              <Button as={Link as any} to={route.signin} variant="primary" fullWidth onClick={closeMobileMenu}>
+                Sign In
+              </Button>
+            </MobileActionRow>
           )}
         </MobileMenu>
       )}
