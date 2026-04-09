@@ -18,6 +18,3 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
-
-# Local DB file
-*.db

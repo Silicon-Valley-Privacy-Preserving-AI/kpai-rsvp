@@ -1,14 +1,37 @@
 services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────────────────
+  postgres:
+    container_name: kpai-postgres
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       svain
+      POSTGRES_USER:     svain
+      POSTGRES_PASSWORD: svainpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kpai-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U svain -d svain"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── FastAPI backend ───────────────────────────────────────────────────────
   be:
     container_name: kpai-be
     build: ./be
     restart: unless-stopped
-    volumes:
-      - ./be/data:/app/data
     env_file:
       - ./be/.env
     depends_on:
-      - mailpit
+      postgres:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
     networks:
       - kpai-network
     healthcheck:
@@ -26,6 +49,7 @@ services:
     # BE port is intentionally not exposed externally.
     # FE nginx proxies /api/ → http://be:8000 over the internal kpai-network.
 
+  # ── React / Nginx frontend ────────────────────────────────────────────────
   fe:
     container_name: kpai-fe
     build: ./fe
@@ -40,6 +64,7 @@ services:
     networks:
       - kpai-network
 
+  # ── Mailpit (dev SMTP) ────────────────────────────────────────────────────
   mailpit:
     container_name: kpai-mailpit
     image: axllent/mailpit
@@ -57,3 +82,6 @@ services:
 networks:
   kpai-network:
     driver: bridge
+
+volumes:
+  postgres_data:   # persists DB data across container restarts

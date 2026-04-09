@@ -5,6 +5,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+# Database — consumed directly by database.py; exposed here for visibility/validation
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is missing in the .env file")
+
+
 PORT = int(os.getenv("PORT"))
 if not PORT:
     raise RuntimeError("PORT is missing in the .env file")

@@ -8,7 +8,7 @@ python-dotenv
 
 # DB, DTO Schema
 sqlalchemy>=2.0.0
-aiosqlite
+asyncpg            # PostgreSQL async driver (replaces aiosqlite)
 pydantic
 
 # Password Hashing

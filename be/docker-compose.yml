@@ -1,11 +1,37 @@
 services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────────────────
+  postgres:
+    container_name: kpai-postgres
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       svain
+      POSTGRES_USER:     svain
+      POSTGRES_PASSWORD: svainpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"    # exposed for local debugging / DB clients
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U svain -d svain"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── FastAPI backend ───────────────────────────────────────────────────────
   fastapi:
     container_name: kpai-be
     build: .
     ports:
       - "8000:8000"
     restart: unless-stopped
-    volumes:
-      - ./data:/app/data
     env_file:
       - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

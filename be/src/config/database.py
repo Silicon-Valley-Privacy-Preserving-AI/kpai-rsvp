@@ -2,26 +2,30 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.orm import DeclarativeBase
 import os
 
-DATA_FOLDER_NAME = "data"
-DB_FILE_NAME = "kpai.db"
+# PostgreSQL async connection URL.
+# Format: postgresql+asyncpg://<user>:<password>@<host>:<port>/<dbname>
+# Defaults to a local dev instance; override via the DATABASE_URL env var.
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://svain:svainpassword@localhost:5432/svain",
+)
 
-# Data 폴더 생성
-os.makedirs(f"{DATA_FOLDER_NAME}", exist_ok=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 
-# SQLite 비동기 URL 설정
-DATABASE_URL = f"sqlite+aiosqlite:///./{DATA_FOLDER_NAME}/{DB_FILE_NAME}"
+# Session factory
+async_session = async_sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+    expire_on_commit=False,
+)
 
-# 엔진 생성
-engine = create_async_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
-# 세션 팩토리 생성
-async_session = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False)
-
-# 베이스 모델 클래스
 class Base(DeclarativeBase):
     pass
 
-# Dependency injection을 위한 세션 생성기
-async def get_db():
+
+# Dependency injection helper
+async def get_db() -> AsyncSession:
     async with async_session() as session:
         yield session

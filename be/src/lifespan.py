@@ -6,26 +6,22 @@ from src.config.database import engine, Base
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    # Startup logic
+    # ── Startup ───────────────────────────────────────────────────────────────
     print("App starting up...")
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("Creating db tables...")
+    print("DB tables ready.")
 
-    # Additive schema migrations for existing databases.
-    # SQLite does not support IF NOT EXISTS in ALTER TABLE, so we catch the
-    # OperationalError that occurs when the column already exists.
+    # Additive schema migrations.
+    # PostgreSQL supports "ADD COLUMN IF NOT EXISTS" natively, so no try/except needed.
     _migrations = [
-        "ALTER TABLE seminars ADD COLUMN display_timezone TEXT",
+        "ALTER TABLE seminars ADD COLUMN IF NOT EXISTS display_timezone TEXT",
     ]
     async with engine.begin() as conn:
         for stmt in _migrations:
-            try:
-                await conn.execute(text(stmt))
-            except Exception:
-                pass  # column already exists — safe to ignore
+            await conn.execute(text(stmt))
 
     yield
-    # Shutdown logic
+    # ── Shutdown ──────────────────────────────────────────────────────────────
     print("App shutting down...")
