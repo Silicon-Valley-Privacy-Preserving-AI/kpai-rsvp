@@ -22,6 +22,14 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+/** Clear session and redirect to sign-in. No-op if already on that page. */
+function forceLogout() {
+  sessionStorage.removeItem("accessToken");
+  if (window.location.pathname !== "/signin") {
+    window.location.replace("/signin");
+  }
+}
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -32,6 +40,21 @@ axiosInstance.interceptors.response.use(
       console.error("Method:", error.config?.method);
       console.error("Status:", error.response.status);
       console.error("Data:", error.response.data);
+
+      const status = error.response.status as number;
+      const url: string = error.config?.url ?? "";
+
+      // 401 / 403 with a stored token → token is expired or revoked
+      if (status === 401 || status === 403) {
+        if (sessionStorage.getItem("accessToken")) {
+          forceLogout();
+        }
+      }
+
+      // 404 on the "get current user" endpoint → account no longer exists
+      if (status === 404 && url.includes("/api/v1/users") && !url.match(/\/api\/v1\/users\/\d+/)) {
+        forceLogout();
+      }
     }
     // Request sent but no response received (network error, etc.)
     else if (error.request) {
