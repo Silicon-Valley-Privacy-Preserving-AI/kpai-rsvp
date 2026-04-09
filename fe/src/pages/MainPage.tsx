@@ -7,11 +7,12 @@ import { route } from "../router/route";
 import { Button, Badge } from "../components/ui";
 import {
   GraduationCapIcon, KeyIcon, SparklesIcon, SettingsIcon,
-  ArrowRightIcon, CalendarIcon, UsersIcon,
+  ArrowRightIcon, CalendarIcon, UsersIcon, UserIcon,
 } from "../components/icons";
 import type { SeminarResponse, SeminarDetailResponse } from "../types/seminar";
 import { tzAbbr } from "../utils/datetime";
 import { BROWSER_TZ } from "../utils/constants";
+import { links } from "../utils/links";
 
 type User = { id: number; username: string; email: string; role: string; };
 
@@ -272,49 +273,68 @@ export default function MainPage() {
       {/* ── Feature tiles ── */}
       <TileSection>
         <TileSectionLabel>Quick Access</TileSectionLabel>
-        <TileGrid>
-          <FeaturedTile to={route.seminar}>
-            <TileIconWrap>
-              <GraduationCapIcon size={22} color="#F97316" />
-            </TileIconWrap>
-            <div>
-              <TileTitle>Seminars</TileTitle>
-              <TileDesc>Browse and RSVP for upcoming research talks and community events.</TileDesc>
-            </div>
-            <TileArrow>
-              <ArrowRightIcon size={16} color="#F97316" />
-            </TileArrow>
-          </FeaturedTile>
-
-          {!isLoggedIn && (
-            <>
-              <Tile to={route.signin}>
-                <TileIconWrap small>
-                  <KeyIcon size={18} color="#F97316" />
+        {/* tileCount drives grid columns + row-spanning so there's never an empty gap */}
+        {/* not-logged-in: +Sign In+About SVAIN | member: +My Page+About SVAIN | staff: +My Page+Admin */}
+        {(() => {
+          const showAbout = !isLoggedIn || data?.role === "member";
+          const tileCount = 1 + (!isLoggedIn ? 1 : 0) + (isLoggedIn ? 1 : 0) + (data?.role === "staff" ? 1 : 0) + (showAbout ? 1 : 0);
+          return (
+            <TileGrid $cols={tileCount >= 2 ? 2 : 1}>
+              <FeaturedTile to={route.seminar} $spanRows={tileCount >= 3}>
+                <TileIconWrap>
+                  <GraduationCapIcon size={22} color="#F97316" />
                 </TileIconWrap>
-                <TileTitle>Sign In</TileTitle>
-                <TileDesc>Access your RSVPs and profile.</TileDesc>
-              </Tile>
-              <Tile to={route.signup}>
-                <TileIconWrap small>
-                  <SparklesIcon size={18} color="#F97316" />
-                </TileIconWrap>
-                <TileTitle>Join SVAIN</TileTitle>
-                <TileDesc>Create an account to participate in seminars.</TileDesc>
-              </Tile>
-            </>
-          )}
+                <div>
+                  <TileTitle>Seminars</TileTitle>
+                  <TileDesc>Browse and RSVP for upcoming research talks and community events.</TileDesc>
+                </div>
+                <TileArrow>
+                  <ArrowRightIcon size={16} color="#F97316" />
+                </TileArrow>
+              </FeaturedTile>
 
-          {data?.role === "staff" && (
-            <Tile to={route.admin}>
-              <TileIconWrap small>
-                <SettingsIcon size={18} color="#F97316" />
-              </TileIconWrap>
-              <TileTitle>Admin</TileTitle>
-              <TileDesc>Manage users, seminars, and attendance.</TileDesc>
-            </Tile>
-          )}
-        </TileGrid>
+              {!isLoggedIn && (
+                <Tile to={route.signin}>
+                  <TileIconWrap small>
+                    <KeyIcon size={18} color="#F97316" />
+                  </TileIconWrap>
+                  <TileTitle>Sign In</TileTitle>
+                  <TileDesc>Access your RSVPs and profile.</TileDesc>
+                </Tile>
+              )}
+
+              {isLoggedIn && (
+                <Tile to={route.mypage}>
+                  <TileIconWrap small>
+                    <UserIcon size={18} color="#F97316" />
+                  </TileIconWrap>
+                  <TileTitle>My Page</TileTitle>
+                  <TileDesc>View your profile, RSVPs, and membership status.</TileDesc>
+                </Tile>
+              )}
+
+              {data?.role === "staff" && (
+                <Tile to={route.admin}>
+                  <TileIconWrap small>
+                    <SettingsIcon size={18} color="#F97316" />
+                  </TileIconWrap>
+                  <TileTitle>Admin</TileTitle>
+                  <TileDesc>Manage users, seminars, and attendance.</TileDesc>
+                </Tile>
+              )}
+
+              {showAbout && (
+                <ExternalTile href={links.github_page} target="_blank" rel="noopener noreferrer">
+                  <TileIconWrap small>
+                    <SparklesIcon size={18} color="#F97316" />
+                  </TileIconWrap>
+                  <TileTitle>About SVAIN</TileTitle>
+                  <TileDesc>Learn more about our community, mission, and research focus.</TileDesc>
+                </ExternalTile>
+              )}
+            </TileGrid>
+          );
+        })()}
       </TileSection>
     </Wrapper>
   );
@@ -649,13 +669,13 @@ const TileSectionLabel = styled.div`
   margin-bottom: 16px;
 `;
 
-const TileGrid = styled.div`
+const TileGrid = styled.div<{ $cols?: number }>`
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
 
   @media (min-width: 560px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: ${({ $cols = 2 }) => $cols >= 2 ? "repeat(2, 1fr)" : "1fr"};
   }
 `;
 
@@ -677,14 +697,14 @@ const baseTileCSS = `
   }
 `;
 
-const FeaturedTile = styled(Link)`
+const FeaturedTile = styled(Link)<{ $spanRows?: boolean }>`
   ${baseTileCSS}
   padding: 24px 24px;
   grid-column: 1 / -1;
 
   @media (min-width: 560px) {
     grid-column: auto;
-    grid-row: span 2;
+    grid-row: ${({ $spanRows }) => $spanRows ? "span 2" : "auto"};
     padding: 28px;
     flex-direction: column;
     gap: 18px;
@@ -692,6 +712,13 @@ const FeaturedTile = styled(Link)`
 `;
 
 const Tile = styled(Link)`
+  ${baseTileCSS}
+  padding: 20px 22px;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const ExternalTile = styled.a`
   ${baseTileCSS}
   padding: 20px 22px;
   flex-direction: row;

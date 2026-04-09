@@ -1,5 +1,6 @@
 export const links = {
   github: "https://github.com/nexus-pai/nexus-pai.github.io",
+  github_page: "https://nexus-pai.github.io",
   instagram: "https://www.instagram.com/kpai1006/",
   linkedin:
     "https://www.linkedin.com/company/silicon-valley-privacy-preserving-ai-forum",
