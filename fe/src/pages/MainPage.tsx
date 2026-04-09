@@ -223,12 +223,12 @@ export default function MainPage() {
               <>
                 <PreviewTitle>{nextSeminar.title}</PreviewTitle>
                 <PreviewMeta>
-                  <CalendarIcon size={12} color="var(--text-2)" />
+                  <CalendarIcon size={14} color="var(--text-2)" />
                   {formatPreviewDate(nextSeminar)}
                 </PreviewMeta>
                 {nextDetail != null && (
                   <PreviewMeta>
-                    <UsersIcon size={12} color="var(--text-2)" />
+                    <UsersIcon size={14} color="var(--text-2)" />
                     {nextDetail.current_rsvp_count} attending
                     {nextSeminar.max_capacity != null && ` / ${nextSeminar.max_capacity}`}
                   </PreviewMeta>
@@ -498,12 +498,17 @@ const PreviewCard = styled.div`
   position: absolute;
   bottom: 16px;
   right: -8px;
-  background: var(--surface-2);
+  background: rgba(26, 26, 30, 0.68);
+  html[data-theme="light"] & {
+    background: rgba(235, 235, 237, 0.72);
+  }
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid var(--border-strong);
   border-radius: 16px;
-  padding: 18px 20px;
-  width: 232px;
-  box-shadow: 0 20px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(249,115,22,0.06);
+  padding: 22px 24px;
+  width: 280px;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(249,115,22,0.08);
   animation: ${float} 7s ease-in-out infinite;
 `;
 
@@ -511,7 +516,7 @@ const PreviewLabel = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -529,7 +534,7 @@ const PulseDot = styled.span`
 `;
 
 const PreviewTitle = styled.div`
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--text-1);
   letter-spacing: -0.02em;
@@ -541,7 +546,7 @@ const PreviewMeta = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-3);
   margin-bottom: 4px;
 `;
