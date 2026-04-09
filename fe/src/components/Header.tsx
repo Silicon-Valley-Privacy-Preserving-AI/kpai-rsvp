@@ -79,7 +79,7 @@ export default function Header() {
             onMouseEnter={handleLogoEnter}
             onMouseLeave={handleLogoLeave}
           >
-            <LogoImage src="/logo.png" alt="K-PAI Logo" />
+            <LogoImage src="/logo.png" alt="SVAIN Logo" />
             <LogoText>
               {LOGO_PARTS.map(({ init, rest }, i) => (
                 <LogoWord key={i}>

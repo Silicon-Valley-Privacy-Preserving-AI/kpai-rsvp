@@ -176,7 +176,7 @@ export default function SignUpPage() {
       <AuthCard>
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
-          <CardSub>Join the K-PAI community</CardSub>
+          <CardSub>Join the SVAIN community</CardSub>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>

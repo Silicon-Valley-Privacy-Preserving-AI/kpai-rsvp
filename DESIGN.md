@@ -1,10 +1,10 @@
-# Design System: K-PAI — Silicon Valley Privacy-Preserving AI Forum
+# Design System: SVAIN — Silicon Valley AI Nexus Forum
 
 ## 1. Visual Theme & Atmosphere
 
 "Silicon Valley Mission Control" — the interface feels like operating the command center of a
 pioneering AI research institution. Surfaces are void-black and cosmic. Energy pulses through
-solar-orange orbital accents pulled directly from the K-PAI atomic logo. The atmosphere sits at
+solar-orange orbital accents pulled directly from the SVAIN atomic logo. The atmosphere sits at
 the intersection of academic precision and startup velocity: dense but breathable, technical
 yet human. Every screen communicates that serious research happens here.
 
@@ -24,7 +24,7 @@ yet human. Every screen communicates that serious research happens here.
 - **Whisper Border** (`rgba(255,255,255,0.07)`) — Card borders, 1px structural dividers. Ultra-subtle.
 - **Soft Border** (`rgba(255,255,255,0.12)`) — Interactive element borders, input outlines.
 - **Solar Orange** (`#F97316`) — THE single accent. CTAs, active states, focus rings, key metrics.
-  Pulled directly from the K-PAI atomic orbital logo. All energy flows through this color.
+  Pulled directly from the SVAIN atomic orbital logo. All energy flows through this color.
 - **Orange Dim** (`#EA580C`) — Pressed/active state. Hover deepening on primary buttons.
 - **Orange Glow** (`rgba(249,115,22,0.12)`) — Focus halos, card hover tints, ambient warmth.
 - **Text Primary** (`#F4F4F5`) — Headlines, primary content. Zinc-100 equivalent.

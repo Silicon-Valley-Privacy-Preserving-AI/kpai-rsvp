@@ -19,7 +19,7 @@ async def get_import_service(db: AsyncSession = Depends(get_db)) -> ImportServic
     description=(
         "Upload a CSV file exported from Luma (or matching the example.csv schema). "
         "Matches rows by email: links existing users, creates temporary accounts for unknowns. "
-        "Sends a K-PAI membership email to anyone who has now been checked-in at 2+ seminars."
+        "Sends a SVAIN membership email to anyone who has now been checked-in at 2+ seminars."
     ),
 )
 async def import_csv(

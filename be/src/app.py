@@ -5,8 +5,8 @@ from src.lifespan import lifespan
 
 
 app = FastAPI(
-    title="K-PAI backend web server",
-    description="K-PAI backend api documentation",
+    title="SVAIN backend web server",
+    description="SVAIN backend api documentation",
     version="1.0.0",
     lifespan=lifespan,
     swagger_ui_parameters={"persistAuthorization": True}

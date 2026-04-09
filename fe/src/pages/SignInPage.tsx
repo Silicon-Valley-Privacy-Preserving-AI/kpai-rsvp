@@ -56,7 +56,7 @@ export default function SignInPage() {
       <AuthCard>
         <CardHeader>
           <CardTitle>Sign In</CardTitle>
-          <CardSub>Welcome back to K-PAI</CardSub>
+          <CardSub>Welcome back to SVAIN</CardSub>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
