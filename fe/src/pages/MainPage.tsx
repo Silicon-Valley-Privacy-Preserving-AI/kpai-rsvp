@@ -158,10 +158,10 @@ export default function MainPage() {
         <HeroContent>
           <HeroBadge>Silicon Valley AI Forum</HeroBadge>
           <HeroTitle>
-            Where Privacy<br />Meets Intelligence.
+            Where Innovation<br />Meets Intelligence.
           </HeroTitle>
           <HeroSub>
-            K-PAI connects researchers and practitioners building
+            SVAIN connects researchers and practitioners building
             the next generation of privacy-preserving AI systems.
             Join seminars. Build connections. Drive the field forward.
           </HeroSub>
@@ -299,7 +299,7 @@ export default function MainPage() {
                 <TileIconWrap small>
                   <SparklesIcon size={18} color="#F97316" />
                 </TileIconWrap>
-                <TileTitle>Join K-PAI</TileTitle>
+                <TileTitle>Join SVAIN</TileTitle>
                 <TileDesc>Create an account to participate in seminars.</TileDesc>
               </Tile>
             </>
