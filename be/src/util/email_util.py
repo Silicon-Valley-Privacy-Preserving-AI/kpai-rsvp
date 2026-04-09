@@ -51,33 +51,116 @@ def _deliver(from_addr: str, to_addr: str, raw: str) -> None:
 
 def _build_membership_email(to_email: str, username: str) -> MIMEMultipart:
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = "Congratulations on becoming a full member of K-PAI!"
+    msg["Subject"] = "Congratulations on becoming a full member of SVAIN!"
     msg["From"] = SMTP_FROM
     msg["To"] = to_email
 
     plain = f"""\
 Hello {username},
 
-You have attended the K-PAI forum at least twice!
-You are now officially a full member of K-PAI.
+You have attended the SVAIN seminar series at least twice!
+You are now officially a Full Member of Silicon Valley AI Nexus (SVAIN).
 
-As a full member, you can enjoy more benefits and networking opportunities.
-For more details: https://k-privateai.github.io/membership/
+As a Full Member, you now have access to expanded networking,
+priority RSVP for future seminars, and the ability to connect with
+other professionals in the AI community.
+
+View your membership benefits:
+https://nexus-pai.github.io/membership/
 
 Thank you,
-K-PAI Team
+SVAIN Team
 """
 
     html = f"""\
-<html><body>
-<p>Hello <strong>{username}</strong>,</p>
-<p>You have attended the K-PAI forum <strong>at least twice</strong>!<br>
-You are now officially a <strong>full member</strong> of K-PAI.</p>
-<p>As a full member, you can enjoy more benefits and networking opportunities.<br>
-For more details: <a href="https://k-privateai.github.io/membership/">K-PAI Membership</a></p>
-<p>Thank you,<br>K-PAI Team</p>
-</body></html>
-"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f5f5f7;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0"
+             style="max-width:600px;width:100%;background:#ffffff;
+                    border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);
+                    overflow:hidden;">
+
+        <tr>
+          <td style="background:linear-gradient(135deg,#1c1917 0%,#c2410c 100%);
+                     padding:36px 36px 28px;text-align:center;">
+            <div style="display:inline-block;background:rgba(255,255,255,0.12);
+                        border-radius:50%;width:68px;height:68px;line-height:68px;
+                        font-size:34px;margin-bottom:16px;">&#127942;</div>
+            <p style="margin:0 0 8px;font-size:12px;letter-spacing:2px;
+                      text-transform:uppercase;color:#FED7AA;">SVAIN Community</p>
+            <h1 style="margin:0;font-size:26px;font-weight:700;color:#ffffff;
+                       line-height:1.3;">You&apos;re a Full Member!</h1>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:32px 36px;">
+            <p style="margin:0 0 24px;font-size:15px;color:#333;line-height:1.6;">
+              Congratulations, <strong>{username}</strong>!<br>
+              You&apos;ve attended the SVAIN seminar series <strong>at least twice</strong> &mdash;
+              which means you&apos;re now officially a <strong>Full Member</strong> of the
+              Silicon Valley AI Nexus community.
+            </p>
+
+            <table width="100%" cellpadding="0" cellspacing="0"
+                   style="background:#FFF7ED;border-radius:8px;padding:20px 24px;
+                          border-left:4px solid #F97316;margin-bottom:8px;">
+              <tr><td>
+                <p style="margin:0 0 8px;font-size:13px;font-weight:700;
+                          text-transform:uppercase;letter-spacing:1px;color:#EA580C;">
+                  &#127775;&nbsp; Milestone Achieved
+                </p>
+                <p style="margin:0;font-size:14px;color:#555;line-height:1.6;">
+                  As a Full Member, you now have access to expanded networking,
+                  priority RSVP for future seminars, and the ability to connect with
+                  other professionals in the AI community.
+                </p>
+              </td></tr>
+            </table>
+
+            <table width="100%" cellpadding="0" cellspacing="0"
+                   style="margin-top:32px;">
+              <tr>
+                <td align="center">
+                  <a href="https://nexus-pai.github.io/membership/"
+                     style="display:inline-block;padding:14px 36px;
+                            background:linear-gradient(135deg,#F97316,#EA580C);
+                            color:#fff;text-decoration:none;border-radius:50px;
+                            font-size:15px;font-weight:600;
+                            box-shadow:0 4px 14px rgba(249,115,22,0.4);">
+                    View Membership Benefits &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background:#FFF7ED;padding:20px 36px;
+                     border-top:1px solid #FDBA74;">
+            <p style="margin:0;font-size:12px;color:#999;
+                      text-align:center;line-height:1.6;">
+              This email was sent to celebrate your SVAIN full membership milestone.<br>
+              Contact: <a href="mailto:sunghee.yun@gmail.com"
+                          style="color:#F97316;">sunghee.yun@gmail.com</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
 
     msg.attach(MIMEText(plain, "plain", "utf-8"))
     msg.attach(MIMEText(html, "html", "utf-8"))
@@ -90,7 +173,7 @@ def _send_membership_sync(to_email: str, username: str) -> None:
 
 
 async def send_membership_email(to_email: str, username: str) -> None:
-    """Send a K-PAI membership congratulation email.
+    """Send a SVAIN membership congratulation email.
     If SMTP_HOST is not configured, logs and skips silently."""
     if not SMTP_HOST:
         logger.info("SMTP not configured — skipping membership email to %s", to_email)
@@ -117,7 +200,7 @@ def _build_reminder_email(
     cover_image: Optional[str],
 ) -> MIMEMultipart:
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"[K-PAI] Seminar Reminder: {title}"
+    msg["Subject"] = f"[SVAIN] Seminar Reminder: {title}"
     msg["From"] = SMTP_FROM
     msg["To"] = to_email
 
@@ -125,7 +208,7 @@ def _build_reminder_email(
     plain_lines = [
         f"Hello {username},",
         "",
-        f'You have RSVP\'d for the K-PAI seminar "{title}".',
+        f'You have RSVP\'d for the SVAIN seminar "{title}".',
         "",
     ]
     if host:
@@ -138,7 +221,7 @@ def _build_reminder_email(
         plain_lines.append(f"Location: {location}")
     if description:
         plain_lines += ["", description]
-    plain_lines += ["", "Thank you,", "K-PAI Team"]
+    plain_lines += ["", "Thank you,", "SVAIN Team"]
     plain = "\n".join(plain_lines)
 
     # HTML blocks
@@ -179,7 +262,7 @@ def _build_reminder_email(
     if description:
         md_html = _md.markdown(description, extensions=["extra", "nl2br"])
         desc_block = (
-            f'<div style="margin:24px 0 0;border-top:1px solid #e8e4f8;padding-top:20px;">'
+            f'<div style="margin:24px 0 0;border-top:1px solid #FDBA74;padding-top:20px;">'
             # Scoped styles for common markdown elements — email clients ignore <link>/<style> in <head>
             f'<style>'
             f'.md-body{{font-size:14px;line-height:1.75;color:#444;}}'
@@ -188,13 +271,13 @@ def _build_reminder_email(
             f'.md-body p{{margin:8px 0;}}'
             f'.md-body ul,.md-body ol{{margin:8px 0;padding-left:22px;}}'
             f'.md-body li{{margin-bottom:4px;}}'
-            f'.md-body a{{color:#6c5ce7;text-decoration:underline;}}'
-            f'.md-body strong{{font-weight:700;color:#1a1a2e;}}'
+            f'.md-body a{{color:#F97316;text-decoration:underline;}}'
+            f'.md-body strong{{font-weight:700;color:#1c1917;}}'
             f'.md-body em{{font-style:italic;}}'
-            f'.md-body code{{background:#f0eeff;color:#6c5ce7;padding:2px 5px;border-radius:3px;font-size:13px;}}'
-            f'.md-body blockquote{{border-left:4px solid #6c5ce7;margin:12px 0;padding:8px 14px;'
-            f'background:#f8f6ff;border-radius:0 6px 6px 0;color:#555;}}'
-            f'.md-body hr{{border:none;border-top:1px solid #e8e4f8;margin:14px 0;}}'
+            f'.md-body code{{background:#FFF7ED;color:#EA580C;padding:2px 5px;border-radius:3px;font-size:13px;}}'
+            f'.md-body blockquote{{border-left:4px solid #F97316;margin:12px 0;padding:8px 14px;'
+            f'background:#FFF7ED;border-radius:0 6px 6px 0;color:#555;}}'
+            f'.md-body hr{{border:none;border-top:1px solid #FDBA74;margin:14px 0;}}'
             f'</style>'
             f'<div class="md-body">{md_html}</div>'
             f'</div>'
@@ -209,9 +292,9 @@ def _build_reminder_email(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
-<body style="margin:0;padding:0;background:#f0f2f8;font-family:'Segoe UI',Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0"
-         style="background:#f0f2f8;padding:40px 0;">
+         style="background:#f5f5f7;padding:40px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0"
              style="max-width:600px;width:100%;background:#ffffff;
@@ -221,10 +304,10 @@ def _build_reminder_email(
         <tr><td>{cover_block}</td></tr>
 
         <tr>
-          <td style="background:linear-gradient(135deg,#1a1a2e 0%,#6c5ce7 100%);
+          <td style="background:linear-gradient(135deg,#1c1917 0%,#c2410c 100%);
                      padding:28px 36px;">
             <p style="margin:0 0 6px;font-size:12px;letter-spacing:2px;
-                      text-transform:uppercase;color:#c8b8ff;">K-PAI Forum</p>
+                      text-transform:uppercase;color:#FED7AA;">SVAIN Forum</p>
             <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;
                        line-height:1.3;">{title}</h1>
           </td>
@@ -238,8 +321,8 @@ def _build_reminder_email(
             </p>
 
             <table width="100%" cellpadding="0" cellspacing="0"
-                   style="background:#f8f6ff;border-radius:8px;padding:16px 20px;
-                          border-left:4px solid #6c5ce7;">
+                   style="background:#FFF7ED;border-radius:8px;padding:16px 20px;
+                          border-left:4px solid #F97316;">
               <tr><td>
                 <table width="100%" cellpadding="0" cellspacing="0">
                   {host_block}
@@ -256,13 +339,13 @@ def _build_reminder_email(
                    style="margin-top:32px;">
               <tr>
                 <td align="center">
-                  <a href="https://k-privateai.github.io"
+                  <a href="https://nexus-pai.github.io"
                      style="display:inline-block;padding:14px 36px;
-                            background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+                            background:linear-gradient(135deg,#F97316,#EA580C);
                             color:#fff;text-decoration:none;border-radius:50px;
                             font-size:15px;font-weight:600;
-                            box-shadow:0 4px 14px rgba(108,92,231,0.4);">
-                    Visit K-PAI Website &rarr;
+                            box-shadow:0 4px 14px rgba(249,115,22,0.4);">
+                    Visit SVAIN Website &rarr;
                   </a>
                 </td>
               </tr>
@@ -271,13 +354,13 @@ def _build_reminder_email(
         </tr>
 
         <tr>
-          <td style="background:#f8f6ff;padding:20px 36px;
-                     border-top:1px solid #e8e4f8;">
+          <td style="background:#FFF7ED;padding:20px 36px;
+                     border-top:1px solid #FDBA74;">
             <p style="margin:0;font-size:12px;color:#999;
                       text-align:center;line-height:1.6;">
-              This email was sent to confirm your RSVP for a K-PAI seminar.<br>
-              Contact: <a href="mailto:contact@k-pai.org"
-                          style="color:#6c5ce7;">contact@k-pai.org</a>
+              This email was sent to confirm your RSVP for a SVAIN seminar.<br>
+              Contact: <a href="mailto:sunghee.yun@gmail.com"
+                          style="color:#F97316;">sunghee.yun@gmail.com</a>
             </p>
           </td>
         </tr>
@@ -323,7 +406,7 @@ def _build_waitlist_promotion_email(
     host: Optional[str],
 ) -> MIMEMultipart:
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = f"[K-PAI] You're confirmed for: {title}"
+    msg["Subject"] = f"[SVAIN] You're confirmed for: {title}"
     msg["From"] = SMTP_FROM
     msg["To"] = to_email
 
@@ -342,7 +425,7 @@ def _build_waitlist_promotion_email(
         plain_lines.append(f"Ends at: {_fmt_dt(end_time)}")
     if location:
         plain_lines.append(f"Location: {location}")
-    plain_lines += ["", "We look forward to seeing you there!", "", "Thank you,", "K-PAI Team"]
+    plain_lines += ["", "We look forward to seeing you there!", "", "Thank you,", "SVAIN Team"]
     plain = "\n".join(plain_lines)
 
     host_block = (
@@ -381,9 +464,9 @@ def _build_waitlist_promotion_email(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
-<body style="margin:0;padding:0;background:#f0f2f8;font-family:'Segoe UI',Arial,sans-serif;">
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0"
-         style="background:#f0f2f8;padding:40px 0;">
+         style="background:#f5f5f7;padding:40px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0"
              style="max-width:600px;width:100%;background:#ffffff;
@@ -391,10 +474,10 @@ def _build_waitlist_promotion_email(
                     overflow:hidden;">
 
         <tr>
-          <td style="background:linear-gradient(135deg,#1a1a2e 0%,#6c5ce7 100%);
+          <td style="background:linear-gradient(135deg,#1c1917 0%,#c2410c 100%);
                      padding:28px 36px;">
             <p style="margin:0 0 6px;font-size:12px;letter-spacing:2px;
-                      text-transform:uppercase;color:#c8b8ff;">K-PAI Forum</p>
+                      text-transform:uppercase;color:#FED7AA;">SVAIN Forum</p>
             <h1 style="margin:0;font-size:24px;font-weight:700;color:#ffffff;
                        line-height:1.3;">You&apos;re In! &mdash; {title}</h1>
           </td>
@@ -413,8 +496,8 @@ def _build_waitlist_promotion_email(
             </p>
 
             <table width="100%" cellpadding="0" cellspacing="0"
-                   style="background:#f8f6ff;border-radius:8px;padding:16px 20px;
-                          border-left:4px solid #6c5ce7;">
+                   style="background:#FFF7ED;border-radius:8px;padding:16px 20px;
+                          border-left:4px solid #F97316;">
               <tr><td>
                 <table width="100%" cellpadding="0" cellspacing="0">
                   {host_block}
@@ -429,13 +512,13 @@ def _build_waitlist_promotion_email(
                    style="margin-top:32px;">
               <tr>
                 <td align="center">
-                  <a href="https://k-privateai.github.io"
+                  <a href="https://nexus-pai.github.io/"
                      style="display:inline-block;padding:14px 36px;
-                            background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+                            background:linear-gradient(135deg,#F97316,#EA580C);
                             color:#fff;text-decoration:none;border-radius:50px;
                             font-size:15px;font-weight:600;
-                            box-shadow:0 4px 14px rgba(108,92,231,0.4);">
-                    Visit K-PAI Website &rarr;
+                            box-shadow:0 4px 14px rgba(249,115,22,0.4);">
+                    Visit SVAIN Website &rarr;
                   </a>
                 </td>
               </tr>
@@ -444,13 +527,13 @@ def _build_waitlist_promotion_email(
         </tr>
 
         <tr>
-          <td style="background:#f8f6ff;padding:20px 36px;
-                     border-top:1px solid #e8e4f8;">
+          <td style="background:#FFF7ED;padding:20px 36px;
+                     border-top:1px solid #FDBA74;">
             <p style="margin:0;font-size:12px;color:#999;
                       text-align:center;line-height:1.6;">
               This email was sent because your waitlist spot was promoted to a confirmed RSVP.<br>
-              Contact: <a href="mailto:contact@k-pai.org"
-                          style="color:#6c5ce7;">contact@k-pai.org</a>
+              Contact: <a href="mailto:sunghee.yun@gmail.com"
+                          style="color:#F97316;">sunghee.yun@gmail.com</a>
             </p>
           </td>
         </tr>
