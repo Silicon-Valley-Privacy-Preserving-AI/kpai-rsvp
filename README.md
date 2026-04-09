@@ -1,6 +1,6 @@
-# K-PAI Web
+# SVAIN Web
 
-K-PAI (Korean Private AI) community seminar management platform. Handles seminar RSVP, waitlist, check-in, attendance tracking, and membership email notifications.
+SVAIN (Korean Private AI) community seminar management platform. Handles seminar RSVP, waitlist, check-in, attendance tracking, and membership email notifications.
 
 ## Tech Stack
 
@@ -62,7 +62,7 @@ SMTP_HOST=mailhog
 SMTP_PORT=1025
 SMTP_USER=
 SMTP_PASSWORD=
-SMTP_FROM=noreply@k-pai.org
+SMTP_FROM=noreply@svain.org
 ```
 
 **Frontend** (`fe/.env`):
@@ -186,7 +186,7 @@ Temporary users can later set a password via the sign-up page to claim their acc
 
 ### Membership Email
 
-When a user accumulates 2 or more seminar check-ins, the system automatically sends a K-PAI full membership congratulation email. The `full_member_email_sent` flag on the User model prevents duplicate sends. This triggers from check-in via token, manual staff toggle, and CSV import.
+When a user accumulates 2 or more seminar check-ins, the system automatically sends a SVAIN full membership congratulation email. The `full_member_email_sent` flag on the User model prevents duplicate sends. This triggers from check-in via token, manual staff toggle, and CSV import.
 
 ### Email Notifications
 
@@ -214,4 +214,4 @@ Staff users (registered with a `STAFF_CODE`) can access `/admin` to view all use
 
 ## License
 
-Private project for K-PAI community use.
+Private project for SVAIN community use.
