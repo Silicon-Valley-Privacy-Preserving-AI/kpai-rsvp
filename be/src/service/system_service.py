@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from src.model.user import User, UserRole
 from src.model.seminar import Seminar
 from src.model.seminar_rsvp import SeminarRSVP
+from src.model.seminar_waitlist import SeminarWaitlist
 from src.util.security import get_password_hash
 
 class SystemService:
@@ -782,17 +783,64 @@ See you inside! 🎉
                 if checked_in:
                     total_checkins += 1
 
+        # ── 4. [WaitList email test] seminar ─────────────────────────────────
+        # Upcoming seminar with capacity=3, already full, with 2 users on waitlist.
+        # Purpose: let staff cancel one of the 3 RSVPs and immediately observe the
+        # waitlist-promotion email being sent to the first waitlisted user.
+        wl_start = now + timedelta(days=14)
+        wl_seminar = Seminar(
+            title="[WaitList email test]",
+            host="SVAIN Staff",
+            location="Zoom (mock)",
+            description=(
+                "Mock seminar for testing the waitlist-promotion email flow.\n\n"
+                "**Capacity is intentionally full (3/3)** with 2 users on the waitlist.\n\n"
+                "To trigger the email:\n"
+                "1. Log in as staff (`soo@soo` / `sooo`)\n"
+                "2. Open this seminar's detail page\n"
+                "3. Cancel any one of the 3 confirmed RSVPs\n"
+                "4. The first waitlisted user (`mock_user_04`) receives a promotion email instantly."
+            ),
+            start_time=wl_start,
+            end_time=wl_start + timedelta(hours=2),
+            max_capacity=3,
+            rsvp_enabled=True,
+            waitlist_enabled=True,
+            cover_image="https://picsum.photos/seed/waitlisttest/800/450",
+            display_timezone="America/Los_Angeles",
+        )
+        self.db.add(wl_seminar)
+        await self.db.flush()  # get wl_seminar.id
+
+        # 3 confirmed RSVPs — fills capacity exactly
+        for user in users[:3]:
+            self.db.add(SeminarRSVP(
+                seminar_id=wl_seminar.id,
+                user_id=user.id,
+                checked_in=False,
+            ))
+
+        # 2 waitlist entries (FIFO order: user[3] promoted first on any cancellation)
+        for offset, user in enumerate(users[3:5]):
+            self.db.add(SeminarWaitlist(
+                seminar_id=wl_seminar.id,
+                user_id=user.id,
+            ))
+
         await self.db.commit()
 
         return {
             "skipped": False,
             "message": "Mock data created successfully.",
             "users_created": len(users),
-            "seminars_created": len(seminars),
-            "rsvps_created": total_rsvps,
+            "seminars_created": len(seminars) + 1,  # +1 for [WaitList email test]
+            "rsvps_created": total_rsvps + 3,        # +3 confirmed RSVPs in waitlist seminar
             "checkins_created": total_checkins,
+            "waitlist_entries_created": 2,
             "note": (
                 "Mock members: mock_user_01@kpai.test … mock_user_20@kpai.test / password123. "
-                "Staff user: soo@soo / sooo. Delete mock users to re-seed."
+                "Staff user: soo@soo / sooo. Delete mock users to re-seed. "
+                "[WaitList email test]: capacity 3/3 full, mock_user_04 & mock_user_05 on waitlist — "
+                "cancel any RSVP as staff to trigger the promotion email."
             ),
         }
